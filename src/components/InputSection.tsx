@@ -4,13 +4,14 @@ import { useState, forwardRef } from "react";
 import { motion } from "framer-motion";
 
 interface InputSectionProps {
-  onAnalyze: () => void;
+  onAnalyze: (text: string) => void;
 }
 
 const InputSection = forwardRef<HTMLElement, InputSectionProps>(({ onAnalyze }, ref) => {
   const [isGuideOpen, setIsGuideOpen] = useState(false);
   const [guideStep, setGuideStep] = useState(0);
   const [isModelInfoOpen, setIsModelInfoOpen] = useState(false);
+  const [text, setText] = useState("");
 
   const guideContents = [
     {
@@ -95,13 +96,15 @@ const InputSection = forwardRef<HTMLElement, InputSectionProps>(({ onAnalyze }, 
           
           <textarea
             id="kakaotalk-log"
+            value={text}
+            onChange={(e) => setText(e.target.value)}
             className="w-full flex-1 min-h-[320px] p-5 bg-white border border-zinc-200 focus:ring-2 focus:ring-blue-100 focus:border-blue-500 outline-none transition-all resize-none text-[15px] leading-relaxed text-zinc-800 placeholder-zinc-400 rounded-2xl shadow-sm"
             placeholder="[오후 11:32] 김회피: 나 지금 너무 피곤해서... 내일 연락할게.&#10;[오후 11:34] 나: 우리가 풀 건 풀어야지. 왜 매번 피하려고만 해?&#10;[오후 11:35] 김회피: 또 시작이네. 그만하자.&#10;&#10;*여기에 실제 대화를 길게 복사해서 붙여넣으세요.*"
           ></textarea>
         </div>
 
         <button 
-          onClick={onAnalyze}
+          onClick={() => onAnalyze(text)}
           className="w-full py-4.5 bg-zinc-950 text-white font-bold text-[16px] rounded-xl transform transition-all hover:bg-zinc-800 hover:shadow-lg hover:-translate-y-0.5 active:scale-[0.98] active:translate-y-0 flex items-center justify-center gap-2 shadow-md mb-8"
         >
           회피 성향 심층 분석 시작

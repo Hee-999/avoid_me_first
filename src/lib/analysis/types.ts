@@ -1,44 +1,58 @@
 export interface SignalFeature {
+  signal_id: string;
+  category: "hyperactivating" | "deactivating" | "emotion" | "secure";
+  dimension: "anxiety" | "avoidance" | "both";
   count: number;
   intensity: number; // 1 to 5
   evidence_quotes: string[];
 }
 
 export interface ExtractedSignals {
-  // Avoidance signals
-  stonewalling: SignalFeature;
-  dismissing: SignalFeature;
-  intellectualization: SignalFeature;
-  topic_shifting: SignalFeature;
-  // Anxiety signals
   demanding_reassurance: SignalFeature;
   over_texting: SignalFeature;
+  fear_of_abandonment: SignalFeature;
+  stonewalling: SignalFeature;
+  dismissing_emotions: SignalFeature;
+  intellectualization: SignalFeature;
+  topic_shifting: SignalFeature;
+  validating_emotions: SignalFeature;
 }
 
 export interface ExtractedData {
+  message_length: number; // Total length of raw text
   signals: ExtractedSignals;
   demand_withdraw_detected: boolean;
   trigger_phrases: Array<{
     phrase: string;
-    intensity: number; // 1 to 5
+    intensity: number;
     reason: string;
   }>;
 }
 
-export interface ScoredResult {
-  avoidanceScore: number;
-  anxietyScore: number;
-  extractedData: ExtractedData;
+export interface AttachmentDimensions {
+  anxiety: number; // 0 - 100
+  avoidance: number; // 0 - 100
 }
 
-export interface ClassificationProfile {
-  type: string;
-  avoidanceBand: string;
-  anxietyBand: string;
-  primaryDefenses: string[];
+export interface AttachmentFitness {
+  secure: number; // 0 - 100
+  preoccupied: number; // 0 - 100
+  dismissing: number; // 0 - 100
+  fearful: number; // 0 - 100
+}
+
+export interface ConfidenceScore {
+  score: number; // 0 - 100
+  level: "High" | "Medium" | "Low";
+  reason: string;
 }
 
 export interface FinalAnalysis {
-  scored: ScoredResult;
-  profile: ClassificationProfile;
+  attachment_dimensions: AttachmentDimensions;
+  attachment_fitness: AttachmentFitness;
+  primary_type: string;
+  secondary_type: string;
+  is_mixed_pattern: boolean;
+  confidence: ConfidenceScore;
+  extracted_data: ExtractedData;
 }

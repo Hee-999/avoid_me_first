@@ -1,48 +1,49 @@
-import { ExtractedData, ScoredResult, SignalFeature } from "./types";
+import { AttachmentDimensions, SignalFeature, ExtractedData } from "./types";
 
 /**
- * Calculates a score (0-100) based on signal count and intensity.
- * A simple deterministic algorithm for now.
+ * Normalizes signal count and intensity into a 0-100 score before weighting.
  */
-function calculateSignalScore(signal: SignalFeature, weight: number): number {
-  if (signal.count === 0) return 0;
-  // Intensity (1-5) contributes heavily. Count acts as a multiplier (up to a cap).
-  const base = signal.intensity * 15; // max 75
-  const countBonus = Math.min(signal.count * 5, 25); // max 25
-  return (base + countBonus) * weight;
+function normalizeSignal(signal: SignalFeature | undefined): number {
+  if (!signal || signal.count === 0) return 0;
+  // Intensity (1-5) * 15 = max 75. Count * 5 = max 25 (capped).
+  const base = signal.intensity * 15;
+  const countBonus = Math.min(signal.count * 5, 25);
+  return base + countBonus; // 0 to 100
 }
 
-export function calculateScores(data: ExtractedData): ScoredResult {
+export function calculateDimensions(data: ExtractedData): AttachmentDimensions {
   const s = data.signals;
   
-  // Avoidance weight sum = 1.0
-  const stonewallingScore = calculateSignalScore(s.stonewalling, 0.4);
-  const dismissingScore = calculateSignalScore(s.dismissing, 0.3);
-  const topicShiftingScore = calculateSignalScore(s.topic_shifting, 0.2);
-  const intellectualizationScore = calculateSignalScore(s.intellectualization, 0.1);
+  // 1. Avoidance Dimension (Deactivating Strategies)
+  // Weights based on previous algorithm and clinical relevance
+  const st_score = normalizeSignal(s.stonewalling) * 0.40;
+  const di_score = normalizeSignal(s.dismissing_emotions) * 0.30;
+  const ts_score = normalizeSignal(s.topic_shifting) * 0.20;
+  const in_score = normalizeSignal(s.intellectualization) * 0.10;
   
-  let avoidanceScore = Math.round(
-    stonewallingScore + dismissingScore + topicShiftingScore + intellectualizationScore
-  );
+  let avoidance = st_score + di_score + ts_score + in_score;
 
-  // Anxiety weight sum = 1.0
-  const demandingScore = calculateSignalScore(s.demanding_reassurance, 0.6);
-  const overTextingScore = calculateSignalScore(s.over_texting, 0.4);
-  
-  let anxietyScore = Math.round(demandingScore + overTextingScore);
+  // 2. Anxiety Dimension (Hyperactivating Strategies)
+  const dr_score = normalizeSignal(s.demanding_reassurance) * 0.45;
+  const ot_score = normalizeSignal(s.over_texting) * 0.35;
+  const fa_score = normalizeSignal(s.fear_of_abandonment) * 0.20;
 
-  // Boost avoidance if demand-withdraw pattern is detected explicitly
+  let anxiety = dr_score + ot_score + fa_score;
+
+  // 3. Demand-Withdraw Pattern Boost
   if (data.demand_withdraw_detected) {
-    avoidanceScore = Math.min(100, avoidanceScore + 15);
+    avoidance += 15;
+    anxiety += 10;
   }
 
-  // Ensure bounds
-  avoidanceScore = Math.max(0, Math.min(100, avoidanceScore));
-  anxietyScore = Math.max(0, Math.min(100, anxietyScore));
+  // 4. Secure Buffers (Validating Emotions)
+  const secureBuffer = normalizeSignal(s.validating_emotions) * 0.2; // up to 20 points reduction
+  avoidance -= secureBuffer;
+  anxiety -= secureBuffer;
 
+  // 5. Bounds Check
   return {
-    avoidanceScore,
-    anxietyScore,
-    extractedData: data
+    anxiety: Math.max(0, Math.min(100, Math.round(anxiety))),
+    avoidance: Math.max(0, Math.min(100, Math.round(avoidance)))
   };
 }

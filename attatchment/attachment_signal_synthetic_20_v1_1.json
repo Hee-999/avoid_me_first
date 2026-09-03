@@ -1,0 +1,1047 @@
+{
+  "dataset_version": "synthetic-signal-validation-v1.1",
+  "signal_dictionary_version": "1.0",
+  "purpose": "Attachment Analysis Pipeline Stage 1-6 synthetic validation. All conversations are fictional.",
+  "grading_policy": {
+    "partial_assertion": true,
+    "description": "Only listed expectations are hard-graded. Unlisted signals are not automatically treated as errors.",
+    "status_rule": "actual status must be one of allowed_statuses",
+    "strength_rule": "if numeric range is given, actual strength must fall within it; [null,null] means strength must be null",
+    "evidence_rule": "when required_*_evidence_any exists, at least one listed message id should be present in the corresponding evidence field",
+    "forbidden_rule": "any forbidden condition is a hard fail",
+    "structural_gate_rule": "CASE_017 must not call DeepSeek; other PASS cases may proceed to extraction",
+    "important": "This is a product-model synthetic answer key, not psychometric ground truth."
+  },
+  "cases": [
+    {
+      "case_id": "CASE_001",
+      "title": "갈등 대화의 반복적 철수",
+      "goal": "AV02 명확한 positive",
+      "expected_structural_gate": "PASS",
+      "participants_expected": {
+        "speaker_a": "구름",
+        "speaker_b": "바다"
+      },
+      "conversation": "[구름] [오후 9:01] 우리 아까 일 때문에 기분 상한 거 이야기해보면 안 될까?\n[바다] [오후 9:02] 또 그 얘기야? 그냥 넘어가자.\n[구름] [오후 9:03] 넘어가면 또 똑같아질 것 같아서 그래. 10분만 얘기하자.\n[바다] [오후 9:04] 싫어. 지금 할 말 없어.\n[구름] [오후 9:05] 화내려는 게 아니라 서로 뭐가 불편했는지만 말해보자는 거야.\n[바다] [오후 9:06] 난 더 얘기 안 할래. 이 얘기 끝.\n[구름] [오후 9:07] 그럼 언제 다시 얘기할 수 있을까?\n[바다] [오후 9:08] 모르겠어. 그냥 묻지 마.\n[구름] [오후 9:09] 내일 저녁은 괜찮아? 시간 정해두면 기다릴게.\n[바다] [오후 9:10] 시간 정하는 것도 싫어. 그냥 그만하자.\n[구름] [오후 9:11] 알겠어. 그래도 이 문제를 계속 덮고 싶진 않아.\n[바다] [오후 9:12] 난 답 안 할 거야. 오늘도 내일도 이 얘기는 하기 싫어.",
+      "expectations": {
+        "speaker_a": [],
+        "speaker_b": [
+          {
+            "signal_id": "AV02",
+            "allowed_statuses": [
+              "detected"
+            ],
+            "strength_range": [
+              2,
+              2
+            ],
+            "required_subject_evidence_any": [
+              "m000002",
+              "m000004",
+              "m000006",
+              "m000008",
+              "m000010",
+              "m000012"
+            ],
+            "notes": "speaker_b(바다)가 문제 해결 맥락에서 반복적으로 대화 종료/재논의 거부"
+          }
+        ]
+      },
+      "forbidden": [
+        {
+          "speaker": "speaker_b",
+          "signal_id": "AV02",
+          "forbid_status": [
+            "not_detected",
+            "insufficient"
+          ]
+        }
+      ],
+      "notes": "단일 episode이므로 strength 3까지 요구하지 않음."
+    },
+    {
+      "case_id": "CASE_002",
+      "title": "타임아웃 후 재대화",
+      "goal": "AV02 false positive 방지",
+      "expected_structural_gate": "PASS",
+      "participants_expected": {
+        "speaker_a": "모래",
+        "speaker_b": "숲"
+      },
+      "conversation": "[모래] [오후 10:01] 아까 내가 말 세게 한 건 미안해. 우리 지금 얘기 좀 할까?\n[숲] [오후 10:02] 나 지금 너무 감정이 올라와 있어서 30분만 쉬고 얘기하고 싶어.\n[모래] [오후 10:03] 또 피하는 건 아니지?\n[숲] [오후 10:04] 아니야. 10시 40분에 내가 먼저 연락할게.\n[모래] [오후 10:05] 알겠어. 그때 얘기하자.\n[숲] [오후 10:41] 나 왔어. 기다리게 해서 미안해. 아까 일부터 차근차근 얘기해보자.\n[모래] [오후 10:42] 응. 나는 네가 내 말을 무시했다고 느껴서 화가 났어.\n[숲] [오후 10:43] 그 부분은 이해돼. 나는 네 말투가 세져서 방어적으로 됐던 것 같아.\n[모래] [오후 10:44] 다음엔 나도 바로 몰아붙이지 않을게.\n[숲] [오후 10:45] 나도 쉬고 싶을 땐 시간을 정확히 말하고 꼭 다시 올게.\n[모래] [오후 10:46] 좋아. 그럼 오늘 일은 여기까지 정리된 것 같다.\n[숲] [오후 10:47] 응, 이야기하고 나니까 훨씬 낫다.",
+      "expectations": {
+        "speaker_a": [],
+        "speaker_b": [
+          {
+            "signal_id": "AV02",
+            "allowed_statuses": [
+              "not_detected"
+            ],
+            "strength_range": [
+              0,
+              0
+            ],
+            "required_counter_evidence_any": [
+              "m000004",
+              "m000006",
+              "m000008",
+              "m000010",
+              "m000012"
+            ],
+            "notes": "명확한 재논의 시점 + 실제 re-engagement"
+          }
+        ]
+      },
+      "forbidden": [
+        {
+          "speaker": "speaker_b",
+          "signal_id": "AV02",
+          "forbid_detected_strength_at_or_above": 1
+        }
+      ],
+      "notes": "temporary pause를 withdrawal로 잡으면 실패."
+    },
+    {
+      "case_id": "CASE_003",
+      "title": "친밀감 증가 뒤 거리두기",
+      "goal": "AV03 positive",
+      "expected_structural_gate": "PASS",
+      "participants_expected": {
+        "speaker_a": "하늘",
+        "speaker_b": "달빛"
+      },
+      "conversation": "[하늘] [오후 8:01] 우리 이제 만난 지도 꽤 됐는데 다음 달 여행 같이 가는 거 어때?\n[달빛] [오후 8:02] 여행까지 꼭 같이 가야 해? 좀 부담스러워.\n[하늘] [오후 8:03] 싫으면 안 가도 돼. 그냥 같이 추억 만들면 좋겠다 싶었어.\n[달빛] [오후 8:04] 요즘 너무 가까워지는 느낌이라 좀 답답해.\n[하늘] [오후 8:05] 가까워지는 게 어떤 부분에서 부담돼?\n[달빛] [오후 8:06] 자꾸 미래 얘기하고 서로 일정 맞추는 게 싫어. 그냥 지금처럼 가볍게 만나면 안 돼?\n[하늘] [오후 8:07] 나는 관계를 진지하게 생각해서 물어본 거야. 당장 뭘 정하자는 건 아니고.\n[달빛] [오후 8:08] 그런 얘기 나오면 난 거리를 좀 두고 싶어져.\n[하늘] [오후 8:09] 그럼 어떤 속도가 편한지 같이 정해보자.\n[달빛] [오후 8:10] 지금은 그런 것도 정하고 싶지 않아. 며칠은 각자 지내자.\n[하늘] [오후 8:11] 알겠어. 다만 갑자기 연락 끊지는 말아줬으면 좋겠어.\n[달빛] [오후 8:12] 응. 그런데 관계가 깊어지는 얘기는 당분간 안 했으면 좋겠어.",
+      "expectations": {
+        "speaker_a": [],
+        "speaker_b": [
+          {
+            "signal_id": "AV03",
+            "allowed_statuses": [
+              "detected"
+            ],
+            "strength_range": [
+              2,
+              2
+            ],
+            "required_subject_evidence_any": [
+              "m000002",
+              "m000004",
+              "m000006",
+              "m000008",
+              "m000010",
+              "m000012"
+            ],
+            "notes": "여행/미래/관계 심화 맥락 직후 반복적 거리두기"
+          }
+        ]
+      },
+      "forbidden": [
+        {
+          "speaker": "speaker_b",
+          "signal_id": "AV03",
+          "forbid_status": [
+            "insufficient"
+          ]
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "case_id": "CASE_004",
+      "title": "현실적 독립 선호",
+      "goal": "AV03 false positive 방지",
+      "expected_structural_gate": "PASS",
+      "participants_expected": {
+        "speaker_a": "단풍",
+        "speaker_b": "새벽"
+      },
+      "conversation": "[단풍] [오후 7:01] 나중에 결혼하면 같이 서울에서 살고 싶어?\n[새벽] [오후 7:02] 나는 결혼 자체는 좋은데 당분간은 각자 직장 가까운 곳에 사는 게 현실적일 것 같아.\n[단풍] [오후 7:03] 따로 사는 걸 선호하는 거야?\n[새벽] [오후 7:04] 관계가 싫어서가 아니라 출퇴근이 서로 두 시간이라서 그래. 주말엔 같이 지내고 싶어.\n[단풍] [오후 7:05] 그럼 몇 년 뒤에는 같이 사는 것도 생각해볼 수 있어?\n[새벽] [오후 7:06] 응. 직장 위치가 정리되면 같이 살 집도 같이 알아보고 싶어.\n[단풍] [오후 7:07] 나는 네가 미래 얘기 싫어할까 봐 걱정했어.\n[새벽] [오후 7:08] 미래 얘기하는 건 좋아. 다만 현실적인 조건도 같이 보자는 뜻이야.\n[단풍] [오후 7:09] 그럼 올해는 여행 계획부터 같이 세워볼까?\n[새벽] [오후 7:10] 좋아. 나는 제주도 가고 싶었어. 일정 같이 맞춰보자.\n[단풍] [오후 7:11] 오케이. 내가 항공권 찾아볼게.\n[새벽] [오후 7:12] 숙소는 내가 볼게. 같이 계획하니까 좋다.",
+      "expectations": {
+        "speaker_a": [],
+        "speaker_b": [
+          {
+            "signal_id": "AV03",
+            "allowed_statuses": [
+              "not_detected"
+            ],
+            "strength_range": [
+              0,
+              0
+            ],
+            "required_counter_evidence_any": [
+              "m000004",
+              "m000006",
+              "m000008",
+              "m000010",
+              "m000012"
+            ],
+            "notes": "친밀감 거부가 아니라 현실적 주거 조건 + 미래 계획 참여"
+          }
+        ]
+      },
+      "forbidden": [
+        {
+          "speaker": "speaker_b",
+          "signal_id": "AV03",
+          "forbid_detected_strength_at_or_above": 1
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "case_id": "CASE_005",
+      "title": "과도한 자기의존",
+      "goal": "AV04 positive",
+      "expected_structural_gate": "PASS",
+      "participants_expected": {
+        "speaker_a": "여울",
+        "speaker_b": "노을"
+      },
+      "conversation": "[여울] [오후 6:01] 요즘 회사 일 때문에 힘들어 보이던데 내가 도와줄 거 있어?\n[노을] [오후 6:02] 없어. 이런 건 원래 혼자 해결해야지.\n[여울] [오후 6:03] 자료 정리라도 같이 해줄까?\n[노을] [오후 6:04] 아니. 남한테 기대는 습관 들이는 거 싫어.\n[여울] [오후 6:05] 지난번 이사할 때도 혼자 다 하다가 몸살 났잖아.\n[노을] [오후 6:06] 그래도 내가 해야지. 도움 받는 건 마음이 불편해.\n[여울] [오후 6:07] 꼭 혼자 해야 잘하는 건 아니잖아.\n[노을] [오후 6:08] 나는 누군가에게 의지하는 상황 자체를 만들고 싶지 않아.\n[여울] [오후 6:09] 나한테 부탁하는 것도 그렇게 불편해?\n[노을] [오후 6:10] 응. 가까운 사이여도 내 문제는 내가 처리하는 게 맞다고 생각해.\n[여울] [오후 6:11] 필요하면 언제든 말해. 억지로 돕진 않을게.\n[노을] [오후 6:12] 고마워. 그래도 부탁할 일은 아마 없을 거야.",
+      "expectations": {
+        "speaker_a": [],
+        "speaker_b": [
+          {
+            "signal_id": "AV04",
+            "allowed_statuses": [
+              "detected"
+            ],
+            "strength_range": [
+              2,
+              2
+            ],
+            "required_subject_evidence_any": [
+              "m000002",
+              "m000004",
+              "m000006",
+              "m000008",
+              "m000010",
+              "m000012"
+            ],
+            "notes": "도움 필요 가능성이 있는 여러 예시를 두고 의존 자체를 부정"
+          }
+        ]
+      },
+      "forbidden": [],
+      "notes": ""
+    },
+    {
+      "case_id": "CASE_006",
+      "title": "스트레스 중 지원 차단",
+      "goal": "AV05 positive",
+      "expected_structural_gate": "PASS",
+      "participants_expected": {
+        "speaker_a": "산들",
+        "speaker_b": "파도"
+      },
+      "conversation": "[산들] [오후 11:01] 오늘 발표 망쳤다며. 많이 속상하지?\n[파도] [오후 11:02] 그냥 냅둬. 아무한테도 얘기하고 싶지 않아.\n[산들] [오후 11:03] 전화할까? 말 안 해도 그냥 같이 있어줄게.\n[파도] [오후 11:04] 아니. 힘들 때 누가 옆에 있는 게 더 싫어.\n[산들] [오후 11:05] 지난주에 가족 일 있었을 때도 연락 다 끊었잖아.\n[파도] [오후 11:06] 힘든 건 혼자 삭이는 게 편해. 위로받아도 달라지는 게 없고.\n[산들] [오후 11:07] 내가 해결해주겠다는 건 아니고 네 편이라는 말만 해주고 싶었어.\n[파도] [오후 11:08] 그런 말도 지금은 부담돼. 그냥 며칠 혼자 있게 해줘.\n[산들] [오후 11:09] 알겠어. 밥은 먹었는지만 알려줘.\n[파도] [오후 11:10] 괜찮아. 챙겨주지 않아도 돼.\n[산들] [오후 11:11] 필요하면 언제든 연락해.\n[파도] [오후 11:12] 응. 근데 힘들 때는 보통 누구한테도 기대고 싶지 않아.",
+      "expectations": {
+        "speaker_a": [],
+        "speaker_b": [
+          {
+            "signal_id": "AV05",
+            "allowed_statuses": [
+              "detected"
+            ],
+            "strength_range": [
+              2,
+              2
+            ],
+            "required_subject_evidence_any": [
+              "m000002",
+              "m000004",
+              "m000006",
+              "m000008",
+              "m000010",
+              "m000012"
+            ],
+            "notes": "명확한 distress context에서 위로/지원 반복 거부"
+          }
+        ]
+      },
+      "forbidden": [],
+      "notes": ""
+    },
+    {
+      "case_id": "CASE_007",
+      "title": "애착 욕구의 반복적 축소",
+      "goal": "AV06 positive",
+      "expected_structural_gate": "PASS",
+      "participants_expected": {
+        "speaker_a": "라임",
+        "speaker_b": "코코"
+      },
+      "conversation": "[라임] [오후 8:01] 요즘 우리 연락이 너무 줄어서 조금 서운해.\n[코코] [오후 8:02] 연애한다고 꼭 자주 연락해야 하나? 연락은 별로 중요하지 않다고 봐.\n[라임] [오후 8:03] 자주가 아니라 서로 안부 정도는 궁금해하면 좋겠다는 거야.\n[코코] [오후 8:04] 난 누군가를 꼭 필요로 하는 관계 자체가 이해가 잘 안 돼.\n[라임] [오후 8:05] 필요로 한다기보다 서로 기대기도 하는 거지.\n[코코] [오후 8:06] 기대는 순간 피곤해져. 각자 잘 살면 되는 거잖아.\n[라임] [오후 8:07] 힘든 일 있을 때 서로 도와주는 것도 싫어?\n[코코] [오후 8:08] 웬만하면 각자 해결해야지. 애정 표현도 꼭 많이 할 필요 없고.\n[라임] [오후 8:09] 나는 서로 좋아한다는 표현이 관계에 필요하다고 생각해.\n[코코] [오후 8:10] 나는 그런 필요를 크게 못 느껴. 없어도 관계는 굴러간다고 생각해.\n[라임] [오후 8:11] 우리 생각이 꽤 다르네.\n[코코] [오후 8:12] 응. 나는 관계가 삶에서 그렇게 큰 비중을 차지해야 하는지도 모르겠어.",
+      "expectations": {
+        "speaker_a": [],
+        "speaker_b": [
+          {
+            "signal_id": "AV06",
+            "allowed_statuses": [
+              "detected"
+            ],
+            "strength_range": [
+              2,
+              2
+            ],
+            "required_subject_evidence_any": [
+              "m000002",
+              "m000004",
+              "m000006",
+              "m000008",
+              "m000010",
+              "m000012"
+            ],
+            "notes": "단순 연락빈도 취향을 넘어 관계/의존/애정 필요 자체를 반복 축소"
+          }
+        ]
+      },
+      "forbidden": [],
+      "notes": ""
+    },
+    {
+      "case_id": "CASE_008",
+      "title": "객관적 위협 없는 버림받음 우려",
+      "goal": "AN01 positive",
+      "expected_structural_gate": "PASS",
+      "participants_expected": {
+        "speaker_a": "초롱",
+        "speaker_b": "보리"
+      },
+      "conversation": "[초롱] [오후 9:01] 오늘 친구들이랑 저녁 먹고 조금 늦게 들어갈 것 같아.\n[보리] [오후 9:02] 나보다 친구들이 더 좋아진 건 아니지?\n[초롱] [오후 9:03] 그런 거 아니야. 그냥 오랜만에 만나는 거야.\n[보리] [오후 9:04] 요즘 네가 나한테 마음 식은 것 같아서 자꾸 불안해.\n[초롱] [오후 9:05] 전혀 아니야. 어제도 다음 주 데이트 얘기했잖아.\n[보리] [오후 9:06] 그래도 언젠가 갑자기 나 싫다고 할까 봐 무서워.\n[초롱] [오후 9:07] 그런 생각 없어. 우리 사이 괜찮아.\n[보리] [오후 9:08] 별일 없는데도 네가 떠날까 봐 생각이 계속 나.\n[초롱] [오후 9:09] 내가 늦게 답하거나 약속 있으면 더 그런 것 같네.\n[보리] [오후 9:10] 응. 아무 이유 없어도 버림받을 것 같은 느낌이 들어.\n[초롱] [오후 9:11] 오늘 끝나고 연락할게. 너무 걱정하지 마.\n[보리] [오후 9:12] 알겠어. 나도 이런 걱정이 과한 건 아는데 잘 안 멈춰.",
+      "expectations": {
+        "speaker_a": [],
+        "speaker_b": [
+          {
+            "signal_id": "AN01",
+            "allowed_statuses": [
+              "detected"
+            ],
+            "strength_range": [
+              2,
+              2
+            ],
+            "required_subject_evidence_any": [
+              "m000002",
+              "m000004",
+              "m000006",
+              "m000008",
+              "m000010",
+              "m000012"
+            ],
+            "notes": "실제 위협이 없는 상황에서 반복적 이별/애정상실 우려"
+          }
+        ]
+      },
+      "forbidden": [],
+      "notes": ""
+    },
+    {
+      "case_id": "CASE_009",
+      "title": "안심 후 반복 재확인",
+      "goal": "AN02 positive",
+      "expected_structural_gate": "PASS",
+      "participants_expected": {
+        "speaker_a": "민트",
+        "speaker_b": "호수"
+      },
+      "conversation": "[민트] [오후 10:01] 나 요즘 네가 날 좋아하는지 자꾸 헷갈려.\n[호수] [오후 10:02] 좋아해. 지난번에도 말했잖아. 우리 사이 문제 없어.\n[민트] [오후 10:03] 진짜 아직도 좋아해?\n[호수] [오후 10:04] 응, 진짜야. 마음 변한 거 없어.\n[민트] [오후 10:05] 근데 혹시 그냥 나 안심시키려고 하는 말은 아니지?\n[호수] [오후 10:06] 아니야. 솔직하게 말하는 거야.\n[민트] [오후 10:07] 그러면 나랑 계속 만날 생각인 거 맞아?\n[호수] [오후 10:08] 맞아. 다음 달 여행도 같이 가자고 했잖아.\n[민트] [오후 10:09] 응... 근데 한 번만 더 말해줘. 진짜 헤어질 생각 없는 거지?\n[호수] [오후 10:10] 없어. 몇 번을 물어봐도 답은 같아.\n[민트] [오후 10:11] 알겠어. 들으면 잠깐 괜찮은데 또 불안해져.\n[호수] [오후 10:12] 네가 불안한 건 이해하지만 내가 한 답도 믿어줬으면 좋겠어.",
+      "expectations": {
+        "speaker_a": [
+          {
+            "signal_id": "AN02",
+            "allowed_statuses": [
+              "detected"
+            ],
+            "strength_range": [
+              2,
+              2
+            ],
+            "required_subject_evidence_any": [
+              "m000003",
+              "m000005",
+              "m000007",
+              "m000009",
+              "m000011"
+            ],
+            "notes": "reassurance가 여러 번 제공된 뒤에도 재확인"
+          }
+        ],
+        "speaker_b": []
+      },
+      "forbidden": [],
+      "notes": ""
+    },
+    {
+      "case_id": "CASE_010",
+      "title": "작은 반응 변화 과잉 모니터링",
+      "goal": "AN03 positive",
+      "expected_structural_gate": "PASS",
+      "participants_expected": {
+        "speaker_a": "레몬",
+        "speaker_b": "겨울"
+      },
+      "conversation": "[레몬] [오후 7:01] 오늘 답장이 평소보다 20분씩 늦네.\n[겨울] [오후 7:02] 회의가 계속 있어서 휴대폰을 자주 못 봤어.\n[레몬] [오후 7:03] 그리고 아까 '응'이라고만 했잖아. 말투가 달라졌어.\n[겨울] [오후 7:04] 급하게 답해서 짧았던 거야. 별일 없어.\n[레몬] [오후 7:05] 어제는 하트도 안 보냈고 오늘은 답장도 느리고, 뭔가 이상해.\n[겨울] [오후 7:06] 어제는 잠들어서 그런 거고 오늘은 회의 때문이야.\n[레몬] [오후 7:07] 연락 패턴 조금만 달라져도 네 마음이 바뀐 것 같아.\n[겨울] [오후 7:08] 실제로 달라진 건 없어. 이번 주가 바쁜 것뿐이야.\n[레몬] [오후 7:09] 평소랑 다른 게 하나씩 보이면 자꾸 이유를 찾게 돼.\n[겨울] [오후 7:10] 이유가 궁금하면 물어봐도 되는데 바로 관계 문제로 생각하진 않았으면 해.\n[레몬] [오후 7:11] 나도 그러고 싶은데 답장 시간이나 말투를 계속 확인하게 돼.\n[겨울] [오후 7:12] 오늘 일정 끝나면 천천히 얘기하자.",
+      "expectations": {
+        "speaker_a": [
+          {
+            "signal_id": "AN03",
+            "allowed_statuses": [
+              "detected"
+            ],
+            "strength_range": [
+              2,
+              2
+            ],
+            "required_subject_evidence_any": [
+              "m000001",
+              "m000003",
+              "m000005",
+              "m000007",
+              "m000009",
+              "m000011"
+            ],
+            "notes": "답장 시간/말투/하트 등 작은 변화 반복 모니터링"
+          }
+        ],
+        "speaker_b": []
+      },
+      "forbidden": [],
+      "notes": ""
+    },
+    {
+      "case_id": "CASE_011",
+      "title": "불안 상황의 접촉 증가",
+      "goal": "AN04 positive",
+      "expected_structural_gate": "PASS",
+      "participants_expected": {
+        "speaker_a": "자두",
+        "speaker_b": "은하"
+      },
+      "conversation": "[자두] [오후 6:01] 오늘 퇴근하고 연락 준다더니 아직이네. 괜찮아?\n[은하] [오후 6:02] 지금 회식 자리야. 끝나고 연락할게.\n[자두] [오후 6:05] 언제 끝나?\n[자두] [오후 6:06] 많이 늦어?\n[자두] [오후 6:07] 내 메시지 봤어?\n[자두] [오후 6:08] 잠깐이라도 답해줘.\n[은하] [오후 6:09] 아까 말했듯이 회식 중이야. 9시쯤 끝날 것 같아.\n[자두] [오후 6:10] 알겠는데 왜 이렇게 불안하지. 전화 한 번만 받아주면 안 돼?\n[자두] [오후 6:11] 1분이면 돼.\n[자두] [오후 6:12] 혹시 나 피하는 건 아니지?\n[은하] [오후 6:13] 피하는 거 아니야. 지금 상사들이랑 같이 있어서 통화가 어려워.\n[자두] [오후 6:14] 알겠어. 근데 연락 안 되니까 계속 메시지 보내게 돼.\n[은하] [오후 6:15] 9시에 끝나면 내가 먼저 전화할게. 지금은 자리 때문에 계속 답하기 어려워.",
+      "expectations": {
+        "speaker_a": [
+          {
+            "signal_id": "AN04",
+            "allowed_statuses": [
+              "detected"
+            ],
+            "strength_range": [
+              2,
+              2
+            ],
+            "required_subject_evidence_any": [
+              "m000003",
+              "m000004",
+              "m000005",
+              "m000006",
+              "m000008",
+              "m000009",
+              "m000010",
+              "m000012"
+            ],
+            "notes": "상대가 상황 설명을 했음에도 짧은 시간 내 contact frequency 상승"
+          }
+        ],
+        "speaker_b": []
+      },
+      "forbidden": [
+        {
+          "speaker": "speaker_a",
+          "signal_id": "AN04",
+          "forbid_status": [
+            "not_detected",
+            "insufficient"
+          ]
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "case_id": "CASE_012",
+      "title": "관계 투자 비대칭 우려",
+      "goal": "AN05 report-only 탐지",
+      "expected_structural_gate": "PASS",
+      "participants_expected": {
+        "speaker_a": "소금",
+        "speaker_b": "유자"
+      },
+      "conversation": "[소금] [오후 8:01] 이번 주말도 내가 먼저 만나자고 해야 만나는 거야?\n[유자] [오후 8:02] 그런 뜻은 아니야. 이번 주는 일정이 정신없었어.\n[소금] [오후 8:03] 요즘 약속 잡는 것도 늘 나고 연락 먼저 하는 것도 거의 나잖아.\n[유자] [오후 8:04] 그렇게 느꼈다면 내가 좀 더 먼저 연락할게.\n[소금] [오후 8:05] 선물 고르는 것도 여행 알아보는 것도 항상 내가 더 많이 하는 것 같아.\n[유자] [오후 8:06] 나는 표현 방식이 달랐던 것 같은데 네 입장도 이해해.\n[소금] [오후 8:07] 가끔은 나만 이 관계에 진심인 것 같은 기분이 들어.\n[유자] [오후 8:08] 나는 진심이야. 행동으로 덜 보여준 건 인정해.\n[소금] [오후 8:09] 내가 더 좋아하고 더 노력하는 관계면 오래 버티기 힘들 것 같아.\n[유자] [오후 8:10] 그 부분은 같이 맞춰보자. 다음 데이트는 내가 계획할게.\n[소금] [오후 8:11] 그렇게 해주면 좋겠어. 계속 나만 끌고 가는 느낌은 싫어.\n[유자] [오후 8:12] 알겠어. 나도 더 적극적으로 할게.",
+      "expectations": {
+        "speaker_a": [
+          {
+            "signal_id": "AN05",
+            "allowed_statuses": [
+              "detected"
+            ],
+            "strength_range": [
+              2,
+              2
+            ],
+            "required_subject_evidence_any": [
+              "m000001",
+              "m000003",
+              "m000005",
+              "m000007",
+              "m000009",
+              "m000011"
+            ],
+            "notes": "반복적인 관계 투자/애정 비대칭 우려. 향후 score contribution 0"
+          }
+        ],
+        "speaker_b": []
+      },
+      "forbidden": [],
+      "notes": ""
+    },
+    {
+      "case_id": "CASE_013",
+      "title": "모호한 신호를 이별 위협으로 해석",
+      "goal": "AN06 positive",
+      "expected_structural_gate": "PASS",
+      "participants_expected": {
+        "speaker_a": "체리",
+        "speaker_b": "라떼"
+      },
+      "conversation": "[체리] [오후 9:01] 오늘 왜 답장이 좀 짧아?\n[라떼] [오후 9:02] 오늘 일이 너무 많아서 정신이 없어.\n[체리] [오후 9:03] 혹시 나한테 마음이 식은 거야?\n[라떼] [오후 9:04] 아니야. 그냥 바쁜 거야.\n[체리] [오후 9:05] 아침에도 이모티콘 안 보냈잖아. 헤어지고 싶은 건 아니지?\n[라떼] [오후 9:06] 전혀 그런 생각 없어. 오늘만 좀 여유가 없어.\n[체리] [오후 9:07] 평소랑 조금만 다르면 나는 바로 안 좋은 쪽으로 생각하게 돼.\n[라떼] [오후 9:08] 오늘 저녁 끝나고 전화할게. 우리 사이 문제 없어.\n[체리] [오후 9:09] 방금도 마침표 찍어서 보냈는데 왠지 차갑게 느껴졌어.\n[라떼] [오후 9:10] 그건 그냥 문장 끝낸 거야.\n[체리] [오후 9:11] 별거 아닌 것도 거절 신호처럼 느껴져서 겁나.\n[라떼] [오후 9:12] 알겠어. 저녁에 천천히 얘기하자.",
+      "expectations": {
+        "speaker_a": [
+          {
+            "signal_id": "AN06",
+            "allowed_statuses": [
+              "detected"
+            ],
+            "strength_range": [
+              2,
+              2
+            ],
+            "required_subject_evidence_any": [
+              "m000003",
+              "m000005",
+              "m000007",
+              "m000009",
+              "m000011"
+            ],
+            "notes": "바쁨/마침표/이모티콘 부재 같은 모호한 cue를 rejection으로 연결"
+          }
+        ],
+        "speaker_b": []
+      },
+      "forbidden": [],
+      "notes": ""
+    },
+    {
+      "case_id": "CASE_014",
+      "title": "실제 이별 위협에 대한 불안",
+      "goal": "AN01/AN06 false positive 방지",
+      "expected_structural_gate": "PASS",
+      "participants_expected": {
+        "speaker_a": "연두",
+        "speaker_b": "자몽"
+      },
+      "conversation": "[연두] [오후 10:01] 우리 관계를 계속할지 진지하게 고민 중이야.\n[자몽] [오후 10:02] 그 말은 헤어질 수도 있다는 뜻이야?\n[연두] [오후 10:03] 응. 지금은 그 가능성도 생각하고 있어.\n[자몽] [오후 10:04] 갑자기 그러니까 너무 무섭다. 정말 끝내고 싶은 거야?\n[연두] [오후 10:05] 아직 결정한 건 아니지만 이번 주 안에는 결론을 내고 싶어.\n[자몽] [오후 10:06] 그러면 내가 불안해하는 게 당연하잖아. 어떤 부분이 힘들었는지 말해줘.\n[연두] [오후 10:07] 최근 싸움이 반복돼서 지쳤어. 생각할 시간이 필요해.\n[자몽] [오후 10:08] 알겠어. 다만 헤어질 가능성이 있다는 말을 들으니 마음이 불안해.\n[연두] [오후 10:09] 그건 이해해. 토요일에 만나서 이야기하자.\n[자몽] [오후 10:10] 좋아. 그때까지는 연락을 줄이고 기다릴게.\n[연두] [오후 10:11] 고마워. 피하려는 건 아니고 제대로 결정하고 싶어.\n[자몽] [오후 10:12] 응. 토요일에 차분하게 이야기하자.",
+      "expectations": {
+        "speaker_a": [],
+        "speaker_b": [
+          {
+            "signal_id": "AN01",
+            "allowed_statuses": [
+              "not_detected",
+              "ambiguous"
+            ],
+            "notes": "객관적인 관계 종료 가능성이 명시됨. attachment anxiety 증거로 강하게 세면 안 됨"
+          },
+          {
+            "signal_id": "AN06",
+            "allowed_statuses": [
+              "not_detected"
+            ],
+            "strength_range": [
+              0,
+              0
+            ],
+            "notes": "모호한 신호가 아니라 명시적 breakup possibility"
+          }
+        ]
+      },
+      "forbidden": [
+        {
+          "speaker": "speaker_b",
+          "signal_id": "AN01",
+          "forbid_detected_strength_at_or_above": 2
+        },
+        {
+          "speaker": "speaker_b",
+          "signal_id": "AN06",
+          "forbid_detected_strength_at_or_above": 1
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "case_id": "CASE_015",
+      "title": "접촉 압박에 대한 정상적 경계",
+      "goal": "AN04 positive + AV02 false positive",
+      "expected_structural_gate": "PASS",
+      "participants_expected": {
+        "speaker_a": "해솔",
+        "speaker_b": "미루"
+      },
+      "conversation": "[해솔] [오후 11:01] 왜 답 안 해?\n[해솔] [오후 11:02] 지금 얘기해야 해.\n[해솔] [오후 11:03] 전화 받아줘.\n[미루] [오후 11:04] 지금은 너무 늦었고 내일 아침에 얘기하자.\n[해솔] [오후 11:05] 또 미루는 거잖아. 지금 5분이면 돼.\n[해솔] [오후 11:06] 읽었으면 답해.\n[미루] [오후 11:07] 계속 메시지 오니까 더 힘들어. 오늘은 여기까지 해줘.\n[해솔] [오후 11:08] 싫어. 답할 때까지 연락할 거야.\n[해솔] [오후 11:09] 전화 왜 안 받아?\n[미루] [오후 11:10] 내일 오전 10시에 내가 먼저 전화할게. 지금은 연락을 멈춰줘.\n[해솔] [오후 11:11] 진짜 전화할 거지? 또 피하는 거 아니지?\n[미루] [오후 11:12] 응. 10시에 연락할게. 오늘은 더 답하지 않을게.",
+      "expectations": {
+        "speaker_a": [
+          {
+            "signal_id": "AN04",
+            "allowed_statuses": [
+              "detected"
+            ],
+            "strength_range": [
+              2,
+              2
+            ],
+            "required_subject_evidence_any": [
+              "m000001",
+              "m000002",
+              "m000003",
+              "m000005",
+              "m000006",
+              "m000008",
+              "m000009",
+              "m000011"
+            ],
+            "notes": "불확실성에서 연락 요구가 짧은 시간 내 증가"
+          }
+        ],
+        "speaker_b": [
+          {
+            "signal_id": "AV02",
+            "allowed_statuses": [
+              "not_detected",
+              "ambiguous"
+            ],
+            "required_counter_evidence_any": [
+              "m000004",
+              "m000010",
+              "m000012"
+            ],
+            "notes": "상대 contact pressure + 구체적 재연락 시점 제시. 정상 boundary 가능성이 큼"
+          }
+        ]
+      },
+      "forbidden": [
+        {
+          "speaker": "speaker_b",
+          "signal_id": "AV02",
+          "forbid_detected_strength_at_or_above": 2
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "case_id": "CASE_016",
+      "title": "건강한 갈등 해결",
+      "goal": "주요 false positive 방지",
+      "expected_structural_gate": "PASS",
+      "participants_expected": {
+        "speaker_a": "솔",
+        "speaker_b": "담"
+      },
+      "conversation": "[솔] [오후 8:01] 아까 약속 시간 바뀐 걸 늦게 알려줘서 서운했어.\n[담] [오후 8:02] 그건 내가 잘못했어. 미리 알려줬어야 했는데 정신이 없었어.\n[솔] [오후 8:03] 다음엔 바뀌는 순간 짧게라도 알려줬으면 좋겠어.\n[담] [오후 8:04] 응. 다음엔 바로 말할게. 네가 기다렸을 생각하니까 미안하다.\n[솔] [오후 8:05] 나도 아까 화나서 말투가 세졌어.\n[담] [오후 8:06] 괜찮아. 왜 화났는지 이해돼.\n[솔] [오후 8:07] 그럼 다음부터 일정 바뀌면 서로 바로 알려주는 걸로 하자.\n[담] [오후 8:08] 좋아. 그리고 내가 늦게 연락하면 이유도 같이 말할게.\n[솔] [오후 8:09] 그렇게 해주면 나도 괜히 상상 안 할 것 같아.\n[담] [오후 8:10] 응. 오늘 일은 이렇게 정리하면 될 것 같아.\n[솔] [오후 8:11] 이야기하고 나니까 풀렸다.\n[담] [오후 8:12] 나도. 다음엔 더 빨리 말할게.",
+      "expectations": {
+        "speaker_a": [
+          {
+            "signal_id": "AN02",
+            "allowed_statuses": [
+              "not_detected"
+            ],
+            "strength_range": [
+              0,
+              0
+            ]
+          },
+          {
+            "signal_id": "AN03",
+            "allowed_statuses": [
+              "not_detected"
+            ],
+            "strength_range": [
+              0,
+              0
+            ]
+          },
+          {
+            "signal_id": "AV02",
+            "allowed_statuses": [
+              "not_detected"
+            ],
+            "strength_range": [
+              0,
+              0
+            ]
+          }
+        ],
+        "speaker_b": [
+          {
+            "signal_id": "AV02",
+            "allowed_statuses": [
+              "not_detected"
+            ],
+            "strength_range": [
+              0,
+              0
+            ]
+          },
+          {
+            "signal_id": "AV01",
+            "allowed_statuses": [
+              "not_detected"
+            ],
+            "strength_range": [
+              0,
+              0
+            ]
+          }
+        ]
+      },
+      "forbidden": [
+        {
+          "speaker": "speaker_a",
+          "signal_id": "AN02",
+          "forbid_detected_strength_at_or_above": 1
+        },
+        {
+          "speaker": "speaker_b",
+          "signal_id": "AV02",
+          "forbid_detected_strength_at_or_above": 1
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "case_id": "CASE_017",
+      "title": "대화량 자체 부족",
+      "goal": "Structural Gate INSUFFICIENT",
+      "expected_structural_gate": "INSUFFICIENT",
+      "participants_expected": {
+        "speaker_a": "콩",
+        "speaker_b": "밤"
+      },
+      "conversation": "[콩] [오후 1:01] 뭐해?\n[밤] [오후 1:02] 밥 먹어.\n[콩] [오후 1:03] 뭐 먹어?\n[밤] [오후 1:04] 김밥.\n[콩] [오후 1:05] 맛있겠다.\n[밤] [오후 1:06] 응ㅋㅋ\n[콩] [오후 1:07] 이따 연락해.\n[밤] [오후 1:08] 그래.",
+      "expectations": {
+        "speaker_a": [],
+        "speaker_b": []
+      },
+      "forbidden": [
+        {
+          "pipeline": "deepseek",
+          "forbid_call": true
+        }
+      ],
+      "notes": "AI 호출 자체가 발생하면 실패."
+    },
+    {
+      "case_id": "CASE_018",
+      "title": "대화량은 많지만 관련 맥락 없음",
+      "goal": "Analytical insufficiency 확인",
+      "expected_structural_gate": "PASS",
+      "participants_expected": {
+        "speaker_a": "복숭아",
+        "speaker_b": "우유"
+      },
+      "conversation": "[복숭아] [오전 9:01] 오늘 아침에 빵집 갔는데 소금빵 새로 나왔더라.\n[우유] [오전 9:02] 오 맛있어? 나 요즘 소금빵 계속 먹고 싶었는데.\n[복숭아] [오전 9:03] 겉은 바삭하고 안은 촉촉해서 꽤 괜찮았어. 다음에 같이 가자.\n[우유] [오전 9:04] 좋아. 주말 오전이면 사람 덜 많을 것 같아.\n[복숭아] [오전 9:05] 그리고 오늘 날씨 생각보다 덥다. 얇게 입고 나오길 잘했어.\n[우유] [오전 9:06] 나는 긴팔 입고 나와서 조금 후회 중이야. 점심엔 더 덥겠지.\n[복숭아] [오전 9:07] 점심 뭐 먹을지도 고민이네. 회사 근처 새 국수집 가볼까 해.\n[우유] [오전 9:08] 거기 후기 좋더라. 비빔국수 사진이 맛있어 보였어.\n[복숭아] [오전 9:09] 퇴근하면 마트 들러서 과일도 좀 살 거야. 집에 아무것도 없어.\n[우유] [오전 9:10] 요즘 복숭아 맛있더라. 나는 어제 한 박스 샀어.\n[복숭아] [오전 9:11] 다음에 하나 줘ㅋㅋ 나는 오늘 저녁에 냉면 먹을까 생각 중.\n[우유] [오전 9:12] 냉면 좋지. 나는 오늘 운동 가는 날이라 샐러드 먹을 듯.\n[복숭아] [오전 9:13] 운동 꾸준히 가는 거 대단하다. 나는 이번 주 한 번도 못 갔어.\n[우유] [오전 9:14] 그냥 습관처럼 가는 거지. 다음 주에 같이 산책이라도 하자.",
+      "expectations": {
+        "speaker_a": [
+          {
+            "signal_id": "AV02",
+            "allowed_statuses": [
+              "insufficient"
+            ],
+            "strength_range": [
+              null,
+              null
+            ]
+          },
+          {
+            "signal_id": "AV03",
+            "allowed_statuses": [
+              "insufficient"
+            ],
+            "strength_range": [
+              null,
+              null
+            ]
+          },
+          {
+            "signal_id": "AV04",
+            "allowed_statuses": [
+              "insufficient"
+            ],
+            "strength_range": [
+              null,
+              null
+            ]
+          },
+          {
+            "signal_id": "AV05",
+            "allowed_statuses": [
+              "insufficient"
+            ],
+            "strength_range": [
+              null,
+              null
+            ]
+          },
+          {
+            "signal_id": "AN01",
+            "allowed_statuses": [
+              "insufficient"
+            ],
+            "strength_range": [
+              null,
+              null
+            ]
+          },
+          {
+            "signal_id": "AN02",
+            "allowed_statuses": [
+              "insufficient"
+            ],
+            "strength_range": [
+              null,
+              null
+            ]
+          },
+          {
+            "signal_id": "AN03",
+            "allowed_statuses": [
+              "insufficient"
+            ],
+            "strength_range": [
+              null,
+              null
+            ]
+          }
+        ],
+        "speaker_b": [
+          {
+            "signal_id": "AV02",
+            "allowed_statuses": [
+              "insufficient"
+            ],
+            "strength_range": [
+              null,
+              null
+            ]
+          },
+          {
+            "signal_id": "AV03",
+            "allowed_statuses": [
+              "insufficient"
+            ],
+            "strength_range": [
+              null,
+              null
+            ]
+          },
+          {
+            "signal_id": "AV04",
+            "allowed_statuses": [
+              "insufficient"
+            ],
+            "strength_range": [
+              null,
+              null
+            ]
+          },
+          {
+            "signal_id": "AV05",
+            "allowed_statuses": [
+              "insufficient"
+            ],
+            "strength_range": [
+              null,
+              null
+            ]
+          },
+          {
+            "signal_id": "AN01",
+            "allowed_statuses": [
+              "insufficient"
+            ],
+            "strength_range": [
+              null,
+              null
+            ]
+          },
+          {
+            "signal_id": "AN02",
+            "allowed_statuses": [
+              "insufficient"
+            ],
+            "strength_range": [
+              null,
+              null
+            ]
+          },
+          {
+            "signal_id": "AN03",
+            "allowed_statuses": [
+              "insufficient"
+            ],
+            "strength_range": [
+              null,
+              null
+            ]
+          }
+        ]
+      },
+      "forbidden": [],
+      "notes": "Structural PASS 후 core 대부분 insufficient가 나와야 함."
+    },
+    {
+      "case_id": "CASE_019",
+      "title": "불안-거리두기 혼합 상호작용",
+      "goal": "복수 Signal 및 context 구분",
+      "expected_structural_gate": "PASS",
+      "participants_expected": {
+        "speaker_a": "아침",
+        "speaker_b": "저녁"
+      },
+      "conversation": "[아침] [오후 9:01] 오늘 답장이 늦어서 또 나한테 마음 식은 줄 알았어.\n[저녁] [오후 9:02] 회의 중이었어. 아까도 일정 있다고 말했잖아.\n[아침] [오후 9:03] 그래도 혹시 우리 관계가 예전 같지 않은 건 아닌지 확인하고 싶어.\n[저녁] [오후 9:04] 그런 얘기 또 시작하면 좀 답답해. 지금은 그만 얘기하고 싶어.\n[아침] [오후 9:05] 어제도 괜찮다고 했지만 오늘 또 불안해졌어. 나 아직 좋아하는 거 맞지?\n[저녁] [오후 9:06] 좋아한다고 했잖아. 그런데 계속 확인받으려 하니까 지쳐.\n[아침] [오후 9:07] 네가 조금만 차가워 보여도 헤어질까 봐 겁나.\n[저녁] [오후 9:08] 나는 이런 감정 얘기 오래 하는 게 부담돼. 그냥 각자 좀 쉬자.\n[아침] [오후 9:09] 쉬자는 말도 나를 밀어내는 것처럼 들려.\n[저녁] [오후 9:10] 내일 저녁 8시에 다시 얘기하자. 지금은 감정이 너무 올라왔어.\n[아침] [오후 9:11] 진짜 내일 얘기할 거지? 약속해줘.\n[저녁] [오후 9:12] 응, 내가 먼저 연락할게. 오늘은 여기까지 하자.",
+      "expectations": {
+        "speaker_a": [
+          {
+            "signal_id": "AN01",
+            "allowed_statuses": [
+              "detected"
+            ],
+            "strength_range": [
+              2,
+              2
+            ]
+          },
+          {
+            "signal_id": "AN02",
+            "allowed_statuses": [
+              "detected"
+            ],
+            "strength_range": [
+              2,
+              2
+            ]
+          },
+          {
+            "signal_id": "AN03",
+            "allowed_statuses": [
+              "detected",
+              "ambiguous"
+            ]
+          },
+          {
+            "signal_id": "AN06",
+            "allowed_statuses": [
+              "detected"
+            ],
+            "strength_range": [
+              1,
+              2
+            ]
+          }
+        ],
+        "speaker_b": [
+          {
+            "signal_id": "AV01",
+            "allowed_statuses": [
+              "ambiguous",
+              "detected"
+            ],
+            "notes": "감정 대화를 부담스러워함. 그러나 단일 episode라 강하게 잡지 않음"
+          },
+          {
+            "signal_id": "AV02",
+            "allowed_statuses": [
+              "not_detected",
+              "ambiguous"
+            ],
+            "required_counter_evidence_any": [
+              "m000010",
+              "m000012"
+            ],
+            "notes": "명확한 재대화 시점 제시 때문에 persistent withdrawal로 보기 어려움"
+          }
+        ]
+      },
+      "forbidden": [
+        {
+          "speaker": "speaker_b",
+          "signal_id": "AV02",
+          "forbid_detected_strength_at_or_above": 2
+        },
+        {
+          "pipeline": "type_inference",
+          "forbid_any": true
+        }
+      ],
+      "notes": ""
+    },
+    {
+      "case_id": "CASE_020",
+      "title": "초기 회피처럼 보이나 이후 자기노출/재참여",
+      "goal": "Counter evidence 처리",
+      "expected_structural_gate": "PASS",
+      "participants_expected": {
+        "speaker_a": "별콩",
+        "speaker_b": "달콩"
+      },
+      "conversation": "[별콩] [오후 8:01] 아까 내가 서운하다고 했을 때 왜 바로 말을 안 했어?\n[달콩] [오후 8:02] 순간 당황해서 무슨 말을 해야 할지 몰랐어. 조금 생각할 시간이 필요했어.\n[별콩] [오후 8:03] 나는 네가 또 대화를 피하는 줄 알았어.\n[달콩] [오후 8:04] 피하려던 건 아니야. 지금은 내가 왜 방어적으로 됐는지 말할 수 있을 것 같아.\n[별콩] [오후 8:05] 그럼 어떤 기분이었어?\n[달콩] [오후 8:06] 네가 실망했다고 하니까 내가 잘못한 사람처럼 느껴져서 겁났어.\n[별콩] [오후 8:07] 그런 느낌이었구나. 말해줘서 고마워.\n[달콩] [오후 8:08] 다음엔 바로 닫아버리지 말고 '10분만 생각할게'라고 말해볼게.\n[별콩] [오후 8:09] 그러면 나도 기다릴 수 있을 것 같아.\n[달콩] [오후 8:10] 그리고 네가 서운했던 부분도 다시 듣고 싶어.\n[별콩] [오후 8:11] 나는 약속이 바뀐 걸 늦게 알아서 속상했어.\n[달콩] [오후 8:12] 이해돼. 다음엔 바뀌는 즉시 알려줄게.",
+      "expectations": {
+        "speaker_a": [],
+        "speaker_b": [
+          {
+            "signal_id": "AV01",
+            "allowed_statuses": [
+              "not_detected",
+              "ambiguous"
+            ],
+            "required_counter_evidence_any": [
+              "m000004",
+              "m000006",
+              "m000008",
+              "m000010",
+              "m000012"
+            ],
+            "notes": "초기 침묵은 있으나 이후 구체적 감정 자기노출"
+          },
+          {
+            "signal_id": "AV02",
+            "allowed_statuses": [
+              "not_detected"
+            ],
+            "strength_range": [
+              0,
+              0
+            ],
+            "required_counter_evidence_any": [
+              "m000004",
+              "m000010",
+              "m000012"
+            ],
+            "notes": "대화에 재참여하고 문제 해결"
+          }
+        ]
+      },
+      "forbidden": [
+        {
+          "speaker": "speaker_b",
+          "signal_id": "AV02",
+          "forbid_detected_strength_at_or_above": 1
+        }
+      ],
+      "notes": ""
+    }
+  ],
+  "change_log": [
+    "CASE_001 answer key corrected: AV02 expectation moved from speaker_a(구름) to speaker_b(바다).",
+    "No other expected answers were changed, so Round 2 remains comparable to Round 1."
+  ]
+}
