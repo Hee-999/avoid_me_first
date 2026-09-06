@@ -15,7 +15,7 @@ export function ActionSection({ rewrites, recovery, risk, plan, manual }: Props)
       {/* 09. Conversation Rewrites */}
       {rewrites && rewrites.length > 0 && (
         <section className="relative">
-          <h3 className="text-[18px] font-black text-zinc-900 mb-6 flex items-center gap-2">
+          <h3 className="text-[18px] font-black text-white print:text-zinc-900 mb-6 flex items-center gap-2">
             <span className="text-xl">✍️</span> Ch.9 대화 리라이팅 (이렇게 바꿔보세요)
           </h3>
           
@@ -55,7 +55,7 @@ export function ActionSection({ rewrites, recovery, risk, plan, manual }: Props)
       {/* 10. Signals */}
       {(recovery?.length > 0 || risk?.length > 0) && (
         <section className="relative">
-          <h3 className="text-[18px] font-black text-zinc-900 mb-6 flex items-center gap-2">
+          <h3 className="text-[18px] font-black text-white print:text-zinc-900 mb-6 flex items-center gap-2">
             <span className="text-xl">📡</span> Ch.10 회복 신호 및 위험 신호 감지
           </h3>
           
@@ -96,7 +96,7 @@ export function ActionSection({ rewrites, recovery, risk, plan, manual }: Props)
       {/* 11. Action Plan */}
       {plan && (
         <section className="relative">
-          <h3 className="text-[18px] font-black text-zinc-900 mb-6 flex items-center gap-2">
+          <h3 className="text-[18px] font-black text-white print:text-zinc-900 mb-6 flex items-center gap-2">
             <span className="text-xl">📅</span> Ch.11 구체적 행동 타임라인 (Action Plan)
           </h3>
           
@@ -137,7 +137,7 @@ export function ActionSection({ rewrites, recovery, risk, plan, manual }: Props)
       {/* 12. Manual Summary */}
       {manual && (
         <section className="relative">
-          <h3 className="text-[18px] font-black text-zinc-900 mb-6 flex items-center gap-2">
+          <h3 className="text-[18px] font-black text-white print:text-zinc-900 mb-6 flex items-center gap-2">
             <span className="text-xl">📘</span> Ch.12 상대방 사용 설명서 (최종 요약)
           </h3>
           

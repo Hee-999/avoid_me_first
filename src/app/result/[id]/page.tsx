@@ -351,7 +351,7 @@ export default function Result() {
           />
               
               {/* Export Buttons */}
-              {isPremium && analysis.status?.report === "completed" && (
+              {isPremium && (analysis.status?.report === "completed" || analysis.status?.report === "ready") && (
                 <div className="flex flex-col gap-3 pt-6 border-t border-zinc-200 print:hidden" data-html2canvas-ignore>
                   <p className="text-center text-[13px] font-bold text-zinc-500 mb-2">분석이 완료되었습니다</p>
                   <p className="text-center text-[12px] text-zinc-400 mb-2 leading-relaxed">구매한 상세 분석 보고서는 1년간 다시 확인할 수 있습니다.<br/>장기 보관을 원하시면 PDF로 저장해주세요.</p>

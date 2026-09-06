@@ -12,7 +12,7 @@ export function CommunicationSection({ conflict, guide }: Props) {
       {/* 07. Conflict Pattern */}
       {conflict && (
         <section className="relative">
-          <h3 className="text-[18px] font-black text-zinc-900 mb-6 flex items-center gap-2">
+          <h3 className="text-[18px] font-black text-white print:text-zinc-900 mb-6 flex items-center gap-2">
             <span className="text-xl">⚔️</span> Ch.7 갈등 대처 패턴 요약
           </h3>
           
@@ -59,7 +59,7 @@ export function CommunicationSection({ conflict, guide }: Props) {
       {/* 08. Communication Guide */}
       {guide && guide.length > 0 && (
         <section className="relative">
-          <h3 className="text-[18px] font-black text-zinc-900 mb-6 flex items-center gap-2">
+          <h3 className="text-[18px] font-black text-white print:text-zinc-900 mb-6 flex items-center gap-2">
             <span className="text-xl">💬</span> Ch.8 상황별 대화 가이드 (Do & Don't)
           </h3>
           
