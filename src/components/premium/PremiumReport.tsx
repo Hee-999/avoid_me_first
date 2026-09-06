@@ -1,5 +1,5 @@
 import React from 'react';
-import { MvpResultV2 } from '@/lib/analysis/mvp/types';
+import { FinalAnalysis } from '@/lib/analysis/types';
 import { PremiumReportLocked } from './PremiumReportLocked';
 import { PremiumReportGenerating } from './PremiumReportGenerating';
 import { PremiumReportFailed } from './PremiumReportFailed';
@@ -13,7 +13,7 @@ import { CommunicationSection } from './sections/CommunicationSection';
 import { ActionSection } from './sections/ActionSection';
 
 interface PremiumReportProps {
-  analysis: MvpResultV2;
+  analysis: any;
   isPremium: boolean;
   onRetry?: () => void;
   onUnlock?: () => void;

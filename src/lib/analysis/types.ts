@@ -54,5 +54,9 @@ export interface FinalAnalysis {
   secondary_type: string;
   is_mixed_pattern: boolean;
   confidence: ConfidenceScore;
-  extracted_data: ExtractedData;
+  extracted_data?: ExtractedData;
+  status?: { scoring?: string; report?: string };
+  signals?: any;
+  primary_type_confidence?: string;
+  target_speaker_label?: string;
 }

@@ -1,4 +1,4 @@
-async function runTest() {
+export async function runTest() {
   console.log("Testing POST /api/analyze...");
   
   const sampleText = `

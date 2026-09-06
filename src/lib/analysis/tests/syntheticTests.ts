@@ -51,13 +51,12 @@ export async function runTest(testCase: TestCase) {
   // 3. Extraction & Validation
   console.log("-> 3. Calling DeepSeek Extractor (Wait 5-15s)...");
   try {
-    const extraction = await extractSignals(preprocessed);
+    const extraction = await extractSignals(preprocessed, "speaker_a");
     
     if (extraction.valid) {
       console.log(`✅ SUCCESS! Validation passed.`);
       console.log(`   Repair attempted: ${extraction.repair_attempted}`);
-      console.log(`   Speaker A signals: ${extraction.payload?.speaker_a.signals.length}`);
-      console.log(`   Speaker B signals: ${extraction.payload?.speaker_b.signals.length}`);
+      console.log(`   Signals extracted: ${extraction.payload?.signals.length}`);
     } else {
       console.log(`❌ FAILED! Validation errors:`);
       extraction.errors?.forEach(e => console.log(`   - ${e}`));

@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase/server";
 
-export async function GET(request: Request, { params }: { params: { share_id: string } }) {
+export async function GET(request: Request, context: { params: Promise<{ share_id: string }> }) {
   try {
-    const { share_id } = params;
+    const { share_id } = await context.params;
 
     if (!process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL.includes("dummy")) {
       return NextResponse.json({

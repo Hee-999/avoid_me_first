@@ -77,7 +77,8 @@ export async function extractSignals(
   
   let rawText = "";
   try {
-    rawText = await callDeepSeekAPI(prompt);
+    const response = await callDeepSeekAPI(prompt);
+    rawText = response.content;
     console.log(`[DEBUG] Target: ${targetSpeakerId}, RAW RESPONSE:\n${rawText}\n`);
   } catch(e: any) {
     return { valid: false, repair_attempted: false, latency_ms: Date.now() - start, errors: [e.message] };
@@ -123,7 +124,8 @@ export async function extractSignals(
   const repairPrompt = buildRepairPrompt([repairReason], rawText);
   let repairText = "";
   try {
-    repairText = await callDeepSeekAPI(repairPrompt);
+    const repairResponse = await callDeepSeekAPI(repairPrompt);
+    repairText = repairResponse.content;
   } catch(e: any) {
     return { valid: false, repair_attempted: true, latency_ms: Date.now() - start, errors: [e.message] };
   }

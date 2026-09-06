@@ -5,7 +5,7 @@ const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
 
 const supabase = createClient(supabaseUrl, supabaseKey);
 
-async function checkDb() {
+export async function checkDb() {
   const analysisId = 'eacc3532-0d48-4a86-9bab-76ddb9523487';
   
   console.log(`Checking DB for analysis_id: ${analysisId}`);

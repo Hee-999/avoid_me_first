@@ -56,7 +56,7 @@ export async function runPrivacyTests() {
   console.log("\n==================================================");
   console.log("[TEST B] Remove forbidden keys and test sanitization layer");
   // Remove forbidden keys manually to test the rest of the sanitizer
-  const safeOutput = { ...mockAiOutput };
+  const safeOutput: any = { ...mockAiOutput };
   delete safeOutput.rawConversation;
   delete safeOutput.text;
   delete safeOutput.originalText;
