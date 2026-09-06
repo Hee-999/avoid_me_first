@@ -13,7 +13,7 @@ export const ShareResultCard = forwardRef<HTMLDivElement, ShareResultCardProps>(
     return (
       <div 
         ref={ref}
-        className="w-[1080px] h-[1350px] bg-zinc-50 flex flex-col p-16 absolute -left-[9999px]"
+        className="w-[1080px] h-[1350px] bg-zinc-50 flex flex-col p-16"
         style={{ fontFamily: "'Pretendard', sans-serif" }}
       >
         <div className="flex-1 bg-white rounded-3xl shadow-xl border border-zinc-200 flex flex-col p-16 overflow-hidden relative">

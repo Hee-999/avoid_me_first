@@ -403,7 +403,7 @@ export default function Result() {
         originalName={target_speaker_label || "상대방"}
       />
       
-      <div className="overflow-hidden h-0 w-0 absolute pointer-events-none">
+      <div className="absolute top-[-9999px] left-[-9999px]">
         <ShareResultCard ref={shareCardRef} analysis={analysis} alias={shareAlias} />
       </div>
     </div>
