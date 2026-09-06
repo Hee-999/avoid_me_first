@@ -1,15 +1,11 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
-import { supabaseAdmin, hashToken, generateShareId } from "@/lib/supabase/server";
+import { supabaseAdmin, hashToken } from "@/lib/supabase/server";
 
 export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     const resolvedParams = await params;
     const { id } = resolvedParams;
-    
-    // Parse request body for share_alias
-    const body = await request.json().catch(() => ({}));
-    const shareAlias = body.share_alias || "상대방";
     
     // 1. Validate Owner
     const cookieStore = await cookies();
@@ -22,13 +18,13 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     const ownerTokenHash = hashToken(ownerToken);
 
     if (!process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL.includes("dummy")) {
-      return NextResponse.json({ share_token: "dummy-share-token", share_alias: shareAlias });
+      return NextResponse.json({ report_token: "dummy-report-token" });
     }
 
-    // 2. Fetch analysis to verify ownership
+    // 2. Fetch analysis to verify ownership and premium status
     const { data: analysis, error: fetchError } = await supabaseAdmin
       .from("analyses")
-      .select("owner_token_hash")
+      .select("owner_token_hash, premium_unlocked")
       .eq("id", id)
       .single();
 
@@ -40,28 +36,30 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
       return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
     }
 
+    if (!analysis.premium_unlocked) {
+      return NextResponse.json({ error: "Premium report is not unlocked" }, { status: 403 });
+    }
+
     // 3. Generate Secure Token and Hash
     const crypto = require("crypto");
-    const shareToken = crypto.randomBytes(32).toString("base64url");
-    const shareTokenHash = hashToken(shareToken);
+    const reportToken = crypto.randomBytes(32).toString("base64url");
+    const reportTokenHash = hashToken(reportToken);
       
     const { error: updateError } = await supabaseAdmin
       .from("analyses")
       .update({ 
-        share_enabled: true, 
-        share_token_hash: shareTokenHash,
-        share_alias: shareAlias
+        report_access_token_hash: reportTokenHash
       })
       .eq("id", id);
       
     if (updateError) {
-      return NextResponse.json({ error: "Failed to enable sharing" }, { status: 500 });
+      return NextResponse.json({ error: "Failed to create archive link" }, { status: 500 });
     }
 
-    return NextResponse.json({ share_token: shareToken, share_alias: shareAlias });
+    return NextResponse.json({ report_token: reportToken });
 
   } catch (error) {
-    console.error("Share POST Error:", error);
+    console.error("Report Archive POST Error:", error);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }

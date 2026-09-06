@@ -112,6 +112,9 @@ const InputSection = forwardRef<HTMLElement, InputSectionProps>(({ onAnalyze }, 
         </button>
 
         <footer className="mt-auto text-center text-[13px] text-zinc-400 font-medium pb-4">
+          <div className="bg-zinc-50 border border-zinc-100 p-3 rounded-lg mb-3 mx-auto w-max">
+            입력한 대화 원문은 분석 처리에만 사용되며<br/>서비스 데이터베이스에는 저장되지 않습니다.
+          </div>
           본 분석은 참고용이며 전문적인 심리 상담을 대체하지 않습니다.
         </footer>
       </div>

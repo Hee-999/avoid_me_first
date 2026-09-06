@@ -46,7 +46,7 @@ export default function ShareResult() {
     );
   }
 
-  const { attachment_dimensions, attachment_fitness, primary_type, secondary_type } = analysis;
+  const { attachment_dimensions, attachment_fitness, primary_type, secondary_type, share_alias } = analysis;
 
   return (
     <div className="min-h-screen bg-zinc-50 pb-32">
@@ -59,8 +59,11 @@ export default function ShareResult() {
       <main className="max-w-md mx-auto w-full px-6 pt-8 pb-10">
         
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
+          <div className="inline-block px-3 py-1 bg-zinc-900 text-white text-[11px] font-bold rounded-full mb-4">
+            분석 대상: {share_alias || "상대방"}
+          </div>
           <h1 className="text-2xl font-black text-zinc-900 tracking-tight leading-snug">
-            이 사람의 주 애착 유형은<br/>
+            {share_alias || "상대방"}님이 이 대화에서 보인<br/>주 애착 패턴은<br/>
             <span className="text-blue-600">{primary_type}</span>입니다.
           </h1>
           {secondary_type && (

@@ -12,9 +12,18 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
 
     // In a real scenario, this endpoint would be called by a Webhook from PG (Payment Gateway)
     // Here we just blindly unlock it for demonstration or temporary UI override
+    const purchasedAt = new Date();
+    const expiresAt = new Date(purchasedAt);
+    expiresAt.setFullYear(expiresAt.getFullYear() + 1);
+
     const { error } = await supabaseAdmin
       .from("analyses")
-      .update({ premium_unlocked: true, premium_status: "paid" })
+      .update({ 
+        premium_unlocked: true, 
+        premium_status: "paid",
+        purchased_at: purchasedAt.toISOString(),
+        expires_at: expiresAt.toISOString()
+      })
       .eq("id", id);
 
     if (error) {

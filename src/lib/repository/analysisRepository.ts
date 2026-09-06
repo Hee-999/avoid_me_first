@@ -8,6 +8,10 @@ export class AnalysisRepository {
   static async saveAnalysisResult(payload: any, ownerTokenHash: string): Promise<string> {
     const sanitizedPayload = sanitizeAnalysisForPersistence(payload);
     let analysisId = crypto.randomUUID();
+    
+    // Free tier: 30 days retention
+    const expiresAt = new Date();
+    expiresAt.setDate(expiresAt.getDate() + 30);
 
     if (!process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL.includes("dummy")) {
       console.warn("Using dummy Supabase credentials. Bypassing actual DB insert.");
@@ -50,6 +54,7 @@ export class AnalysisRepository {
         report_version: "premium-report-v2.0",
         
         premium_unlocked: sanitizedPayload.access?.premium_unlocked || false,
+        expires_at: expiresAt.toISOString()
       })
       .select("id")
       .single();
@@ -175,6 +180,7 @@ export class AnalysisRepository {
       premium_unlocked: isPremiumUnlocked,
       share_enabled: data.share_enabled,
       share_id: data.share_id,
+      share_alias: data.share_alias,
       analysis: {
         status: data.status || { scoring: "completed", report: "completed" },
         attachment_dimensions: {

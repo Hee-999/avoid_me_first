@@ -5,6 +5,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useParams, useRouter } from "next/navigation";
 import { FinalAnalysis } from "@/lib/analysis/types";
 import { PremiumReport } from "@/components/premium/PremiumReport";
+import { ShareAliasModal } from "@/components/share/ShareAliasModal";
+import { ShareResultCard } from "@/components/share/ShareResultCard";
 
 export default function Result() {
   const router = useRouter();
@@ -16,7 +18,11 @@ export default function Result() {
   const [error, setError] = useState<string | null>(null);
   const [isExporting, setIsExporting] = useState(false);
   const [shareId, setShareId] = useState<string | null>(null);
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+  const [modalMode, setModalMode] = useState<'share' | 'image'>('share');
+  const [shareAlias, setShareAlias] = useState("상대방");
   const reportRef = useRef<HTMLDivElement>(null);
+  const shareCardRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!id) return;
@@ -76,42 +82,16 @@ export default function Result() {
   const { attachment_dimensions, attachment_fitness, primary_type, secondary_type, is_mixed_pattern, signals, primary_type_confidence, target_speaker_label } = analysis;
 
   const handleExport = async (format: 'jpg' | 'pdf') => {
-    if (!reportRef.current) return;
     setIsExporting(true);
     
     try {
-      await new Promise(res => setTimeout(res, 100));
-      const { toPng } = await import("html-to-image");
-      
-      const dataUrl = await toPng(reportRef.current, {
-        cacheBust: true,
-        backgroundColor: "#ffffff",
-        pixelRatio: 2
-      });
-      
       if (format === 'jpg') {
-        const link = document.createElement('a');
-        link.download = 'avoidance-report.png';
-        link.href = dataUrl;
-        link.click();
+        if (!shareCardRef.current) return;
+        setModalMode('image');
+        setIsShareModalOpen(true);
+        // We defer actual capture to after alias is set
       } else if (format === 'pdf') {
-        const { jsPDF } = await import("jspdf");
-        
-        // Get image dimensions to size the PDF correctly
-        const img = new Image();
-        img.src = dataUrl;
-        await new Promise((resolve) => { img.onload = resolve; });
-        
-        const pdfWidth = img.width;
-        const pdfHeight = img.height;
-
-        const pdf = new jsPDF({
-          orientation: 'portrait',
-          unit: 'px',
-          format: [pdfWidth, pdfHeight]
-        });
-        pdf.addImage(dataUrl, 'PNG', 0, 0, pdfWidth, pdfHeight);
-        pdf.save('avoidance-report.pdf');
+        window.print();
       }
     } catch (error) {
       console.error("Export failed:", error);
@@ -121,15 +101,51 @@ export default function Result() {
     }
   };
 
-  const handleShare = async () => {
+  const executeImageExport = async (alias: string) => {
+    setShareAlias(alias);
+    setIsShareModalOpen(false);
+    setIsExporting(true);
     try {
-      // If not shared yet, request a share ID
+      await new Promise(res => setTimeout(res, 500)); // wait for alias to render in hidden card
+      if (!shareCardRef.current) return;
+      const { toPng } = await import("html-to-image");
+      const dataUrl = await toPng(shareCardRef.current, {
+        cacheBust: true,
+        backgroundColor: "#ffffff",
+        pixelRatio: 1
+      });
+      const link = document.createElement('a');
+      link.download = 'avoidance-report.png';
+      link.href = dataUrl;
+      link.click();
+    } catch (err) {
+      console.error(err);
+      alert("이미지 저장에 실패했습니다.");
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
+  const handleShareClick = () => {
+    setModalMode('share');
+    setIsShareModalOpen(true);
+  };
+
+  const executeShare = async (alias: string) => {
+    setShareAlias(alias);
+    setIsShareModalOpen(false);
+    
+    try {
       let currentShareId = shareId;
       if (!currentShareId) {
-        const res = await fetch(`/api/share/${id}`, { method: 'POST' });
+        const res = await fetch(`/api/share/${id}`, { 
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ share_alias: alias })
+        });
         const data = await res.json();
         if (data.error) throw new Error(data.error);
-        currentShareId = data.share_id;
+        currentShareId = data.share_token; // updated to share_token
         setShareId(currentShareId);
       }
       
@@ -182,7 +198,7 @@ export default function Result() {
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 19l-7-7 7-7" /></svg>
           </button>
           <span className="text-[13px] font-bold text-zinc-800 tracking-tight">분석 결과 리포트</span>
-          <button onClick={handleShare} className="text-zinc-400 hover:text-zinc-900 flex items-center justify-center p-1 -mr-1">
+          <button onClick={handleShareClick} className="text-zinc-400 hover:text-zinc-900 flex items-center justify-center p-1 -mr-1">
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" /></svg>
           </button>
         </div>
@@ -299,6 +315,28 @@ export default function Result() {
           </ul>
         </motion.div>
 
+        {/* FREE: 03. 무료 결과 공유 */}
+        <div className="mb-8 flex gap-3 print:hidden">
+          <button 
+            onClick={() => handleExport('jpg')}
+            disabled={isExporting}
+            className="flex-1 py-3 bg-white text-zinc-900 border border-zinc-200 text-[13px] font-bold rounded-xl hover:bg-zinc-50 transition flex items-center justify-center gap-2"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" /></svg>
+            이미지 저장
+          </button>
+          <button 
+            onClick={handleShareClick}
+            className="flex-1 py-3 bg-zinc-900 text-white text-[13px] font-bold rounded-xl hover:bg-zinc-800 transition flex items-center justify-center gap-2 shadow-md shadow-zinc-200"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" /></svg>
+            결과 링크 공유
+          </button>
+        </div>
+        <p className="text-center text-[11px] text-zinc-400 mb-8 print:hidden">
+          무료 분석 결과는 30일간 보관되며 기간이 지나면 자동 삭제됩니다.
+        </p>
+
         {/* PREMIUM SECTIONS & PAYWALL */}
         <div className="relative">
           
@@ -314,29 +352,60 @@ export default function Result() {
               
               {/* Export Buttons */}
               {isPremium && analysis.status?.report === "completed" && (
-                <div className="flex flex-col gap-3 pt-6 border-t border-zinc-200" data-html2canvas-ignore>
-                  <p className="text-center text-[13px] font-bold text-zinc-500 mb-2">리포트 저장 및 공유하기</p>
-                  <button 
-                    onClick={() => handleExport('jpg')}
-                    disabled={isExporting}
-                    className="w-full py-3.5 bg-zinc-100 text-zinc-800 text-[14px] font-bold rounded-xl hover:bg-zinc-200 transition flex items-center justify-center gap-2 border border-zinc-200 disabled:opacity-50"
-                  >
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" /></svg>
-                    이미지(PNG)로 다운로드
-                  </button>
+                <div className="flex flex-col gap-3 pt-6 border-t border-zinc-200 print:hidden" data-html2canvas-ignore>
+                  <p className="text-center text-[13px] font-bold text-zinc-500 mb-2">분석이 완료되었습니다</p>
+                  <p className="text-center text-[12px] text-zinc-400 mb-2 leading-relaxed">구매한 상세 분석 보고서는 1년간 다시 확인할 수 있습니다.<br/>장기 보관을 원하시면 PDF로 저장해주세요.</p>
+                  
                   <button 
                     onClick={() => handleExport('pdf')}
                     disabled={isExporting}
                     className="w-full py-3.5 bg-blue-50 text-blue-700 text-[14px] font-bold rounded-xl hover:bg-blue-100 transition flex items-center justify-center gap-2 border border-blue-200 disabled:opacity-50"
                   >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" /></svg>
-                    PDF 문서로 다운로드
+                    PDF로 저장하기
                   </button>
+
+                  <button 
+                    onClick={async () => {
+                      try {
+                        const res = await fetch(`/api/report/archive/${id}`, { method: 'POST' });
+                        const data = await res.json();
+                        if (data.error) throw new Error(data.error);
+                        
+                        const archiveUrl = `${window.location.origin}/report/${data.report_token}`;
+                        await navigator.clipboard.writeText(archiveUrl);
+                        alert("보고서 다시보기 링크가 복사되었습니다!");
+                      } catch (err) {
+                        console.error(err);
+                        alert("링크 생성에 실패했습니다.");
+                      }
+                    }}
+                    disabled={isExporting}
+                    className="w-full py-3.5 bg-zinc-100 text-zinc-800 text-[14px] font-bold rounded-xl hover:bg-zinc-200 transition flex items-center justify-center gap-2 border border-zinc-200 disabled:opacity-50"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" /></svg>
+                    내 보고서 다시보기 링크 복사
+                  </button>
+                  <p className="text-center text-[11px] text-zinc-400 mt-1">이 링크를 가진 사람은 보고서를 볼 수 있습니다. 외부에 공개하지 마세요.</p>
                 </div>
               )}
           </div>
 
       </main>
+
+      <ShareAliasModal 
+        isOpen={isShareModalOpen} 
+        onClose={() => setIsShareModalOpen(false)} 
+        onShare={(alias) => {
+          if (modalMode === 'share') executeShare(alias);
+          else executeImageExport(alias);
+        }} 
+        originalName={target_speaker_label || "상대방"}
+      />
+      
+      <div className="overflow-hidden h-0 w-0 absolute pointer-events-none">
+        <ShareResultCard ref={shareCardRef} analysis={analysis} alias={shareAlias} />
+      </div>
     </div>
   );
 }
