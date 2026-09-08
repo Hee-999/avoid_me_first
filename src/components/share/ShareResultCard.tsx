@@ -1,5 +1,5 @@
 import React, { forwardRef } from "react";
-import { FinalAnalysis } from "@/lib/analysis/types";
+import { FinalAnalysis, getMappedType } from "@/lib/analysis/types";
 
 interface ShareResultCardProps {
   analysis: FinalAnalysis;
@@ -9,6 +9,7 @@ interface ShareResultCardProps {
 export const ShareResultCard = forwardRef<HTMLDivElement, ShareResultCardProps>(
   ({ analysis, alias }, ref) => {
     const { primary_type, attachment_fitness, attachment_dimensions } = analysis;
+    const mappedType = getMappedType(primary_type);
 
     return (
       <div 
@@ -38,7 +39,7 @@ export const ShareResultCard = forwardRef<HTMLDivElement, ShareResultCardProps>(
             <h1 className="text-7xl font-black text-zinc-900 tracking-tight leading-snug mb-16">
               이 대화에서 보인<br/>
               주 애착 패턴은<br/>
-              <span className="text-blue-600">{primary_type}</span>입니다.
+              <span className="text-blue-600">{mappedType.ko}</span>입니다.
             </h1>
 
             {/* 2D Score Board */}
@@ -48,7 +49,7 @@ export const ShareResultCard = forwardRef<HTMLDivElement, ShareResultCardProps>(
               <div className="space-y-6">
                 <div>
                   <div className="flex justify-between text-xl font-bold mb-3">
-                    <span className={primary_type === "안정형 (Secure)" ? "text-blue-600" : "text-zinc-600"}>안정형 (Secure)</span>
+                    <span className={primary_type === "secure" ? "text-blue-600" : "text-zinc-600"}>안정형 (Secure)</span>
                     <span className="text-zinc-900">{attachment_fitness.secure}%</span>
                   </div>
                   <div className="w-full bg-zinc-200 h-4 rounded-full overflow-hidden">
@@ -58,7 +59,7 @@ export const ShareResultCard = forwardRef<HTMLDivElement, ShareResultCardProps>(
                 
                 <div>
                   <div className="flex justify-between text-xl font-bold mb-3">
-                    <span className={primary_type === "몰입/불안형 (Preoccupied)" ? "text-blue-600" : "text-zinc-600"}>몰입/불안형 (Preoccupied)</span>
+                    <span className={primary_type === "preoccupied" ? "text-blue-600" : "text-zinc-600"}>몰입/불안형 (Preoccupied)</span>
                     <span className="text-zinc-900">{attachment_fitness.preoccupied}%</span>
                   </div>
                   <div className="w-full bg-zinc-200 h-4 rounded-full overflow-hidden">
@@ -68,7 +69,7 @@ export const ShareResultCard = forwardRef<HTMLDivElement, ShareResultCardProps>(
 
                 <div>
                   <div className="flex justify-between text-xl font-bold mb-3">
-                    <span className={primary_type === "거부-회피형 (Dismissive-Avoidant)" ? "text-blue-600" : "text-zinc-600"}>거부-회피형 (Dismissive)</span>
+                    <span className={primary_type === "dismissing" || primary_type === "dismissive-avoidant" ? "text-blue-600" : "text-zinc-600"}>거부-회피형 (Dismissive)</span>
                     <span className="text-zinc-900">{attachment_fitness.dismissing}%</span>
                   </div>
                   <div className="w-full bg-zinc-200 h-4 rounded-full overflow-hidden">
@@ -78,7 +79,7 @@ export const ShareResultCard = forwardRef<HTMLDivElement, ShareResultCardProps>(
 
                 <div>
                   <div className="flex justify-between text-xl font-bold mb-3">
-                    <span className={primary_type === "공포-회피형 (Fearful-Avoidant)" ? "text-blue-600" : "text-zinc-600"}>공포-회피형 (Fearful)</span>
+                    <span className={primary_type === "fearful" || primary_type === "fearful-avoidant" ? "text-blue-600" : "text-zinc-600"}>공포-회피형 (Fearful)</span>
                     <span className="text-zinc-900">{attachment_fitness.fearful}%</span>
                   </div>
                   <div className="w-full bg-zinc-200 h-4 rounded-full overflow-hidden">

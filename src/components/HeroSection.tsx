@@ -7,9 +7,9 @@ interface HeroSectionProps {
   backgroundVideoUrl?: string;
   backgroundPosterUrl?: string;
   onCtaClick: () => void;
-  textOpacity: MotionValue<number>;
-  textY: MotionValue<number>;
-  videoScale: MotionValue<number>;
+  textOpacity: number;
+  textY: number;
+  videoScale: number;
 }
 
 export default function HeroSection({
@@ -25,7 +25,8 @@ export default function HeroSection({
       
       {/* Background Media that zooms in massively */}
       <motion.div 
-        style={{ scale: videoScale }} 
+        animate={{ scale: videoScale }}
+        transition={{ duration: 0.8, ease: "easeInOut" }}
         className="absolute inset-0 w-full h-full origin-center"
       >
         {backgroundVideoUrl ? (
@@ -49,7 +50,8 @@ export default function HeroSection({
       
       {/* Hero Content that fades out and moves up */}
       <motion.div 
-        style={{ opacity: textOpacity, y: textY }}
+        animate={{ opacity: textOpacity, y: textY }}
+        transition={{ duration: 0.5, ease: "easeOut" }}
         className="relative z-10 flex flex-col items-center text-center px-6 mt-[-10vh]"
       >
         <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/90 backdrop-blur-sm text-zinc-900 text-xs font-semibold rounded-full mb-6 shadow-sm border border-zinc-200">
@@ -66,7 +68,9 @@ export default function HeroSection({
         </h1>
         
         <p className={`mt-6 text-[15px] font-medium max-w-sm leading-relaxed text-zinc-300`}>
-          바솔로뮤 성인 애착 모델 기반으로<br/>카톡 대화 패턴을 분석하여 숨겨진 심리를 판독합니다.
+          바솔로뮤 성인 애착 모델 기반으로 카톡 대화를 분석하여<br/>
+          상대의 불안형·회피형 애착 유형과 행동 패턴을 판독합니다.<br/>
+          힘든 회피형 연애의 돌파구를 지금 확인해 보세요.
         </p>
 
         <button 
@@ -80,7 +84,8 @@ export default function HeroSection({
 
       {/* Scroll Indicator */}
       <motion.div 
-        style={{ opacity: textOpacity }}
+        animate={{ opacity: textOpacity }}
+        transition={{ duration: 0.5 }}
         className={`absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center text-white`}
       >
         <span className="text-[10px] font-bold tracking-widest uppercase mb-2 opacity-80">Scroll to start</span>

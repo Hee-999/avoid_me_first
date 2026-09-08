@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { motion } from "framer-motion";
+import { getMappedType } from "@/lib/analysis/types";
 
 export default function ShareResult() {
   const router = useRouter();
@@ -47,6 +48,7 @@ export default function ShareResult() {
   }
 
   const { attachment_dimensions, attachment_fitness, primary_type, secondary_type, share_alias } = analysis;
+  const mappedType = getMappedType(primary_type);
 
   return (
     <div className="min-h-screen bg-zinc-50 pb-32">
@@ -64,11 +66,11 @@ export default function ShareResult() {
           </div>
           <h1 className="text-2xl font-black text-zinc-900 tracking-tight leading-snug">
             {share_alias || "상대방"}님이 이 대화에서 보인<br/>주 애착 패턴은<br/>
-            <span className="text-blue-600">{primary_type}</span>입니다.
+            <span className="text-blue-600">{mappedType.ko}</span>입니다.
           </h1>
           {secondary_type && (
             <p className="mt-2 text-[14px] text-zinc-500 font-medium">
-              *보조 유형으로 <strong className="text-zinc-700">{secondary_type}</strong> 성향도 확인되었습니다.
+              *보조 유형으로 <strong className="text-zinc-700">{getMappedType(secondary_type).ko}</strong> 성향도 확인되었습니다.
             </p>
           )}
         </motion.div>
@@ -80,7 +82,7 @@ export default function ShareResult() {
           <div className="space-y-4">
             <div>
               <div className="flex justify-between text-[12px] font-bold mb-1.5">
-                <span className={primary_type === "안정형 (Secure)" ? "text-blue-600" : "text-zinc-600"}>안정형 (Secure)</span>
+                <span className={primary_type === "secure" ? "text-blue-600" : "text-zinc-600"}>안정형 (Secure)</span>
                 <span className="text-zinc-900">{attachment_fitness.secure}%</span>
               </div>
               <div className="w-full bg-zinc-100 h-2 rounded-full overflow-hidden">
@@ -90,7 +92,7 @@ export default function ShareResult() {
             
             <div>
               <div className="flex justify-between text-[12px] font-bold mb-1.5">
-                <span className={primary_type === "몰입/불안형 (Preoccupied)" ? "text-blue-600" : "text-zinc-600"}>몰입/불안형 (Preoccupied)</span>
+                <span className={primary_type === "preoccupied" ? "text-blue-600" : "text-zinc-600"}>몰입/불안형 (Preoccupied)</span>
                 <span className="text-zinc-900">{attachment_fitness.preoccupied}%</span>
               </div>
               <div className="w-full bg-zinc-100 h-2 rounded-full overflow-hidden">
@@ -100,7 +102,7 @@ export default function ShareResult() {
 
             <div>
               <div className="flex justify-between text-[12px] font-bold mb-1.5">
-                <span className={primary_type === "거부-회피형 (Dismissive-Avoidant)" ? "text-blue-600" : "text-zinc-600"}>거부-회피형 (Dismissive)</span>
+                <span className={primary_type === "dismissing" || primary_type === "dismissive-avoidant" ? "text-blue-600" : "text-zinc-600"}>거부-회피형 (Dismissive)</span>
                 <span className="text-zinc-900">{attachment_fitness.dismissing}%</span>
               </div>
               <div className="w-full bg-zinc-100 h-2 rounded-full overflow-hidden">
@@ -110,7 +112,7 @@ export default function ShareResult() {
 
             <div>
               <div className="flex justify-between text-[12px] font-bold mb-1.5">
-                <span className={primary_type === "공포-회피형 (Fearful-Avoidant)" ? "text-blue-600" : "text-zinc-600"}>공포-회피형 (Fearful)</span>
+                <span className={primary_type === "fearful" || primary_type === "fearful-avoidant" ? "text-blue-600" : "text-zinc-600"}>공포-회피형 (Fearful)</span>
                 <span className="text-zinc-900">{attachment_fitness.fearful}%</span>
               </div>
               <div className="w-full bg-zinc-100 h-2 rounded-full overflow-hidden">

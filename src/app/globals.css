@@ -31,23 +31,23 @@ body {
 /* Print Optimizations */
 @media print {
   @page {
-    margin: 0;
+    size: A4 portrait;
+    margin: 0; /* Set to 0 to remove browser default header/footer (URL, Title, Date) */
   }
   body {
-    padding: 15mm;
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
+    background: white;
+    color: black;
+    padding: 10mm; /* Add padding to compensate for the 0 margin on the page */
   }
   .page-break-after {
-    page-break-after: always;
     break-after: page;
   }
   .page-break-before {
-    page-break-before: always;
     break-before: page;
   }
   .avoid-page-break {
-    page-break-inside: avoid;
     break-inside: avoid;
   }
 }

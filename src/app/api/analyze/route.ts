@@ -4,6 +4,7 @@ import { generateOwnerToken, hashToken } from "@/lib/supabase/server";
 import { AnalysisRepository } from "@/lib/repository/analysisRepository";
 import { analyzeConversationMvpV2 } from "@/lib/analysis/mvp/extractor";
 import { preprocessConversation } from "@/lib/analysis/preprocessor";
+import { sanitizeConversation } from "@/lib/analysis/privacySanitizer";
 import { buildDerivedReportContext } from "@/lib/report/premium/contextBuilder";
 import { generatePremiumReport } from "@/lib/report/premium/generator";
 
@@ -25,34 +26,33 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "No valid conversation found in the text." }, { status: 400 });
     }
 
+    // 0. Privacy Sanitization (Pseudonymization & PII Masking)
+    const { messages: sanitizedMessages, targetSpeakerId: sanitizedTargetId } = sanitizeConversation(
+      preprocessed.messages, 
+      target_speaker_id
+    );
+
     // Convert to the simple format expected by the prompt and context builder
-    const mappedMessages = preprocessed.messages.map(m => ({
-      speaker: m.speaker_id,
-      time: m.timestamp || "unknown",
-      text: m.text,
-      message_id: m.id
-    }));
-    
-    const conversationJsonString = JSON.stringify(mappedMessages);
+    const conversationJsonString = JSON.stringify(sanitizedMessages);
     
     // =========================================================================
     // CRITICAL PATH (Blocks response)
     // =========================================================================
 
-    // 1. MVP Scoring (Requires Raw Text)
+    // 1. MVP Scoring (Requires Safe Pseudonymized Text)
     const { result: analysisResult, error: analysisError } = await analyzeConversationMvpV2({
       conversationJson: conversationJsonString,
-      targetSpeaker: target_speaker_id
+      targetSpeaker: sanitizedTargetId
     });
 
     if (analysisError || !analysisResult) {
       return NextResponse.json({ error: "Analysis failed: " + analysisError }, { status: 500 });
     }
 
-    // 2. Derived Context Generation (Requires Raw Text)
+    // 2. Derived Context Generation (Requires Safe Pseudonymized Text)
     const derivedContext = await buildDerivedReportContext(
       conversationJsonString,
-      target_speaker_id,
+      sanitizedTargetId,
       analysisResult
     );
 

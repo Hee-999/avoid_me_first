@@ -5,9 +5,10 @@ import { motion } from "framer-motion";
 
 interface InputSectionProps {
   onAnalyze: (text: string) => void;
+  onBack?: () => void;
 }
 
-const InputSection = forwardRef<HTMLElement, InputSectionProps>(({ onAnalyze }, ref) => {
+const InputSection = forwardRef<HTMLElement, InputSectionProps>(({ onAnalyze, onBack }, ref) => {
   const [isGuideOpen, setIsGuideOpen] = useState(false);
   const [guideStep, setGuideStep] = useState(0);
   const [isModelInfoOpen, setIsModelInfoOpen] = useState(false);
@@ -46,6 +47,17 @@ const InputSection = forwardRef<HTMLElement, InputSectionProps>(({ onAnalyze }, 
       className="relative w-full flex flex-col bg-transparent z-20"
     >
       <div className="max-w-md mx-auto w-full flex flex-col flex-1">
+        
+        {/* Back Button */}
+        {onBack && (
+          <button 
+            onClick={onBack}
+            className="self-start mb-6 text-[13px] font-bold text-zinc-400 hover:text-zinc-800 transition flex items-center gap-1.5 px-3 py-1.5 -ml-3 rounded-lg hover:bg-zinc-100"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 19l-7-7 7-7" /></svg>
+            처음으로
+          </button>
+        )}
 
         {/* Model Info Box */}
         <div className="mb-8 bg-white border border-zinc-200 rounded-2xl p-4 transition-all shadow-sm hover:shadow-md">
@@ -112,8 +124,19 @@ const InputSection = forwardRef<HTMLElement, InputSectionProps>(({ onAnalyze }, 
         </button>
 
         <footer className="mt-auto text-center text-[13px] text-zinc-400 font-medium pb-4">
-          <div className="bg-zinc-50 border border-zinc-100 p-3 rounded-lg mb-3 mx-auto w-max">
-            입력한 대화 원문은 분석 처리에만 사용되며<br/>서비스 데이터베이스에는 저장되지 않습니다.
+          <div className="bg-zinc-50 border border-zinc-100 p-3.5 rounded-lg mb-3 mx-auto w-full text-left text-zinc-500 break-keep">
+            <ul className="list-disc list-inside space-y-1.5 leading-relaxed">
+              <li>분석에 필요하지 않은 전화번호, 주소, 계좌번호 등의 개인정보는 자동으로 일부 마스킹됩니다.</li>
+              <li>건강·성생활·정치·종교 등 민감한 정보가 포함된 대화는 입력하지 않는 것을 권장합니다.</li>
+              <li>입력한 대화 원문은 분석 처리에만 사용되며 서비스 DB에는 저장하지 않습니다.</li>
+            </ul>
+            <div className="mt-4 text-center flex items-center justify-center gap-2 text-[12px] text-zinc-400">
+              <a href="/privacy" target="_blank" rel="noopener noreferrer" className="hover:text-zinc-700 transition-colors">개인정보처리방침</a>
+              <span>·</span>
+              <a href="/terms" target="_blank" rel="noopener noreferrer" className="hover:text-zinc-700 transition-colors">이용약관</a>
+              <span>·</span>
+              <a href="/refund" target="_blank" rel="noopener noreferrer" className="hover:text-zinc-700 transition-colors">환불정책</a>
+            </div>
           </div>
           본 분석은 참고용이며 전문적인 심리 상담을 대체하지 않습니다.
         </footer>

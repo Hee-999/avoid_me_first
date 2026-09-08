@@ -5,8 +5,29 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useParams, useRouter } from "next/navigation";
 import { FinalAnalysis } from "@/lib/analysis/types";
 import { PremiumReport } from "@/components/premium/PremiumReport";
+import { PrintablePremiumReport } from "@/components/premium/PrintablePremiumReport";
 import { ShareAliasModal } from "@/components/share/ShareAliasModal";
 import { ShareResultCard } from "@/components/share/ShareResultCard";
+
+const ATTACHMENT_TYPE_MAPPING: Record<string, { ko: string, desc: string, en: string }> = {
+  "secure": { ko: "안정형", desc: "상대방과 갈등이 발생해도 감정을 안정적으로 조절하며 솔직하고 원만하게 소통하는 패턴이 나타났어요.", en: "Secure Attachment" },
+  "preoccupied": { ko: "불안-몰입형", desc: "관계를 잃을까 불안해하면서, 상대의 반응에 따라 감정이 크게 흔들리는 패턴이 강하게 나타났어요.", en: "Preoccupied Attachment" },
+  "dismissing": { ko: "회피-독립형", desc: "갈등이 생기면 감정적인 대화를 피하고, 혼자만의 시간을 가지며 거리를 두려는 패턴이 나타났어요.", en: "Dismissive Attachment" },
+  "dismissive-avoidant": { ko: "회피-독립형", desc: "갈등이 생기면 감정적인 대화를 피하고, 혼자만의 시간을 가지며 거리를 두려는 패턴이 나타났어요.", en: "Dismissive-Avoidant" },
+  "fearful": { ko: "불안-회피형", desc: "가까워지고 싶은 욕구와 상처받을까 두려워하는 마음이 충돌하여 예측하기 어려운 패턴이 나타났어요.", en: "Fearful Attachment" },
+  "fearful-avoidant": { ko: "불안-회피형", desc: "가까워지고 싶은 욕구와 상처받을까 두려워하는 마음이 충돌하여 예측하기 어려운 패턴이 나타났어요.", en: "Fearful-Avoidant" }
+};
+
+const SIGNAL_MAPPING: Record<string, { title: string, desc: string }> = {
+  "demanding_reassurance": { title: "관계 확인 욕구", desc: "관계가 괜찮은지 반복적으로 확인하려는 경향이 나타나요." },
+  "over_texting": { title: "과도한 연락", desc: "답장이 없으면 불안해하며 연락을 계속하는 패턴이 보여요." },
+  "fear_of_abandonment": { title: "버림받을 것에 대한 두려움", desc: "상대방이 떠날지도 모른다는 불안감을 표현하는 패턴이 보여요." },
+  "stonewalling": { title: "대화 단절 (Stonewalling)", desc: "갈등 상황에서 대화를 회피하고 침묵으로 일관하는 경향이 나타나요." },
+  "dismissing_emotions": { title: "감정 축소 및 회피", desc: "상대의 감정적 호소를 가볍게 넘기거나 이성적으로만 대하려는 패턴이 보여요." },
+  "intellectualization": { title: "지나친 이성화", desc: "감정적인 공감 대신 논리와 이성으로만 상황을 분석하려는 패턴이 보여요." },
+  "topic_shifting": { title: "화제 전환 (Topic Shifting)", desc: "불편한 감정이나 갈등 주제가 나오면 다른 이야기로 말을 돌리려는 경향이 나타나요." },
+  "validating_emotions": { title: "감정적 수용", desc: "상대방의 감정을 있는 그대로 인정하고 수용하는 안정적인 대화 패턴이 보여요." }
+};
 
 export default function Result() {
   const router = useRouter();
@@ -37,7 +58,7 @@ export default function Result() {
         }
         const data = await res.json();
         setAnalysis(data.analysis);
-        setIsPremium(data.premium_unlocked);
+        setIsPremium(prev => prev || data.premium_unlocked);
         if (data.share_enabled) setShareId(data.share_id);
       } catch (err: any) {
         setError(err.message);
@@ -80,6 +101,16 @@ export default function Result() {
   }
 
   const { attachment_dimensions, attachment_fitness, primary_type, secondary_type, is_mixed_pattern, signals, primary_type_confidence, target_speaker_label } = analysis;
+
+  const getMappedType = (rawType: string) => {
+    const normalized = rawType.toLowerCase().replace(/[^a-z-]/g, '');
+    for (const [key, val] of Object.entries(ATTACHMENT_TYPE_MAPPING)) {
+      if (normalized.includes(key)) return val;
+    }
+    return { ko: rawType, desc: "대화 속에서 다양한 애착 성향이 혼재된 복합적인 패턴이 나타납니다.", en: rawType };
+  };
+
+  const mappedPrimary = getMappedType(primary_type);
 
   const handleExport = async (format: 'jpg' | 'pdf') => {
     setIsExporting(true);
@@ -183,6 +214,7 @@ export default function Result() {
       if (fetchRes.ok) {
         const fetchJSON = await fetchRes.json();
         setAnalysis(fetchJSON.analysis);
+        setIsPremium(fetchJSON.premium_unlocked);
       }
     } catch (err: any) {
       alert(err.message);
@@ -226,11 +258,21 @@ export default function Result() {
           )}
           <h1 className="text-2xl font-black text-zinc-900 tracking-tight leading-snug">
             상대의 주 애착 유형은<br/>
-            <span className="text-blue-600">{primary_type}</span>입니다.
+            <span className="text-blue-600">"{mappedPrimary.ko}"</span>입니다.
           </h1>
+          <p className="mt-1 text-[13px] text-zinc-400 font-semibold tracking-wide uppercase">
+            {mappedPrimary.en}
+          </p>
+          
+          <div className="mt-4 p-4 bg-white border border-blue-100 rounded-xl shadow-sm">
+            <p className="text-[14px] text-zinc-700 leading-relaxed font-medium">
+              {mappedPrimary.desc}
+            </p>
+          </div>
+
           {is_mixed_pattern && (
-            <p className="mt-2 text-[14px] text-zinc-500 font-medium">
-              *보조 유형인 <strong className="text-zinc-700">{secondary_type}</strong> 성향도 강하게 혼재되어 나타납니다.
+            <p className="mt-4 text-[13px] text-zinc-500 font-medium bg-zinc-100 p-3 rounded-lg inline-block">
+              *보조 유형인 <strong className="text-zinc-700">{secondary_type}</strong> 성향도 혼재되어 나타납니다.
             </p>
           )}
         </motion.div>
@@ -297,22 +339,28 @@ export default function Result() {
         {/* FREE: 02. 결과의 근거 미리보기 */}
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="mb-8">
           <h3 className="text-[16px] font-bold text-zinc-900 mb-4">포착된 핵심 행동 패턴 (미리보기)</h3>
-          <ul className="space-y-3">
+          
+          <div className="space-y-3">
             {signals && Object.entries(signals)
-              .filter(([_, signal]: any) => signal && Array.isArray(signal.e) && signal.e.length > 0)
-              .slice(0, 2)
-              .map(([key, signal]: any, idx) => (
-              <li key={idx} className="flex gap-3 bg-white p-4 rounded-xl border border-zinc-100 shadow-sm">
-                <span className="text-blue-600 mt-0.5">
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
-                </span>
-                <div>
-                  <strong className="block text-[14px] text-zinc-900 mb-1">{key.replace(/_/g, ' ').toUpperCase()}</strong>
-                  <p className="text-[13px] text-zinc-600 leading-relaxed">해당 성향을 나타내는 신호가 대화 중 {signal.e.length}회 발견되었습니다.</p>
-                </div>
-              </li>
-            ))}
-          </ul>
+              .filter(([_, signal]: any) => signal && Array.isArray(signal.evidence_quotes) && signal.evidence_quotes.length > 0)
+              .slice(0, 1)
+              .map(([key, signal]: any, idx) => {
+                const mappedSignal = SIGNAL_MAPPING[key] || { title: key.replace(/_/g, ' ').toUpperCase(), desc: `해당 성향을 나타내는 신호가 발견되었습니다.` };
+                return (
+                  <div key={idx} className="bg-white p-5 rounded-2xl border border-zinc-200 shadow-sm">
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="text-blue-600 bg-blue-50 w-6 h-6 rounded-full flex items-center justify-center text-[12px] font-black">
+                        {idx + 1}
+                      </span>
+                      <strong className="text-[14px] text-zinc-900">{mappedSignal.title}</strong>
+                    </div>
+                    <p className="text-[13px] text-zinc-600 leading-relaxed pl-8">
+                      "{mappedSignal.desc}"
+                    </p>
+                  </div>
+                );
+              })}
+          </div>
         </motion.div>
 
         {/* FREE: 03. 무료 결과 공유 */}
@@ -340,15 +388,20 @@ export default function Result() {
         {/* PREMIUM SECTIONS & PAYWALL */}
         <div className="relative">
           
-          <PremiumReport 
-            analysis={analysis} 
-            isPremium={isPremium} 
-            onRetry={() => {
-              // Retry logic could be implemented here to hit a backend endpoint
-              console.log("Retry requested");
-            }}
-            onUnlock={handleUnlock}
-          />
+          <div className="print:hidden">
+            <PremiumReport 
+              analysis={analysis} 
+              isPremium={isPremium} 
+              onRetry={() => {
+                console.log("Retry requested");
+              }}
+              onUnlock={handleUnlock}
+            />
+          </div>
+
+          <div className="hidden print:block">
+            <PrintablePremiumReport analysis={analysis} isPremium={isPremium} />
+          </div>
               
               {/* Export Buttons */}
               {isPremium && (analysis.status?.report === "completed" || analysis.status?.report === "ready") && (
