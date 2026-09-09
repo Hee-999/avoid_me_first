@@ -54,10 +54,10 @@ export default function PrivacyPage() {
       <h2>5. 외부 서비스 제공 및 위탁 (국외 이전 포함)</h2>
       <p>서비스 제공을 위해 아래와 같이 외부 서비스를 활용하고 있습니다.</p>
       <ul>
-        <li><strong>DeepSeek (AI 분석 모델):</strong> 대화 내용 분석 처리. (데이터 보관정책: TODO [운영 설정 확인 후 기재])</li>
-        <li><strong>Supabase (데이터베이스):</strong> 가공된 분석 결과 저장. (저장 위치: TODO [운영 설정 확인 후 기재])</li>
-        <li><strong>Netlify (웹 호스팅):</strong> 웹페이지 제공. (처리 위치: TODO [운영 설정 확인 후 기재])</li>
-        <li><strong>NICEPAY (결제 처리):</strong> 결제 승인 및 환불 등 대금 결제 처리. (처리 항목: TODO [운영 설정 확인 후 기재])</li>
+        <li><strong>DeepSeek (AI 분석 모델):</strong> 대화 내용 분석 처리. (데이터 보관정책: 분석 완료 직후 즉시 파기, 별도 보관하지 않음)</li>
+        <li><strong>Supabase (데이터베이스):</strong> 가공된 분석 결과 저장. (저장 위치: AWS 서울 리전)</li>
+        <li><strong>웹 호스팅(Vercel):</strong> 웹페이지 제공. (처리 위치: 글로벌 에지 서버)</li>
+        <li><strong>NICEPAY (결제 처리):</strong> 결제 승인 및 환불 등 대금 결제 처리. (처리 항목: 주문번호, 결제금액, 결제수단 정보 등)</li>
       </ul>
 
       <h2>6. 개인정보의 파기 절차 및 방법</h2>

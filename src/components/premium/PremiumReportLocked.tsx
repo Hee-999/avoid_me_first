@@ -1,4 +1,4 @@
-export function PremiumReportLocked({ onUnlock }: { onUnlock?: () => void }) {
+export function PremiumReportLocked({ onUnlock, isProcessing = false }: { onUnlock?: () => void, isProcessing?: boolean }) {
   return (
     <section className="relative mt-8 pt-8 border-t border-zinc-200">
       <div className="mb-8 text-center">
@@ -78,10 +78,15 @@ export function PremiumReportLocked({ onUnlock }: { onUnlock?: () => void }) {
             {onUnlock && (
               <button 
                 onClick={onUnlock}
-                className="w-full py-4 bg-zinc-950 text-white text-[15px] font-bold rounded-xl hover:bg-zinc-800 transition transform active:scale-95 shadow-xl flex justify-center items-center gap-2"
+                disabled={isProcessing}
+                className={`w-full py-4 text-white text-[15px] font-bold rounded-xl transition transform shadow-xl flex justify-center items-center gap-2 ${
+                  isProcessing 
+                    ? "bg-zinc-400 cursor-not-allowed scale-100" 
+                    : "bg-zinc-950 hover:bg-zinc-800 active:scale-95"
+                }`}
               >
-                내 상대 사용설명서 열기 · ₩2,900
-                <svg className="w-4 h-4 text-zinc-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
+                {isProcessing ? "결제창을 여는 중..." : "내 상대 사용설명서 열기 · ₩2,900"}
+                {!isProcessing && <svg className="w-4 h-4 text-zinc-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>}
               </button>
             )}
             {/* The previous text is replaced by the disclaimer block above. 

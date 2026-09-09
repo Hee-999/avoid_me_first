@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { FinalAnalysis } from "@/lib/analysis/types";
 import { PremiumReport } from "@/components/premium/PremiumReport";
 import { PrintablePremiumReport } from "@/components/premium/PrintablePremiumReport";
@@ -32,12 +32,14 @@ const SIGNAL_MAPPING: Record<string, { title: string, desc: string }> = {
 export default function Result() {
   const router = useRouter();
   const params = useParams();
+  const searchParams = useSearchParams();
   const id = params.id as string;
   
   const [isPremium, setIsPremium] = useState(false);
   const [analysis, setAnalysis] = useState<FinalAnalysis | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isExporting, setIsExporting] = useState(false);
+  const [isPaymentProcessing, setIsPaymentProcessing] = useState(false);
   const [shareId, setShareId] = useState<string | null>(null);
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState<'share' | 'image'>('share');
@@ -45,27 +47,38 @@ export default function Result() {
   const reportRef = useRef<HTMLDivElement>(null);
   const shareCardRef = useRef<HTMLDivElement>(null);
 
+  const fetchAnalysis = async () => {
+    try {
+      const res = await fetch(`/api/result/${id}`, { cache: 'no-store' });
+      if (!res.ok) {
+        if (res.status === 401 || res.status === 403) throw new Error("이 분석 결과의 소유자가 아닙니다.");
+        if (res.status === 404) throw new Error("존재하지 않는 분석 결과입니다.");
+        throw new Error("서버 오류가 발생했습니다.");
+      }
+      const data = await res.json();
+      setAnalysis(data.analysis);
+      setIsPremium(prev => prev || data.premium_unlocked);
+      if (data.share_enabled) setShareId(data.share_id);
+    } catch (err: any) {
+      setError(err.message);
+    }
+  };
+
   useEffect(() => {
     if (!id) return;
-    
-    const fetchAnalysis = async () => {
-      try {
-        const res = await fetch(`/api/result/${id}`, { cache: 'no-store' });
-        if (!res.ok) {
-          if (res.status === 401 || res.status === 403) throw new Error("이 분석 결과의 소유자가 아닙니다.");
-          if (res.status === 404) throw new Error("존재하지 않는 분석 결과입니다.");
-          throw new Error("서버 오류가 발생했습니다.");
-        }
-        const data = await res.json();
-        setAnalysis(data.analysis);
-        setIsPremium(prev => prev || data.premium_unlocked);
-        if (data.share_enabled) setShareId(data.share_id);
-      } catch (err: any) {
-        setError(err.message);
-      }
-    };
-
     fetchAnalysis();
+
+    // Alert payment error if exists
+    const paymentError = searchParams.get('error');
+    if (paymentError) {
+      // Remove query param to prevent showing alert again on refresh
+      window.history.replaceState({}, '', `/result/${id}`);
+      setTimeout(() => alert(paymentError), 500);
+    }
+  }, [id, router, searchParams]);
+
+  useEffect(() => {
+    if (!id) return;
 
     // Polling logic if report is generating
     const interval = setInterval(() => {
@@ -199,26 +212,38 @@ export default function Result() {
   };
 
   const handleUnlock = async () => {
+    if (isPaymentProcessing) return;
     try {
-      // Optimistically show generating
-      setIsPremium(true);
-      
-      const res = await fetch(`/api/premium/unlock/${id}`, { method: 'POST' });
+      setIsPaymentProcessing(true);
+      // 1. Prepare payment
+      const res = await fetch(`/api/premium/prepare/${id}`, { method: 'POST' });
       const data = await res.json();
-      if (!data.success) {
-        throw new Error(data.message || "결제/해제 처리 중 오류가 발생했습니다.");
+      
+      if (!res.ok) {
+        throw new Error(data.error || "결제 준비 중 오류가 발생했습니다.");
       }
 
-      // Re-fetch analysis to get the premium_report field
-      const fetchRes = await fetch(`/api/result/${id}`, { cache: 'no-store' });
-      if (fetchRes.ok) {
-        const fetchJSON = await fetchRes.json();
-        setAnalysis(fetchJSON.analysis);
-        setIsPremium(fetchJSON.premium_unlocked);
+      // 2. Call NICEPAY
+      if (!(window as any).AUTHNICE) {
+        throw new Error("결제 모듈을 로드하는 중입니다. 잠시 후 다시 시도해주세요.");
       }
+
+      (window as any).AUTHNICE.requestPay({
+        clientId: process.env.NEXT_PUBLIC_NICEPAY_CLIENT_KEY,
+        method: 'card',
+        orderId: data.orderId,
+        amount: data.amount,
+        goodsName: data.goodsName,
+        returnUrl: `${process.env.NEXT_PUBLIC_SITE_URL}/api/premium/callback`,
+        fnError: function (result: any) {
+          setIsPaymentProcessing(false);
+          alert(result.errorMsg || "결제 중 오류가 발생했습니다.");
+        }
+      });
+
     } catch (err: any) {
+      setIsPaymentProcessing(false);
       alert(err.message);
-      setIsPremium(false); // Revert
     }
   };
 
@@ -397,6 +422,7 @@ export default function Result() {
               }}
               onUnlock={handleUnlock}
             />
+            {!isPremium && <PremiumReportLocked onUnlock={handleUnlock} isProcessing={isPaymentProcessing} />}
           </div>
 
           <div className="hidden print:block">
