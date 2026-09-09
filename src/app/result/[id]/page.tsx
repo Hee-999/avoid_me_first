@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { FinalAnalysis } from "@/lib/analysis/types";
 import { PremiumReport } from "@/components/premium/PremiumReport";
+import { PremiumReportLocked } from "@/components/premium/PremiumReportLocked";
 import { PrintablePremiumReport } from "@/components/premium/PrintablePremiumReport";
 import { ShareAliasModal } from "@/components/share/ShareAliasModal";
 import { ShareResultCard } from "@/components/share/ShareResultCard";
