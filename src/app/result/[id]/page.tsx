@@ -5,7 +5,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { FinalAnalysis } from "@/lib/analysis/types";
 import { PremiumReport } from "@/components/premium/PremiumReport";
-import { PremiumReportLocked } from "@/components/premium/PremiumReportLocked";
 import { PrintablePremiumReport } from "@/components/premium/PrintablePremiumReport";
 import { ShareAliasModal } from "@/components/share/ShareAliasModal";
 import { ShareResultCard } from "@/components/share/ShareResultCard";
@@ -422,8 +421,8 @@ export default function Result() {
                 console.log("Retry requested");
               }}
               onUnlock={handleUnlock}
+              isProcessing={isPaymentProcessing}
             />
-            {!isPremium && <PremiumReportLocked onUnlock={handleUnlock} isProcessing={isPaymentProcessing} />}
           </div>
 
           <div className="hidden print:block">
