@@ -228,13 +228,14 @@ export default function Result() {
         throw new Error("결제 모듈을 로드하는 중입니다. 잠시 후 다시 시도해주세요.");
       }
 
+      const baseUrl = (process.env.NEXT_PUBLIC_SITE_URL || (typeof window !== 'undefined' ? window.location.origin : '')).replace(/\/+$/, '');
       (window as any).AUTHNICE.requestPay({
         clientId: process.env.NEXT_PUBLIC_NICEPAY_CLIENT_KEY,
         method: 'card',
         orderId: data.orderId,
         amount: data.amount,
         goodsName: data.goodsName,
-        returnUrl: `${process.env.NEXT_PUBLIC_SITE_URL}/api/premium/callback`,
+        returnUrl: `${baseUrl}/api/premium/callback`,
         fnError: function (result: any) {
           setIsPaymentProcessing(false);
           alert(result.errorMsg || "결제 중 오류가 발생했습니다.");

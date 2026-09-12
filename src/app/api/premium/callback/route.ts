@@ -25,7 +25,8 @@ export async function POST(request: Request) {
     const [analysisId] = orderId.split("_");
 
     // Redirect URL base
-    const redirectUrl = `${process.env.NEXT_PUBLIC_SITE_URL}/result/${analysisId}`;
+    const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000").replace(/\/+$/, '');
+    const redirectUrl = `${siteUrl}/result/${analysisId}`;
 
     if (authResultCode !== "0000") {
       console.warn(`[PAYMENT] Auth failed: ${authResultMsg}`);
@@ -157,7 +158,7 @@ export async function POST(request: Request) {
   } catch (error: any) {
     console.error("Premium Callback POST Error:", error);
     // Best effort redirect
-    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+    const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000").replace(/\/+$/, '');
     return NextResponse.redirect(`${siteUrl}/?error=${encodeURIComponent("결제 처리 중 서버 오류가 발생했습니다.")}`, 302);
   }
 }
