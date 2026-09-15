@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, forwardRef } from "react";
+import Link from "next/link";
 import { motion } from "framer-motion";
 import { Footer } from "@/components/legal/Footer";
 
@@ -118,11 +119,22 @@ const InputSection = forwardRef<HTMLElement, InputSectionProps>(({ onAnalyze, on
 
         <button 
           onClick={() => onAnalyze(text)}
-          className="w-full py-4.5 bg-zinc-950 text-white font-bold text-[16px] rounded-xl transform transition-all hover:bg-zinc-800 hover:shadow-lg hover:-translate-y-0.5 active:scale-[0.98] active:translate-y-0 flex items-center justify-center gap-2 shadow-md mb-8"
+          className="w-full py-4.5 bg-zinc-950 text-white font-bold text-[16px] rounded-xl transform transition-all hover:bg-zinc-800 hover:shadow-lg hover:-translate-y-0.5 active:scale-[0.98] active:translate-y-0 flex items-center justify-center gap-2 shadow-md mb-3"
         >
           회피 성향 심층 분석 시작
           <svg className="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
         </button>
+
+        {/* 심사 및 데모용 예시 결과 확인 보조 버튼 */}
+        <div className="flex justify-center mb-6">
+          <Link
+            href="/sample-result"
+            className="text-[13px] font-semibold text-zinc-500 hover:text-zinc-800 underline underline-offset-4 transition-colors flex items-center gap-1 py-1 px-3 rounded-lg hover:bg-zinc-100"
+          >
+            <span>예시 결과 확인하기</span>
+            <svg className="w-3.5 h-3.5 text-zinc-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+          </Link>
+        </div>
 
         <div className="mt-auto text-center text-[13px] text-zinc-400 font-medium pb-4">
           <div className="bg-zinc-50 border border-zinc-100 p-3.5 rounded-lg mb-3 mx-auto w-full text-left text-zinc-500 break-keep">
