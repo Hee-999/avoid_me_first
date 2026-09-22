@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase/server";
+import { notifyPaidConversion } from "@/lib/telegram/notify";
 
 export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -29,6 +30,12 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     if (error) {
       return NextResponse.json({ error: "Failed to unlock premium" }, { status: 500 });
     }
+
+    notifyPaidConversion({
+      id,
+      amount: 4900,
+      orderId: `DIRECT_UNLOCK_${id.slice(0, 8)}`,
+    });
 
     return NextResponse.json({ success: true });
 

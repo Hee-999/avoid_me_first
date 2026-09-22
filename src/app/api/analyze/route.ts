@@ -7,6 +7,8 @@ import { preprocessConversation } from "@/lib/analysis/preprocessor";
 import { sanitizeConversation } from "@/lib/analysis/privacySanitizer";
 import { buildDerivedReportContext } from "@/lib/report/premium/contextBuilder";
 import { generatePremiumReport } from "@/lib/report/premium/generator";
+import { notifyFreeAnalysis } from "@/lib/telegram/notify";
+
 
 export async function POST(request: Request) {
   try {
@@ -70,6 +72,15 @@ export async function POST(request: Request) {
     const ownerToken = generateOwnerToken();
     const ownerTokenHash = hashToken(ownerToken);
     const analysisId = await AnalysisRepository.saveAnalysisResult(persistentPayload, ownerTokenHash);
+
+    // Realtime Telegram Notification for Free Analysis
+    notifyFreeAnalysis({
+      id: analysisId,
+      targetSpeaker: target_speaker_label || target_speaker_id,
+      primaryType: persistentPayload.primary_type,
+      anxietyScore: persistentPayload.dimensions?.anxiety?.score,
+      avoidanceScore: persistentPayload.dimensions?.avoidance?.score,
+    });
 
     // =========================================================================
     // BACKGROUND ASYNC PATH (Does NOT block response)

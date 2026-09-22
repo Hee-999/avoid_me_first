@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase/server";
+import { notifyPaidConversion } from "@/lib/telegram/notify";
 import crypto from "crypto";
 
 export async function POST(request: Request) {
@@ -53,7 +54,7 @@ export async function POST(request: Request) {
     // 2. Fetch analysis to verify order and idempotency
     const { data: analysisData, error: analysisError } = await supabaseAdmin
       .from("analyses")
-      .select("status, premium_status")
+      .select("status, premium_status, primary_type, extracted_signals")
       .eq("id", analysisId)
       .single();
 
@@ -151,6 +152,15 @@ export async function POST(request: Request) {
     }
 
     console.log(`[PAYMENT] premium unlocked for analysis: ${analysisId}`);
+
+    // Realtime Telegram Notification for Paid Conversion
+    notifyPaidConversion({
+      id: analysisId,
+      amount,
+      targetSpeaker: analysisData.extracted_signals?.target_speaker_label,
+      primaryType: analysisData.primary_type,
+      orderId,
+    });
 
     // 5. Redirect back to result page
     return NextResponse.redirect(redirectUrl, 302);

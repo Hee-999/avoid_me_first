@@ -1,0 +1,22 @@
+# 회피형 판독기 (Avoidance Reader)
+
+> 카카오톡 대화 기반 상대방 성인 애착 유형 및 심리 패턴 분석 서비스
+
+- Domain: https://lovepattern.site
+- Contact: contact@lovepattern.site
+- Primary Model: 바솔로뮤(Bartholomew & Horowitz, 1991) 4대 성인 애착 모델 (안정형, 몰입형, 거부회피형, 공포회피형)
+
+## 주요 서비스 개요
+회피형 판독기는 상대방과의 1:1 카카오톡 대화 텍스트를 입력받아 상대방의 애착 차원(불안 차원, 회피 차원)을 정량적으로 측정하고 성인 애착 유형을 판독합니다.
+
+## 핵심 가치 및 특징
+1. **무료 기본 분석**: 상대방의 애착 유형(안정/몰입/거부회피/공포회피) 및 불안/회피 점수 무료 제공.
+2. **프리미엄 심층 리포트 (4,900원)**: 상대방의 무의식적 방어기제, 핵심 갈등 유발어(트리거), 회피 행동을 완화하는 1:1 맞춤 카톡 대응 화법 가이드 제공.
+3. **철저한 개인정보 보호**: 사용자가 입력한 대화 원문은 서비스 DB에 일절 저장되지 않으며 오직 비식별화된 분석 지표만 보관됩니다.
+
+## 공식 페이지
+- 메인 검사 페이지: https://lovepattern.site
+- 결과 예시 페이지: https://lovepattern.site/sample-result
+- 개인정보처리방침: https://lovepattern.site/privacy
+- 서비스 이용약관: https://lovepattern.site/terms
+- 환불 규정: https://lovepattern.site/refund
