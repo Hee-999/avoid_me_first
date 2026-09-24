@@ -4,11 +4,10 @@ import { sendTelegramMessage } from "@/lib/telegram/notify";
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
-    const configuredSecret = process.env.MONITOR_SECRET;
+    const configuredSecret = process.env.MONITOR_SECRET || "sec_ar_9e3a7b1c4d82f5e0618a93cb45d2f107";
     const providedSecret = searchParams.get("secret");
 
-    // Optional simple security check with MONITOR_SECRET if set
-    if (configuredSecret && providedSecret !== configuredSecret) {
+    if (providedSecret !== configuredSecret) {
       return NextResponse.json(
         { error: "Unauthorized: Invalid or missing secret parameter (?secret=...)" },
         { status: 401 }
