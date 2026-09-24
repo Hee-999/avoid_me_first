@@ -73,14 +73,18 @@ export async function POST(request: Request) {
     const ownerTokenHash = hashToken(ownerToken);
     const analysisId = await AnalysisRepository.saveAnalysisResult(persistentPayload, ownerTokenHash);
 
-    // Realtime Telegram Notification for Free Analysis
-    notifyFreeAnalysis({
-      id: analysisId,
-      targetSpeaker: target_speaker_label || target_speaker_id,
-      primaryType: persistentPayload.primary_type,
-      anxietyScore: persistentPayload.dimensions?.anxiety?.score,
-      avoidanceScore: persistentPayload.dimensions?.avoidance?.score,
-    });
+    // Realtime Telegram Notification for Free Analysis (Awaited to prevent Serverless freeze)
+    try {
+      await notifyFreeAnalysis({
+        id: analysisId,
+        targetSpeaker: target_speaker_label || target_speaker_id,
+        primaryType: persistentPayload.primary_type,
+        anxietyScore: persistentPayload.dimensions?.anxiety?.score,
+        avoidanceScore: persistentPayload.dimensions?.avoidance?.score,
+      });
+    } catch (telegramErr) {
+      console.error("[TELEGRAM] Failed to dispatch free analysis alert:", telegramErr);
+    }
 
     // =========================================================================
     // BACKGROUND ASYNC PATH (Does NOT block response)

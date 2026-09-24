@@ -153,14 +153,18 @@ export async function POST(request: Request) {
 
     console.log(`[PAYMENT] premium unlocked for analysis: ${analysisId}`);
 
-    // Realtime Telegram Notification for Paid Conversion
-    notifyPaidConversion({
-      id: analysisId,
-      amount,
-      targetSpeaker: analysisData.extracted_signals?.target_speaker_label,
-      primaryType: analysisData.primary_type,
-      orderId,
-    });
+    // Realtime Telegram Notification for Paid Conversion (Awaited before redirect)
+    try {
+      await notifyPaidConversion({
+        id: analysisId,
+        amount,
+        targetSpeaker: analysisData.extracted_signals?.target_speaker_label,
+        primaryType: analysisData.primary_type,
+        orderId,
+      });
+    } catch (telegramErr) {
+      console.error("[TELEGRAM] Failed to dispatch paid conversion alert:", telegramErr);
+    }
 
     // 5. Redirect back to result page
     return NextResponse.redirect(redirectUrl, 302);

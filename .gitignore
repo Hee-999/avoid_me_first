@@ -40,3 +40,8 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# temporary & local
+nicepay-manual-tmp/
+supabase/.temp/
+.agents/

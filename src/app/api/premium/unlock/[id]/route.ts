@@ -31,11 +31,15 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
       return NextResponse.json({ error: "Failed to unlock premium" }, { status: 500 });
     }
 
-    notifyPaidConversion({
-      id,
-      amount: 4900,
-      orderId: `DIRECT_UNLOCK_${id.slice(0, 8)}`,
-    });
+    try {
+      await notifyPaidConversion({
+        id,
+        amount: 4900,
+        orderId: `DIRECT_UNLOCK_${id.slice(0, 8)}`,
+      });
+    } catch (telegramErr) {
+      console.error("[TELEGRAM] Failed to dispatch paid conversion alert:", telegramErr);
+    }
 
     return NextResponse.json({ success: true });
 
