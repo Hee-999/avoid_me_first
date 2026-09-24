@@ -45,3 +45,4 @@ next-env.d.ts
 nicepay-manual-tmp/
 supabase/.temp/
 .agents/
+scripts/

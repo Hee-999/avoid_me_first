@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { sendTelegramMessage } from "@/lib/telegram/notify";
 
+export const dynamic = "force-dynamic";
+
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
@@ -20,9 +22,7 @@ export async function GET(request: Request) {
     const envStatus = {
       NODE_ENV: process.env.NODE_ENV,
       hasBotToken: !!token,
-      botTokenPrefix: token ? `${token.slice(0, 10)}...` : null,
       hasChatId: !!chatId,
-      chatId: chatId || null,
     };
 
     if (!token || !chatId) {
