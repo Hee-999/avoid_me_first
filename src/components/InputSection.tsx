@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, forwardRef } from "react";
+import { useState, useEffect, forwardRef } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { Footer } from "@/components/legal/Footer";
@@ -26,6 +26,27 @@ const InputSection = forwardRef<HTMLElement, InputSectionProps>(
     const [slices, setSlices] = useState<Array<{ base64: string; mimeType: string }>>([]);
     const [targetRole, setTargetRole] = useState<"target" | "user">("target");
     const [targetLabel, setTargetLabel] = useState<string>("상대방");
+    const [loadingStep, setLoadingStep] = useState("대화 캡처 및 이모티콘 정밀 판독 중...");
+
+    useEffect(() => {
+      if (!isSubmitting) {
+        setLoadingStep("대화 캡처 및 이모티콘 정밀 판독 중...");
+        return;
+      }
+
+      const t1 = setTimeout(() => {
+        setLoadingStep("12가지 애착 심리 지표 채점 중...");
+      }, 5000);
+
+      const t2 = setTimeout(() => {
+        setLoadingStep("상호작용 패턴 및 방어기제 분석 중...");
+      }, 12000);
+
+      return () => {
+        clearTimeout(t1);
+        clearTimeout(t2);
+      };
+    }, [isSubmitting]);
 
     const handleTargetRoleChange = (role: "target" | "user") => {
       setTargetRole(role);
@@ -150,7 +171,7 @@ const InputSection = forwardRef<HTMLElement, InputSectionProps>(
                   <span>🙋</span> 내 성향 분석
                 </span>
                 <span className="text-[11px] text-zinc-400 font-normal">
-                  (우측 노란 말풍선)
+                  (우측 말풍선 기준)
                 </span>
               </button>
             </div>
@@ -179,9 +200,9 @@ const InputSection = forwardRef<HTMLElement, InputSectionProps>(
             className="w-full py-4.5 bg-zinc-950 text-white font-bold text-[16px] rounded-xl transform transition-all hover:bg-zinc-800 hover:shadow-lg hover:-translate-y-0.5 active:scale-[0.98] active:translate-y-0 flex items-center justify-center gap-2 shadow-md mb-3 disabled:opacity-50 disabled:pointer-events-none cursor-pointer"
           >
             {isSubmitting ? (
-              <span className="flex items-center gap-2">
-                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                AI 심층 분석 중... (약 3~5초 소요)
+              <span className="flex items-center gap-2 text-[14px]">
+                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin shrink-0"></div>
+                <span>{loadingStep}</span>
               </span>
             ) : (
               <>
