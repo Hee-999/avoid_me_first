@@ -18,11 +18,12 @@ interface PremiumReportProps {
   analysis: any;
   isPremium: boolean;
   onRetry?: () => void;
+  isRetrying?: boolean;
   onUnlock?: () => void;
   isProcessing?: boolean;
 }
 
-export function PremiumReport({ analysis, isPremium, onRetry, onUnlock, isProcessing = false }: PremiumReportProps) {
+export function PremiumReport({ analysis, isPremium, onRetry, isRetrying = false, onUnlock, isProcessing = false }: PremiumReportProps) {
   // 1. LOCKED State
   if (!isPremium) {
     return <PremiumReportLocked onUnlock={onUnlock} isProcessing={isProcessing} />;
@@ -40,7 +41,7 @@ export function PremiumReport({ analysis, isPremium, onRetry, onUnlock, isProces
 
   // 3. FAILED State
   if (reportStatus === 'failed') {
-    return <PremiumReportFailed onRetry={onRetry} />;
+    return <PremiumReportFailed onRetry={onRetry} isRetrying={isRetrying} />;
   }
 
   // 5. READY State

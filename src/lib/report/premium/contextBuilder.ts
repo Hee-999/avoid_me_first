@@ -1,4 +1,4 @@
-import { callDeepSeekAPI } from "../../analysis/extractor/deepseekClient";
+import { callResilientLLM } from "../../analysis/llmRouter";
 import { MvpAnalysisResult } from "../../analysis/mvp/types";
 import { DerivedReportContext } from "./types";
 
@@ -17,7 +17,14 @@ DO NOT include any exact quotes or raw message text from the conversation in you
 You must synthesize and describe the situations objectively.
 (e.g., INSTEAD OF "그만하자" -> USE "갈등을 멈추고 대화를 종료하려는 의사 표현")
 
-TARGET SPEAKER: ${targetSpeaker}
+TARGET SPEAKER TO ANALYZE: ${targetSpeaker}
+OTHER SPEAKER: The conversation partner
+
+CRITICAL ROLE INSTRUCTION:
+- "target_behavior" MUST describe what ${targetSpeaker} specifically did or said.
+- "other_person_behavior" MUST describe what the other speaker did or said.
+- NEVER invert the actions of ${targetSpeaker} and the other speaker!
+
 MVP SCORING RESULT:
 ${JSON.stringify(mvpResult, null, 2)}
 
@@ -50,7 +57,7 @@ OUTPUT SCHEMA (Return ONLY JSON):
 `;
 
   try {
-    const response = await callDeepSeekAPI(prompt);
+    const response = await callResilientLLM(prompt);
     const rawOutput = response.content;
     const jsonStr = extractJsonSubstring(rawOutput);
     if (!jsonStr) {

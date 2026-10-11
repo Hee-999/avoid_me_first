@@ -1,4 +1,4 @@
-import { callDeepSeekAPI } from "../extractor/deepseekClient";
+import { callResilientLLM } from "../llmRouter";
 import { buildMvpPrompt } from "./prompt";
 import { calculateDimension, calculateFitness, getPrimaryType } from "./scoring";
 import { MvpAnalysisResult, MvpRawExtraction, MvpSignal } from "./types";
@@ -14,7 +14,7 @@ export async function analyzeConversationMvpV2(options: MvpExtractionOptions): P
   
   let rawResponse = "";
   try {
-    const response = await callDeepSeekAPI(prompt);
+    const response = await callResilientLLM(prompt);
     rawResponse = response.content;
   } catch (e: any) {
     return { result: null, latency_ms: Date.now() - start, error: e.message };

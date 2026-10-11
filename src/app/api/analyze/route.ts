@@ -10,28 +10,50 @@ import { generatePremiumReport } from "@/lib/report/premium/generator";
 import { notifyFreeAnalysis } from "@/lib/telegram/notify";
 
 
+import { parseKakaoScreenshotsWithVision } from "@/lib/analysis/gemini/kakaoVisionParser";
+
 export async function POST(request: Request) {
   try {
-    const { text, target_speaker_id, target_speaker_label } = await request.json();
+    const body = await request.json();
+    const { images, text, target_role = "target", target_speaker_id, target_speaker_label } = body;
 
-    if (!text || typeof text !== "string") {
-      return NextResponse.json({ error: "Invalid text input" }, { status: 400 });
+    let preprocessed;
+    let resolvedTargetId = target_speaker_id;
+    let resolvedTargetLabel = target_speaker_label?.trim();
+
+    if (images && Array.isArray(images) && images.length > 0) {
+      // 1. Vision-based parsing via Gemini
+      preprocessed = await parseKakaoScreenshotsWithVision(images);
+      
+      // Determine target speaker:
+      // speaker_a = 좌측 말풍선 (상대방)
+      // speaker_b = 우측 노란색 말풍선 (나 / 본인)
+      if (target_role === "user") {
+        resolvedTargetId = "speaker_b";
+        resolvedTargetLabel = resolvedTargetLabel || "나";
+      } else {
+        resolvedTargetId = "speaker_a";
+        resolvedTargetLabel = resolvedTargetLabel || "상대방";
+      }
+    } else if (text && typeof text === "string") {
+      // 2. Fallback text parsing
+      if (!resolvedTargetId) {
+        return NextResponse.json({ error: "TARGET_REQUIRED" }, { status: 400 });
+      }
+      preprocessed = preprocessConversation(text);
+      resolvedTargetLabel = resolvedTargetLabel || "상대방";
+    } else {
+      return NextResponse.json({ error: "캡처 이미지 또는 대화 내용을 입력해주세요." }, { status: 400 });
     }
     
-    if (!target_speaker_id) {
-      return NextResponse.json({ error: "TARGET_REQUIRED" }, { status: 400 });
-    }
-
-    const preprocessed = preprocessConversation(text);
-    
-    if (preprocessed.messages.length === 0) {
-      return NextResponse.json({ error: "No valid conversation found in the text." }, { status: 400 });
+    if (!preprocessed || preprocessed.messages.length === 0) {
+      return NextResponse.json({ error: "대화 내용을 인식하지 못했습니다. 더 선명한 대화 화면을 올려주세요." }, { status: 400 });
     }
 
     // 0. Privacy Sanitization (Pseudonymization & PII Masking)
     const { messages: sanitizedMessages, targetSpeakerId: sanitizedTargetId } = sanitizeConversation(
       preprocessed.messages, 
-      target_speaker_id
+      resolvedTargetId
     );
 
     // Convert to the simple format expected by the prompt and context builder
@@ -61,7 +83,7 @@ export async function POST(request: Request) {
     // 3. Construct Persistent Payload (Safe to save, no raw text)
     const persistentPayload = {
       ...analysisResult,
-      target_speaker_label: target_speaker_label || target_speaker_id,
+      target_speaker_label: resolvedTargetLabel || resolvedTargetId,
       derived_context: derivedContext,
       premium_report: null, // Will be generated async
       access: { premium_unlocked: false },
@@ -77,7 +99,7 @@ export async function POST(request: Request) {
     try {
       await notifyFreeAnalysis({
         id: analysisId,
-        targetSpeaker: target_speaker_label || target_speaker_id,
+        targetSpeaker: resolvedTargetLabel || resolvedTargetId,
         primaryType: persistentPayload.primary_type,
         anxietyScore: persistentPayload.dimensions?.anxiety?.score,
         avoidanceScore: persistentPayload.dimensions?.avoidance?.score,
@@ -96,7 +118,11 @@ export async function POST(request: Request) {
     // Generate heavy Premium Report v2.0 in the background safely using Next.js `after`
     after(async () => {
       try {
-        const premiumReport = await generatePremiumReport(analysisResult, derivedContext);
+        const premiumReport = await generatePremiumReport(
+          analysisResult, 
+          derivedContext, 
+          resolvedTargetLabel || "상대방"
+        );
         await AnalysisRepository.updatePremiumReport(analysisId, premiumReport, "ready");
       } catch (err) {
         console.error(`Premium Report Generation Failed for ${analysisId}:`, err);

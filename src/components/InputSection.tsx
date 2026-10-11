@@ -4,206 +4,231 @@ import { useState, forwardRef } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { Footer } from "@/components/legal/Footer";
+import { ImageUploader } from "@/components/upload/ImageUploader";
+import { CaptureGuideModal } from "@/components/guide/CaptureGuideModal";
 
-interface InputSectionProps {
-  onAnalyze: (text: string) => void;
-  onBack?: () => void;
+export interface AnalyzeRequestPayload {
+  slices: Array<{ base64: string; mimeType: string }>;
+  targetRole: "target" | "user";
+  targetLabel: string;
 }
 
-const InputSection = forwardRef<HTMLElement, InputSectionProps>(({ onAnalyze, onBack }, ref) => {
-  const [isGuideOpen, setIsGuideOpen] = useState(false);
-  const [guideStep, setGuideStep] = useState(0);
-  const [isModelInfoOpen, setIsModelInfoOpen] = useState(false);
-  const [text, setText] = useState("");
+interface InputSectionProps {
+  onAnalyzeImages: (payload: AnalyzeRequestPayload) => void;
+  onBack?: () => void;
+  isSubmitting?: boolean;
+}
 
-  const guideContents = [
-    {
-      title: "1. 카카오톡 대화방 열기",
-      desc: "분석하고 싶은 상대방과의 카카오톡 채팅방에 들어갑니다.",
-    },
-    {
-      title: "2. 대화 내보내기",
-      desc: "우측 상단 햄버거 메뉴(≡) > 하단 톱니바퀴(설정) > '대화 내용 내보내기' > '텍스트만 보내기'를 선택합니다.",
-    },
-    {
-      title: "3. 텍스트 복사하기",
-      desc: "내보낸 텍스트 파일(.txt)을 열고, 분석하고 싶은 구간의 대화를 전체 선택하여 복사(Ctrl+C)합니다.",
-    },
-    {
-      title: "4. 여기에 붙여넣기",
-      desc: "다시 이 화면으로 돌아와서 빈 칸에 대화 내용을 붙여넣고 분석 버튼을 누르면 끝!",
-    }
-  ];
+const InputSection = forwardRef<HTMLElement, InputSectionProps>(
+  ({ onAnalyzeImages, onBack, isSubmitting = false }, ref) => {
+    const [isGuideOpen, setIsGuideOpen] = useState(false);
+    const [isModelInfoOpen, setIsModelInfoOpen] = useState(false);
+    const [slices, setSlices] = useState<Array<{ base64: string; mimeType: string }>>([]);
+    const [targetRole, setTargetRole] = useState<"target" | "user">("target");
+    const [targetLabel, setTargetLabel] = useState<string>("상대방");
 
-  const handleNextStep = () => {
-    if (guideStep < guideContents.length - 1) setGuideStep(guideStep + 1);
-  };
+    const handleTargetRoleChange = (role: "target" | "user") => {
+      setTargetRole(role);
+      if (role === "target") {
+        setTargetLabel("상대방");
+      } else {
+        setTargetLabel("나");
+      }
+    };
 
-  const handlePrevStep = () => {
-    if (guideStep > 0) setGuideStep(guideStep - 1);
-  };
+    const handleAnalyzeClick = () => {
+      if (slices.length === 0) {
+        alert("카카오톡 대화 캡처 사진을 최소 1장 이상 등록해주세요!");
+        return;
+      }
+      onAnalyzeImages({
+        slices,
+        targetRole,
+        targetLabel: targetLabel.trim() || (targetRole === "target" ? "상대방" : "나")
+      });
+    };
 
-  return (
-    <section 
-      ref={ref}
-      className="relative w-full flex flex-col bg-transparent z-20"
-    >
-      <div className="max-w-md mx-auto w-full flex flex-col flex-1">
-        
-        {/* Back Button */}
-        {onBack && (
-          <button 
-            onClick={onBack}
-            className="self-start mb-6 text-[13px] font-bold text-zinc-400 hover:text-zinc-800 transition flex items-center gap-1.5 px-3 py-1.5 -ml-3 rounded-lg hover:bg-zinc-100"
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 19l-7-7 7-7" /></svg>
-            처음으로
-          </button>
-        )}
-
-        {/* Model Info Box */}
-        <div className="mb-8 bg-white border border-zinc-200 rounded-2xl p-4 transition-all shadow-sm hover:shadow-md">
-          <button 
-            onClick={() => setIsModelInfoOpen(!isModelInfoOpen)}
-            className="w-full flex justify-between items-center text-left"
-          >
-            <div className="flex items-center gap-2">
-              <div className="w-6 h-6 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center">
-                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-              </div>
-              <span className="text-[14px] font-semibold text-zinc-800">바솔로뮤(Bartholomew) 성인 애착 모델이란?</span>
-            </div>
-            <svg className={`w-4 h-4 text-zinc-400 transform transition-transform ${isModelInfoOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
-          </button>
-          
-          {isModelInfoOpen && (
-            <motion.div 
-              initial={{ height: 0, opacity: 0 }}
-              animate={{ height: "auto", opacity: 1 }}
-              className="mt-4 pt-4 border-t border-zinc-100 text-[14px] text-zinc-600 leading-relaxed overflow-hidden"
+    return (
+      <section ref={ref} className="relative w-full flex flex-col bg-transparent z-20">
+        <div className="max-w-md mx-auto w-full flex flex-col flex-1">
+          {/* Back Button */}
+          {onBack && (
+            <button
+              onClick={onBack}
+              disabled={isSubmitting}
+              className="self-start mb-6 text-[13px] font-bold text-zinc-400 hover:text-zinc-800 transition flex items-center gap-1.5 px-3 py-1.5 -ml-3 rounded-lg hover:bg-zinc-100"
             >
-              심리학자 킴 바솔로뮤(Kim Bartholomew)가 제안한 4분할 애착 이론입니다. 자기 자신과 타인을 긍정하는지 부정하는지를 기준으로 <strong>안정형, 불안형, 거부-회피형, 공포-회피형</strong> 4가지로 분류합니다.<br/><br/>
-              이 서비스는 AI가 카톡 대화의 텍스트 패턴을 분석하여, 상대방이 갈등 상황에서 보이는 방어기제와 회피 성향을 학술적 기준에 기반해 판독해 드립니다.
-            </motion.div>
-          )}
-        </div>
-
-        <div className="flex-1 flex flex-col mb-10">
-          <div className="flex justify-between items-end mb-4">
-            <label
-              htmlFor="kakaotalk-log"
-              className="block text-[15px] font-bold text-zinc-900"
-            >
-              대화 텍스트 입력
-            </label>
-            <button 
-              onClick={() => {
-                setGuideStep(0);
-                setIsGuideOpen(true);
-              }}
-              className="text-[13px] text-blue-600 font-semibold hover:text-blue-700 flex items-center gap-1 transition-colors bg-blue-50 px-2 py-1 rounded-md"
-            >
-              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-              카톡 대화 입력 가이드 보기
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 19l-7-7 7-7" />
+              </svg>
+              처음으로
             </button>
-          </div>
-          
-          <textarea
-            id="kakaotalk-log"
-            value={text}
-            onChange={(e) => setText(e.target.value)}
-            className="w-full flex-1 min-h-[320px] p-5 bg-white border border-zinc-200 focus:ring-2 focus:ring-blue-100 focus:border-blue-500 outline-none transition-all resize-none text-[15px] leading-relaxed text-zinc-800 placeholder-zinc-400 rounded-2xl shadow-sm"
-            placeholder="[오후 11:32] 김회피: 나 지금 너무 피곤해서... 내일 연락할게.&#10;[오후 11:34] 나: 우리가 풀 건 풀어야지. 왜 매번 피하려고만 해?&#10;[오후 11:35] 김회피: 또 시작이네. 그만하자.&#10;&#10;*여기에 실제 대화를 길게 복사해서 붙여넣으세요.*"
-          ></textarea>
-        </div>
+          )}
 
-        <button 
-          onClick={() => onAnalyze(text)}
-          className="w-full py-4.5 bg-zinc-950 text-white font-bold text-[16px] rounded-xl transform transition-all hover:bg-zinc-800 hover:shadow-lg hover:-translate-y-0.5 active:scale-[0.98] active:translate-y-0 flex items-center justify-center gap-2 shadow-md mb-3"
-        >
-          회피 성향 심층 분석 시작
-          <svg className="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
-        </button>
-
-        {/* 심사 및 데모용 예시 결과 확인 보조 버튼 */}
-        <div className="flex justify-center mb-6">
-          <Link
-            href="/sample-result"
-            className="text-[13px] font-semibold text-zinc-500 hover:text-zinc-800 underline underline-offset-4 transition-colors flex items-center gap-1 py-1 px-3 rounded-lg hover:bg-zinc-100"
-          >
-            <span>예시 결과 확인하기</span>
-            <svg className="w-3.5 h-3.5 text-zinc-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
-          </Link>
-        </div>
-
-        <div className="mt-auto text-center text-[13px] text-zinc-400 font-medium pb-4">
-          <div className="bg-zinc-50 border border-zinc-100 p-3.5 rounded-lg mb-3 mx-auto w-full text-left text-zinc-500 break-keep">
-            <ul className="list-disc list-inside space-y-1.5 leading-relaxed">
-              <li>분석에 필요하지 않은 전화번호, 주소, 계좌번호 등의 개인정보는 자동으로 일부 마스킹됩니다.</li>
-              <li>건강·성생활·정치·종교 등 민감한 정보가 포함된 대화는 입력하지 않는 것을 권장합니다.</li>
-              <li>입력한 대화 원문은 분석 처리에만 사용되며 서비스 DB에는 저장하지 않습니다.</li>
-            </ul>
-          </div>
-          <p className="text-[12px] text-zinc-400">
-            본 분석은 참고용이며 전문적인 심리 상담을 대체하지 않습니다.
-          </p>
-
-          <Footer isEmbedded={true} />
-        </div>
-      </div>
-
-      {/* Guide Modal */}
-      {isGuideOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-zinc-950/40 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="bg-white w-full max-w-sm rounded-2xl shadow-2xl overflow-hidden flex flex-col animate-in slide-in-from-bottom-4 duration-300">
-            <div className="px-5 py-4 border-b border-zinc-100 flex justify-between items-center bg-zinc-50/50">
-              <h3 className="font-semibold text-sm text-zinc-900">카카오톡 대화 가져오기</h3>
-              <button onClick={() => setIsGuideOpen(false)} className="text-zinc-400 hover:text-zinc-900 transition-colors bg-white rounded-full p-1 border border-zinc-200">
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" /></svg>
-              </button>
-            </div>
-            
-            <div className="p-6 flex-1 min-h-[180px] flex flex-col justify-center">
-              <div className="text-xs font-semibold text-blue-600 mb-3 tracking-widest uppercase">Step {guideStep + 1} / {guideContents.length}</div>
-              <h4 className="text-xl font-bold text-zinc-950 mb-3 leading-tight">{guideContents[guideStep].title}</h4>
-              <p className="text-[15px] text-zinc-600 leading-relaxed">{guideContents[guideStep].desc}</p>
-            </div>
-
-            <div className="px-5 py-4 flex justify-between items-center border-t border-zinc-100 bg-zinc-50/50">
-              <button 
-                onClick={handlePrevStep}
-                disabled={guideStep === 0}
-                className={`text-[14px] font-semibold transition-colors ${guideStep === 0 ? 'text-zinc-300 cursor-not-allowed' : 'text-zinc-600 hover:text-zinc-900'}`}
-              >
-                이전
-              </button>
-              <div className="flex gap-2">
-                {guideContents.map((_, idx) => (
-                  <div key={idx} className={`w-1.5 h-1.5 rounded-full transition-all ${idx === guideStep ? 'bg-blue-600 scale-125' : 'bg-zinc-200'}`} />
-                ))}
+          {/* Model Info Box */}
+          <div className="mb-6 bg-white border border-zinc-200 rounded-2xl p-4 transition-all shadow-sm hover:shadow-md">
+            <button
+              onClick={() => setIsModelInfoOpen(!isModelInfoOpen)}
+              className="w-full flex justify-between items-center text-left"
+            >
+              <div className="flex items-center gap-2">
+                <div className="w-6 h-6 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center">
+                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <span className="text-[14px] font-semibold text-zinc-800">
+                  바솔로뮤(Bartholomew) 성인 애착 모델이란?
+                </span>
               </div>
-              {guideStep < guideContents.length - 1 ? (
-                <button 
-                  onClick={handleNextStep}
-                  className="text-[14px] font-semibold text-zinc-900 hover:text-blue-600 transition-colors"
-                >
-                  다음
-                </button>
-              ) : (
-                <button 
-                  onClick={() => setIsGuideOpen(false)}
-                  className="text-[14px] font-semibold px-4 py-2 bg-zinc-950 text-white rounded-lg hover:bg-zinc-800 transition-colors"
-                >
-                  완료
-                </button>
-              )}
+              <svg
+                className={`w-4 h-4 text-zinc-400 transform transition-transform ${isModelInfoOpen ? "rotate-180" : ""}`}
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+
+            {isModelInfoOpen && (
+              <motion.div
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: "auto", opacity: 1 }}
+                className="mt-4 pt-4 border-t border-zinc-100 text-[14px] text-zinc-600 leading-relaxed overflow-hidden"
+              >
+                심리학자 킴 바솔로뮤(Kim Bartholomew)가 제안한 4분할 애착 이론입니다. 자기 자신과 타인을 긍정하는지 부정하는지를 기준으로 <strong>안정형, 불안형, 거부-회피형, 공포-회피형</strong> 4가지로 분류합니다.
+                <br />
+                <br />
+                이 서비스는 AI 비전 모델이 카톡 대화 캡처의 말풍선 패턴을 정밀 분석하여, 선택하신 대상의 방어기제와 회피 성향을 학술적 기준에 기반해 판독해 드립니다.
+              </motion.div>
+            )}
+          </div>
+
+          {/* Screenshot Uploader Component */}
+          <div className="flex flex-col mb-4">
+            <ImageUploader
+              onImagesReady={(newSlices) => setSlices(newSlices)}
+              onOpenGuide={() => setIsGuideOpen(true)}
+              disabled={isSubmitting}
+            />
+          </div>
+
+          {/* Analysis Target Selection Box */}
+          <div className="mb-6 bg-white border border-zinc-200 rounded-2xl p-4 shadow-sm">
+            <label className="block text-[14px] font-bold text-zinc-900 mb-2.5">
+              누구의 회피 성향을 분석할까요?
+            </label>
+            <div className="grid grid-cols-2 gap-2 mb-3">
+              <button
+                type="button"
+                onClick={() => handleTargetRoleChange("target")}
+                className={`py-3 px-3 rounded-xl border-2 transition-all flex flex-col items-center justify-center gap-1 cursor-pointer ${
+                  targetRole === "target"
+                    ? "border-blue-600 bg-blue-50/70 text-blue-900 font-bold shadow-xs"
+                    : "border-zinc-200 bg-zinc-50/50 text-zinc-600 hover:border-zinc-300"
+                }`}
+              >
+                <span className="text-[14px] flex items-center gap-1.5">
+                  <span>👤</span> 상대방 분석
+                </span>
+                <span className="text-[11px] text-zinc-400 font-normal">
+                  (좌측 말풍선 기준)
+                </span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => handleTargetRoleChange("user")}
+                className={`py-3 px-3 rounded-xl border-2 transition-all flex flex-col items-center justify-center gap-1 cursor-pointer ${
+                  targetRole === "user"
+                    ? "border-blue-600 bg-blue-50/70 text-blue-900 font-bold shadow-xs"
+                    : "border-zinc-200 bg-zinc-50/50 text-zinc-600 hover:border-zinc-300"
+                }`}
+              >
+                <span className="text-[14px] flex items-center gap-1.5">
+                  <span>🙋</span> 내 성향 분석
+                </span>
+                <span className="text-[11px] text-zinc-400 font-normal">
+                  (우측 노란 말풍선)
+                </span>
+              </button>
+            </div>
+
+            {/* Custom Label Input */}
+            <div className="flex items-center gap-2 pt-2.5 border-t border-zinc-100 text-[13px]">
+              <span className="text-zinc-500 font-medium shrink-0">결과 호칭:</span>
+              <input
+                type="text"
+                value={targetLabel}
+                onChange={(e) => setTargetLabel(e.target.value)}
+                placeholder={targetRole === "target" ? "상대방 (예: 그 사람, 남친)" : "나"}
+                maxLength={10}
+                className="flex-1 bg-zinc-50 border border-zinc-200 px-3 py-1.5 rounded-lg text-zinc-800 text-[13px] outline-none focus:border-blue-500 focus:bg-white transition"
+              />
+              <span className="text-[11px] text-zinc-400 shrink-0">
+                (리포트 표시용)
+              </span>
             </div>
           </div>
+
+          {/* Action Button */}
+          <button
+            onClick={handleAnalyzeClick}
+            disabled={isSubmitting || slices.length === 0}
+            className="w-full py-4.5 bg-zinc-950 text-white font-bold text-[16px] rounded-xl transform transition-all hover:bg-zinc-800 hover:shadow-lg hover:-translate-y-0.5 active:scale-[0.98] active:translate-y-0 flex items-center justify-center gap-2 shadow-md mb-3 disabled:opacity-50 disabled:pointer-events-none cursor-pointer"
+          >
+            {isSubmitting ? (
+              <span className="flex items-center gap-2">
+                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                AI 심층 분석 중... (약 3~5초 소요)
+              </span>
+            ) : (
+              <>
+                <span>{targetLabel || (targetRole === "target" ? "상대방" : "나")}</span>의 회피 성향 분석 시작
+                <svg className="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                </svg>
+              </>
+            )}
+          </button>
+
+          {/* Sample Result Link */}
+          <div className="flex justify-center mb-6">
+            <Link
+              href="/sample-result"
+              className="text-[13px] font-semibold text-zinc-500 hover:text-zinc-800 underline underline-offset-4 transition-colors flex items-center gap-1 py-1 px-3 rounded-lg hover:bg-zinc-100"
+            >
+              <span>예시 결과 확인하기</span>
+              <svg className="w-3.5 h-3.5 text-zinc-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </Link>
+          </div>
+
+          {/* Privacy & Disclaimers */}
+          <div className="mt-auto text-center text-[13px] text-zinc-400 font-medium pb-4">
+            <div className="bg-zinc-50 border border-zinc-100 p-3.5 rounded-lg mb-3 mx-auto w-full text-left text-zinc-500 break-keep">
+              <ul className="list-disc list-inside space-y-1.5 leading-relaxed">
+                <li>카카오톡 [프로필 가리기]로 캡처하시면 실명과 프로필 사진이 완벽하게 보호됩니다.</li>
+                <li>업로드된 캡처 이미지는 AI 분석 처리 직후 즉시 파기되며 서버에 저장되지 않습니다.</li>
+                <li>건강·성생활·정치·종교 등 민감한 개인정보가 포함된 대화는 업로드하지 않는 것을 권장합니다.</li>
+              </ul>
+            </div>
+            <p className="text-[12px] text-zinc-400">
+              본 분석은 참고용 디지털 콘텐츠이며 전문적인 심리 상담이나 의료 진단을 대체하지 않습니다.
+            </p>
+
+            <Footer isEmbedded={true} />
+          </div>
         </div>
-      )}
-    </section>
-  );
-});
+
+        {/* 5-Step Capture & Privacy Guide Modal */}
+        <CaptureGuideModal isOpen={isGuideOpen} onClose={() => setIsGuideOpen(false)} />
+      </section>
+    );
+  }
+);
 
 InputSection.displayName = "InputSection";
 

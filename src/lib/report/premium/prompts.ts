@@ -63,13 +63,23 @@ ${PREMIUM_REPORT_LANGUAGE_RULE}
 
 export function buildPremiumReportPromptPart1(
   mvpResult: MvpAnalysisResult,
-  derivedContext: DerivedReportContext
+  derivedContext: DerivedReportContext,
+  targetLabel: string = "분석 대상"
 ): string {
   return `
 You are an expert relationship counselor and clinical psychologist specializing in Adult Attachment Theory.
 Your task is to generate Part 1 (Chapters 1 to 7) of a comprehensive, highly personalized Premium Relationship Report.
 
 ${COMMON_RULES}
+
+--- SPEAKER ROLE DEFINITION (CRITICAL - DO NOT INVERT) ---
+분석 대상 (TARGET): SPEAKER_A (리포트 본문에서 "분석 대상" 또는 "${targetLabel}"로 지칭)
+대화 상대방 (PARTNER): SPEAKER_B (리포트 본문에서 "상대방"으로 지칭)
+
+[화자 역할 서술 절대 규칙]:
+- "분석 대상"은 오직 SPEAKER_A의 행동, 반응, 발화만을 서술해야 합니다.
+- "상대방"은 오직 대화 파트너인 SPEAKER_B의 행동, 반응, 발화만을 서술해야 합니다.
+- 리포트 본문의 주어와 목적어를 절대 반대로 뒤바꾸지 마세요!
 
 INPUT DATA:
 --- MVP SCORING RESULT (AUTHORITATIVE) ---
@@ -108,8 +118,8 @@ OUTPUT SCHEMA FOR PART 1 (STRICT JSON):
     {
       "title": "Korean Title of the scene (short)",
       "situation": "Context (1 sentence in Korean)",
-      "observed_behavior": "What happened (1 sentence in Korean)",
-      "interaction": "How both reacted (1 sentence in Korean)",
+      "observed_behavior": "분석 대상(SPEAKER_A)이 실제로 보인 행동/발화 (1문장)",
+      "interaction": "상대방(SPEAKER_B)의 반응과 두 사람의 상호작용 과정 (1문장)",
       "interpretation": "Meaning (1 sentence in Korean)",
       "alternative_explanation": "Alternative explanation (1 sentence in Korean)",
       "conclusion": "Final judgment (1 sentence in Korean)"
@@ -135,13 +145,23 @@ OUTPUT SCHEMA FOR PART 1 (STRICT JSON):
 
 export function buildPremiumReportPromptPart2(
   mvpResult: MvpAnalysisResult,
-  derivedContext: DerivedReportContext
+  derivedContext: DerivedReportContext,
+  targetLabel: string = "분석 대상"
 ): string {
   return `
 You are an expert relationship counselor and clinical psychologist specializing in Adult Attachment Theory.
 Your task is to generate Part 2 (Chapters 8 to 15) of a comprehensive, highly personalized Premium Relationship Report.
 
 ${COMMON_RULES}
+
+--- SPEAKER ROLE DEFINITION (CRITICAL - DO NOT INVERT) ---
+분석 대상 (TARGET): SPEAKER_A (리포트 본문에서 "분석 대상" 또는 "${targetLabel}"로 지칭)
+대화 상대방 (PARTNER): SPEAKER_B (리포트 본문에서 "상대방"으로 지칭)
+
+[화자 역할 서술 절대 규칙]:
+- "분석 대상"은 오직 SPEAKER_A의 행동, 반응, 발화만을 서술해야 합니다.
+- "상대방"은 오직 대화 파트너인 SPEAKER_B의 행동, 반응, 발화만을 서술해야 합니다.
+- 절대로 두 사람의 행동과 주어를 뒤바꾸지 마세요!
 
 INPUT DATA:
 --- MVP SCORING RESULT (AUTHORITATIVE) ---

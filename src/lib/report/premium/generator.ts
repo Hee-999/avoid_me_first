@@ -1,4 +1,4 @@
-import { callDeepSeekAPI } from "../../analysis/extractor/deepseekClient";
+import { callResilientLLM } from "../../analysis/llmRouter";
 import { MvpAnalysisResult } from "../../analysis/mvp/types";
 import { DerivedReportContext, PremiumReportV2 } from "./types";
 import { buildPremiumReportPromptPart1, buildPremiumReportPromptPart2, LANGUAGE_CORRECTION_PREFIX } from "./prompts";
@@ -22,7 +22,7 @@ async function generateWithLanguageEnforcement(
   let start = Date.now();
   let retry_count = 0;
   const maxTokens = parseInt(process.env.DEEPSEEK_PREMIUM_REPORT_MAX_TOKENS || "4200", 10);
-  let response = await callDeepSeekAPI(prompt, maxTokens);
+  let response = await callResilientLLM(prompt, maxTokens);
   let rawOutput = response.content;
   let jsonStr = extractJsonSubstring(rawOutput);
   let input_tokens = response.usage?.prompt_tokens || 0;
@@ -39,7 +39,7 @@ async function generateWithLanguageEnforcement(
     console.log(`[JSON Parse Error] ${partName} failed to parse JSON. Retrying...`);
     retry_count++;
     const retryPrompt = "Your previous output had a JSON syntax error. Please output strictly valid JSON.\n\n" + prompt;
-    response = await callDeepSeekAPI(retryPrompt, maxTokens);
+    response = await callResilientLLM(retryPrompt, maxTokens);
     rawOutput = response.content;
     jsonStr = extractJsonSubstring(rawOutput);
     input_tokens += response.usage?.prompt_tokens || 0;
@@ -63,7 +63,7 @@ async function generateWithLanguageEnforcement(
     
     // Retry once with Correction Prefix
     const retryPrompt = LANGUAGE_CORRECTION_PREFIX + "\n\n" + prompt;
-    response = await callDeepSeekAPI(retryPrompt, maxTokens);
+    response = await callResilientLLM(retryPrompt, maxTokens);
     rawOutput = response.content;
     jsonStr = extractJsonSubstring(rawOutput);
     input_tokens += response.usage?.prompt_tokens || 0;
@@ -97,13 +97,14 @@ async function generateWithLanguageEnforcement(
 
 export async function generatePremiumReport(
   mvpResult: MvpAnalysisResult,
-  derivedContext: DerivedReportContext
+  derivedContext: DerivedReportContext,
+  targetLabel: string = "분석 대상"
 ): Promise<PremiumReportV2> {
   // Reset metrics
   lastGenerationMetrics.length = 0;
 
-  const prompt1 = buildPremiumReportPromptPart1(mvpResult, derivedContext);
-  const prompt2 = buildPremiumReportPromptPart2(mvpResult, derivedContext);
+  const prompt1 = buildPremiumReportPromptPart1(mvpResult, derivedContext, targetLabel);
+  const prompt2 = buildPremiumReportPromptPart2(mvpResult, derivedContext, targetLabel);
   
   try {
     // Call DeepSeek concurrently for both parts with validation

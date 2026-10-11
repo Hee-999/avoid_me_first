@@ -33,14 +33,20 @@ export function sanitizeConversation(
     { regex: /\b(?:\d{1,3}\.){3}\d{1,3}\b/g, replacement: '[IP]' },
   ];
 
-  const sanitizedMessages: SanitizedMessage[] = messages.map((m) => {
-    // 1. Pseudonymize Speaker
-    if (!speakerMap.has(m.speaker_id)) {
-      const code = String.fromCharCode(65 + speakerCounter); // A, B, C...
+  // [역할 고정]: 분석 대상(targetSpeakerId)은 항상 반드시 SPEAKER_A로 고정
+  // 대화 파트너는 SPEAKER_B(그 외 C...)로 고정하여 모든 후속 LLM 단계에서 화자 혼선 원천 차단
+  speakerMap.set(targetSpeakerId, "SPEAKER_A");
+  let partnerCounter = 1; // 1 -> 'B'
+  for (const m of messages) {
+    if (m.speaker_id !== targetSpeakerId && !speakerMap.has(m.speaker_id)) {
+      const code = String.fromCharCode(65 + partnerCounter);
       speakerMap.set(m.speaker_id, `SPEAKER_${code}`);
-      speakerCounter++;
+      partnerCounter++;
     }
-    const pseudonym = speakerMap.get(m.speaker_id)!;
+  }
+
+  const sanitizedMessages: SanitizedMessage[] = messages.map((m) => {
+    const pseudonym = speakerMap.get(m.speaker_id) || "SPEAKER_B";
 
     // 2. Mask PII in text
     let sanitizedText = m.text;

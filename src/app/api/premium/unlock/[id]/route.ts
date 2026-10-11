@@ -11,8 +11,20 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
       return NextResponse.json({ success: true, message: "Mock unlock successful" });
     }
 
-    // In a real scenario, this endpoint would be called by a Webhook from PG (Payment Gateway)
-    // Here we just blindly unlock it for demonstration or temporary UI override
+    // 보안 검증: 로컬 개발 환경(NODE_ENV !== 'production')이거나, 올바른 관리자 키가 있는 경우만 허용
+    const isDev = process.env.NODE_ENV !== "production";
+    const { searchParams } = new URL(request.url);
+    const providedSecret = searchParams.get("secret") || request.headers.get("x-admin-secret");
+    const configuredSecret = process.env.MONITOR_SECRET;
+    const isAuthorizedAdmin = !!providedSecret && !!configuredSecret && providedSecret === configuredSecret;
+
+    if (!isDev && !isAuthorizedAdmin) {
+      console.warn(`[SECURITY] Unauthorized unlock attempt for id: ${id}`);
+      return NextResponse.json(
+        { error: "Forbidden: 테스트 언락은 로컬 개발 환경 또는 관리자 인증 시에만 가능합니다." },
+        { status: 403 }
+      );
+    }
     const purchasedAt = new Date();
     const expiresAt = new Date(purchasedAt);
     expiresAt.setFullYear(expiresAt.getFullYear() + 1);

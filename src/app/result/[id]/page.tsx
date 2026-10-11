@@ -64,6 +64,25 @@ export default function Result() {
     }
   };
 
+  const [isRetryingReport, setIsRetryingReport] = useState(false);
+
+  const handleRetryReport = async () => {
+    if (isRetryingReport) return;
+    setIsRetryingReport(true);
+    try {
+      const res = await fetch(`/api/premium/retry/${id}`, { method: 'POST' });
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || "리포트 재생성에 실패했습니다.");
+      }
+      await fetchAnalysis();
+    } catch (err: any) {
+      alert(err.message || "리포트 재생성 중 오류가 발생했습니다.");
+    } finally {
+      setIsRetryingReport(false);
+    }
+  };
+
   useEffect(() => {
     if (!id) return;
     fetchAnalysis();
@@ -213,6 +232,32 @@ export default function Result() {
 
   const handleUnlock = async () => {
     if (isPaymentProcessing) return;
+
+    // [개발/테스트용 바이패스]: 로컬 개발 환경(NODE_ENV !== 'production')이거나 관리자 secret이 있을 때만 허용 (프로덕션 일반 유저 차단)
+    const isDev = process.env.NODE_ENV !== 'production';
+    const isTestParam = searchParams.get('test') === 'true' || searchParams.get('bypass') === 'true';
+    const adminSecret = searchParams.get('secret');
+
+    if ((isDev && isTestParam) || adminSecret) {
+      try {
+        setIsPaymentProcessing(true);
+        const unlockUrl = adminSecret 
+          ? `/api/premium/unlock/${id}?secret=${encodeURIComponent(adminSecret)}` 
+          : `/api/premium/unlock/${id}`;
+        const res = await fetch(unlockUrl, { method: 'POST' });
+        if (!res.ok) {
+          const data = await res.json().catch(() => ({}));
+          throw new Error(data.error || "테스트 잠금 해제에 실패했습니다.");
+        }
+        await fetchAnalysis();
+      } catch (err: any) {
+        alert(err.message || "테스트 잠금 해제 중 오류가 발생했습니다.");
+      } finally {
+        setIsPaymentProcessing(false);
+      }
+      return;
+    }
+
     try {
       setIsPaymentProcessing(true);
       // 1. Prepare payment
@@ -418,9 +463,8 @@ export default function Result() {
             <PremiumReport 
               analysis={analysis} 
               isPremium={isPremium} 
-              onRetry={() => {
-                console.log("Retry requested");
-              }}
+              onRetry={handleRetryReport}
+              isRetrying={isRetryingReport}
               onUnlock={handleUnlock}
               isProcessing={isPaymentProcessing}
             />
