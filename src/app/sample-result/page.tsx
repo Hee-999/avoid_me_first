@@ -86,14 +86,14 @@ export default function SampleResultPage() {
 
       <main className="max-w-md mx-auto w-full px-6 pt-8 pb-10">
         
-        {/* 심사용 예시 안내 뱃지 */}
+        {/* 샘플 예시 안내 뱃지 */}
         <div className="mb-6 p-4 bg-blue-50/70 border border-blue-100 rounded-2xl flex items-center gap-3">
           <div className="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center shrink-0">
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
           </div>
           <div>
-            <span className="block text-[13px] font-bold text-blue-900">심사용 예시 결과 화면</span>
-            <p className="text-[12px] text-blue-700 leading-snug mt-0.5">실제 대화 입력 시 제공되는 분석 결과 및 결제 화면과 동일하게 구성되어 있습니다.</p>
+            <span className="block text-[13px] font-bold text-blue-900">샘플 분석 결과 미리보기</span>
+            <p className="text-[12px] text-blue-700 leading-snug mt-0.5">실제 대화 분석 시 제공되는 결과 리포트 및 화면 구성의 예시입니다.</p>
           </div>
         </div>
 
