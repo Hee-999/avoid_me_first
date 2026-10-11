@@ -34,6 +34,8 @@ export function PrintablePremiumReport({ analysis, isPremium }: Props) {
           primaryType={analysis.primary_type}
           anxiety={analysis.attachment_dimensions?.anxiety || 0}
           avoidance={analysis.attachment_dimensions?.avoidance || 0}
+          anxietyStatus={analysis.attachment_dimensions?.anxiety_status}
+          avoidanceStatus={analysis.attachment_dimensions?.avoidance_status}
         />
       </div>
 
@@ -49,6 +51,8 @@ export function PrintablePremiumReport({ analysis, isPremium }: Props) {
           anxiety={analysis.attachment_dimensions?.anxiety || 0} 
           avoidance={analysis.attachment_dimensions?.avoidance || 0} 
           primaryType={analysis.primary_type} 
+          anxietyStatus={analysis.attachment_dimensions?.anxiety_status}
+          avoidanceStatus={analysis.attachment_dimensions?.avoidance_status}
         />
       </div>
 

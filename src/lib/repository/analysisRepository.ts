@@ -41,6 +41,7 @@ export class AnalysisRepository {
         // Save the full structured JSON so we have access to dimensions coverage, signals, etc.
         extracted_signals: {
           ...(sanitizedPayload.signals || {}),
+          dimensions: sanitizedPayload.dimensions,
           target_speaker_label: sanitizedPayload.target_speaker_label
         },
         
@@ -185,7 +186,13 @@ export class AnalysisRepository {
         status: data.status || { scoring: "completed", report: "completed" },
         attachment_dimensions: {
           anxiety: data.anxiety_score,
-          avoidance: data.avoidance_score
+          avoidance: data.avoidance_score,
+          anxiety_status: data.extracted_signals?.dimensions?.anxiety?.status || (
+            (data.extracted_signals?.AN01?.v === null && data.extracted_signals?.AN02?.v === null && data.extracted_signals?.AN03?.v === null) ? "insufficient" : "ok"
+          ),
+          avoidance_status: data.extracted_signals?.dimensions?.avoidance?.status || (
+            (data.extracted_signals?.AV02?.v === null && data.extracted_signals?.AV03?.v === null && data.extracted_signals?.AV04?.v === null && data.extracted_signals?.AV05?.v === null) ? "insufficient" : "ok"
+          )
         },
         attachment_fitness: {
           secure: data.secure_fit,
@@ -196,6 +203,7 @@ export class AnalysisRepository {
         primary_type: data.primary_type,
         secondary_type: data.secondary_type,
         signals: data.extracted_signals,
+        dimensions: data.extracted_signals?.dimensions || null,
         target_speaker_label: data.extracted_signals?.target_speaker_label
       }
     };

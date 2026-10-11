@@ -3,6 +3,7 @@ const TYPE_NAMES: Record<string, string> = {
   preoccupied: "불안형(몰입)",
   dismissing: "거부회피형",
   fearful: "공포회피형",
+  unclear: "판정 보류 (단서 부족)",
 };
 
 /**

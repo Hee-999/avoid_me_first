@@ -15,7 +15,7 @@ export async function callResilientLLM(
   prompt: string,
   maxTokens?: number
 ): Promise<UnifiedLLMResponse> {
-  const preferredProvider = process.env.PRIMARY_LLM_PROVIDER || (process.env.GEMINI_API_KEY ? "gemini" : "deepseek");
+  const preferredProvider = process.env.PRIMARY_LLM_PROVIDER || (process.env.DEEPSEEK_API_KEY ? "deepseek" : "gemini");
 
   if (preferredProvider === "gemini") {
     try {

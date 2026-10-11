@@ -3,6 +3,7 @@ export interface SanitizedMessage {
   time: string;
   text: string;
   message_id?: string;
+  episode_id?: string;
 }
 
 export interface SanitizationResult {
@@ -11,7 +12,7 @@ export interface SanitizationResult {
 }
 
 export function sanitizeConversation(
-  messages: { speaker_id: string; text: string; timestamp?: string | null; id?: string }[],
+  messages: { speaker_id: string; text: string; timestamp?: string | null; id?: string; episode_id?: string }[],
   targetSpeakerId: string
 ): SanitizationResult {
   const speakerMap = new Map<string, string>();
@@ -59,6 +60,7 @@ export function sanitizeConversation(
       time: m.timestamp || 'unknown',
       text: sanitizedText,
       message_id: m.id,
+      episode_id: m.episode_id || 'e001',
     };
   });
 

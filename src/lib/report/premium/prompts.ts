@@ -57,6 +57,9 @@ CRITICAL RULES:
 7. AVOID REDUNDANCY: If you mentioned something in Behavior Analysis, do not repeat it in the Executive Summary.
 8. LENGTH LIMITS (STRICT): You MUST adhere to the maximum array length and sentence limits defined in the schema.
 9. OUTPUT FORMAT: You must output ONLY a valid JSON object matching the requested schema exactly.
+10. INSUFFICIENT DIMENSION RULE (CRITICAL):
+    If a dimension in MVP SCORING RESULT has status "insufficient" (or evaluable: 0), you must NEVER interpret the numeric score 0 as "해당 성향이 전혀 없다" or "안정적이다"라고 왜곡 서술하지 마세요!
+    대신 "제공된 대화에서 해당 영역(불안 또는 회피)을 자극하거나 평가할 기회/상황 자체가 관찰되지 않아 평가가 유보(보류)되었다"라고 사실 그대로 정확히 설명하세요.
 
 ${PREMIUM_REPORT_LANGUAGE_RULE}
 `;

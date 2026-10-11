@@ -3,7 +3,7 @@
 import { useEffect, useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
-import { FinalAnalysis } from "@/lib/analysis/types";
+import { FinalAnalysis, getDimensionObservationText, getAnalysisUiPresentation } from "@/lib/analysis/types";
 import { PremiumReport } from "@/components/premium/PremiumReport";
 import { PrintablePremiumReport } from "@/components/premium/PrintablePremiumReport";
 import { ShareAliasModal } from "@/components/share/ShareAliasModal";
@@ -15,7 +15,8 @@ const ATTACHMENT_TYPE_MAPPING: Record<string, { ko: string, desc: string, en: st
   "dismissing": { ko: "회피-독립형", desc: "갈등이 생기면 감정적인 대화를 피하고, 혼자만의 시간을 가지며 거리를 두려는 패턴이 나타났어요.", en: "Dismissive Attachment" },
   "dismissive-avoidant": { ko: "회피-독립형", desc: "갈등이 생기면 감정적인 대화를 피하고, 혼자만의 시간을 가지며 거리를 두려는 패턴이 나타났어요.", en: "Dismissive-Avoidant" },
   "fearful": { ko: "불안-회피형", desc: "가까워지고 싶은 욕구와 상처받을까 두려워하는 마음이 충돌하여 예측하기 어려운 패턴이 나타났어요.", en: "Fearful Attachment" },
-  "fearful-avoidant": { ko: "불안-회피형", desc: "가까워지고 싶은 욕구와 상처받을까 두려워하는 마음이 충돌하여 예측하기 어려운 패턴이 나타났어요.", en: "Fearful-Avoidant" }
+  "fearful-avoidant": { ko: "불안-회피형", desc: "가까워지고 싶은 욕구와 상처받을까 두려워하는 마음이 충돌하여 예측하기 어려운 패턴이 나타났어요.", en: "Fearful-Avoidant" },
+  "unclear": { ko: "판정 보류 (단서 부족)", desc: "제공된 대화에서 한 축 이상의 애착 신호를 평가할 기회가 부족하여 특정 유형으로 확정할 수 없습니다.", en: "Unclear / Insufficient Data" }
 };
 
 const SIGNAL_MAPPING: Record<string, { title: string, desc: string }> = {
@@ -133,6 +134,18 @@ export default function Result() {
   }
 
   const { attachment_dimensions, attachment_fitness, primary_type, secondary_type, is_mixed_pattern, signals, primary_type_confidence, target_speaker_label } = analysis;
+
+  const uiPres = getAnalysisUiPresentation({
+    primaryType: primary_type,
+    anxietyScore: attachment_dimensions?.anxiety ?? 0,
+    avoidanceScore: attachment_dimensions?.avoidance ?? 0,
+    anxietyStatus: attachment_dimensions?.anxiety_status,
+    avoidanceStatus: attachment_dimensions?.avoidance_status,
+    speakerLabel: target_speaker_label || "상대"
+  });
+
+  const isAnxietyInsufficient = attachment_dimensions?.anxiety_status === "insufficient";
+  const isAvoidanceInsufficient = attachment_dimensions?.avoidance_status === "insufficient";
 
   const getMappedType = (rawType: string) => {
     const normalized = rawType.toLowerCase().replace(/[^a-z-]/g, '');
@@ -328,20 +341,27 @@ export default function Result() {
             </div>
           )}
           <h1 className="text-2xl font-black text-zinc-900 tracking-tight leading-snug">
-            상대의 주 애착 유형은<br/>
-            <span className="text-blue-600">"{mappedPrimary.ko}"</span>입니다.
+            {uiPres.headlinePrefix && (
+              <>
+                {uiPres.headlinePrefix}<br/>
+              </>
+            )}
+            <span className={uiPres.mode === "insufficient_all" ? "text-zinc-600" : "text-blue-600"}>
+              {uiPres.headlineMain}
+            </span>
+            {uiPres.headlineSuffix}
           </h1>
           <p className="mt-1 text-[13px] text-zinc-400 font-semibold tracking-wide uppercase">
-            {mappedPrimary.en}
+            {uiPres.subEn}
           </p>
           
           <div className="mt-4 p-4 bg-white border border-blue-100 rounded-xl shadow-sm">
             <p className="text-[14px] text-zinc-700 leading-relaxed font-medium">
-              {mappedPrimary.desc}
+              {uiPres.description}
             </p>
           </div>
 
-          {is_mixed_pattern && (
+          {uiPres.mode === "standard" && is_mixed_pattern && (
             <p className="mt-4 text-[13px] text-zinc-500 font-medium bg-zinc-100 p-3 rounded-lg inline-block">
               *보조 유형인 <strong className="text-zinc-700">{secondary_type}</strong> 성향도 혼재되어 나타납니다.
             </p>
@@ -352,57 +372,117 @@ export default function Result() {
         <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="bg-white rounded-2xl shadow-sm border border-zinc-200 p-6 mb-6">
           <h3 className="text-[13px] font-bold text-zinc-500 mb-5">유형별 행동 적합도 (Euclidean Fitness)</h3>
           
-          <div className="space-y-4">
-            <div>
-              <div className="flex justify-between text-[12px] font-bold mb-1.5">
-                <span className={primary_type === "안정형 (Secure)" ? "text-blue-600" : "text-zinc-600"}>안정형 (Secure)</span>
-                <span className="text-zinc-900">{attachment_fitness.secure}%</span>
-              </div>
-              <div className="w-full bg-zinc-100 h-2 rounded-full overflow-hidden">
-                <motion.div initial={{ width: 0 }} animate={{ width: `${attachment_fitness.secure}%` }} transition={{ duration: 1 }} className="h-full bg-emerald-400 rounded-full" />
-              </div>
-            </div>
-            
-            <div>
-              <div className="flex justify-between text-[12px] font-bold mb-1.5">
-                <span className={primary_type === "몰입/불안형 (Preoccupied)" ? "text-blue-600" : "text-zinc-600"}>몰입/불안형 (Preoccupied)</span>
-                <span className="text-zinc-900">{attachment_fitness.preoccupied}%</span>
-              </div>
-              <div className="w-full bg-zinc-100 h-2 rounded-full overflow-hidden">
-                <motion.div initial={{ width: 0 }} animate={{ width: `${attachment_fitness.preoccupied}%` }} transition={{ duration: 1 }} className="h-full bg-amber-400 rounded-full" />
-              </div>
-            </div>
+          {!uiPres.showFitnessBars && uiPres.fitnessNotice ? (
+            <div className="py-1 mb-2">
+              <div className="bg-zinc-50 border border-zinc-200/80 rounded-xl p-4">
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="w-2 h-2 rounded-full bg-amber-500 shrink-0" />
+                  <h4 className="text-[13px] font-bold text-zinc-900">
+                    {uiPres.fitnessNotice.title}
+                  </h4>
+                </div>
 
-            <div>
-              <div className="flex justify-between text-[12px] font-bold mb-1.5">
-                <span className={primary_type === "거부-회피형 (Dismissive-Avoidant)" ? "text-blue-600" : "text-zinc-600"}>거부-회피형 (Dismissive)</span>
-                <span className="text-zinc-900">{attachment_fitness.dismissing}%</span>
-              </div>
-              <div className="w-full bg-zinc-100 h-2 rounded-full overflow-hidden">
-                <motion.div initial={{ width: 0 }} animate={{ width: `${attachment_fitness.dismissing}%` }} transition={{ duration: 1 }} className="h-full bg-blue-500 rounded-full" />
+                <div className="space-y-1.5 text-[12px] text-zinc-700 leading-relaxed font-medium">
+                  <div className="flex items-center gap-2 text-zinc-800">
+                    <span className="text-blue-600 font-bold">•</span>
+                    <span>{uiPres.fitnessNotice.description}</span>
+                  </div>
+                  {uiPres.fitnessNotice.subText && (
+                    <p className="text-[11px] text-zinc-500 pt-1.5 border-t border-zinc-200/60 mt-2">
+                      * {uiPres.fitnessNotice.subText}
+                    </p>
+                  )}
+                </div>
               </div>
             </div>
+          ) : (
+            <div className="space-y-4">
+              <div>
+                <div className="flex justify-between text-[12px] font-bold mb-1.5">
+                  <span className={primary_type === "안정형 (Secure)" ? "text-blue-600 font-bold" : "text-zinc-600"}>안정형 (Secure)</span>
+                  <span className="text-zinc-900">{attachment_fitness.secure}%</span>
+                </div>
+                <div className="w-full bg-zinc-100 h-2 rounded-full overflow-hidden">
+                  <motion.div initial={{ width: 0 }} animate={{ width: `${attachment_fitness.secure}%` }} transition={{ duration: 1 }} className="h-full bg-emerald-400 rounded-full" />
+                </div>
+              </div>
+              
+              <div>
+                <div className="flex justify-between text-[12px] font-bold mb-1.5">
+                  <span className={uiPres.mode === "anxiety_dominant" || primary_type === "몰입/불안형 (Preoccupied)" ? "text-blue-600 font-bold" : "text-zinc-600"}>몰입/불안형 (Preoccupied)</span>
+                  {isAnxietyInsufficient ? (
+                    <span className="text-amber-700/90 font-semibold bg-amber-50 px-2 py-0.5 rounded text-[11px] border border-amber-200/60">판단 보류 (단서 부족)</span>
+                  ) : (
+                    <span className="text-zinc-900">{attachment_fitness.preoccupied}%</span>
+                  )}
+                </div>
+                <div className="w-full bg-zinc-100 h-2 rounded-full overflow-hidden">
+                  {isAnxietyInsufficient ? (
+                    <div className="h-full bg-zinc-200/40 rounded-full w-full" />
+                  ) : (
+                    <motion.div initial={{ width: 0 }} animate={{ width: `${attachment_fitness.preoccupied}%` }} transition={{ duration: 1 }} className="h-full bg-amber-400 rounded-full" />
+                  )}
+                </div>
+              </div>
 
-            <div>
-              <div className="flex justify-between text-[12px] font-bold mb-1.5">
-                <span className={primary_type === "공포-회피형 (Fearful-Avoidant)" ? "text-blue-600" : "text-zinc-600"}>공포-회피형 (Fearful)</span>
-                <span className="text-zinc-900">{attachment_fitness.fearful}%</span>
+              <div>
+                <div className="flex justify-between text-[12px] font-bold mb-1.5">
+                  <span className={uiPres.mode === "avoidance_dominant" || primary_type === "거부-회피형 (Dismissive-Avoidant)" ? "text-blue-600 font-bold" : "text-zinc-600"}>거부-회피형 (Dismissive)</span>
+                  {isAvoidanceInsufficient ? (
+                    <span className="text-amber-700/90 font-semibold bg-amber-50 px-2 py-0.5 rounded text-[11px] border border-amber-200/60">판단 보류 (단서 부족)</span>
+                  ) : (
+                    <span className="text-zinc-900 font-bold">{attachment_fitness.dismissing}%</span>
+                  )}
+                </div>
+                <div className="w-full bg-zinc-100 h-2 rounded-full overflow-hidden">
+                  {isAvoidanceInsufficient ? (
+                    <div className="h-full bg-zinc-200/40 rounded-full w-full" />
+                  ) : (
+                    <motion.div initial={{ width: 0 }} animate={{ width: `${attachment_fitness.dismissing}%` }} transition={{ duration: 1 }} className="h-full bg-blue-500 rounded-full" />
+                  )}
+                </div>
               </div>
-              <div className="w-full bg-zinc-100 h-2 rounded-full overflow-hidden">
-                <motion.div initial={{ width: 0 }} animate={{ width: `${attachment_fitness.fearful}%` }} transition={{ duration: 1 }} className="h-full bg-indigo-500 rounded-full" />
+
+              <div>
+                <div className="flex justify-between text-[12px] font-bold mb-1.5">
+                  <span className={primary_type === "공포-회피형 (Fearful-Avoidant)" ? "text-blue-600 font-bold" : "text-zinc-600"}>공포-회피형 (Fearful)</span>
+                  <span className="text-zinc-900">{attachment_fitness.fearful}%</span>
+                </div>
+                <div className="w-full bg-zinc-100 h-2 rounded-full overflow-hidden">
+                  <motion.div initial={{ width: 0 }} animate={{ width: `${attachment_fitness.fearful}%` }} transition={{ duration: 1 }} className="h-full bg-indigo-500 rounded-full" />
+                </div>
               </div>
+
+              {(isAnxietyInsufficient || isAvoidanceInsufficient) && (
+                <div className="mt-3 pt-3 border-t border-zinc-100 text-[11px] text-zinc-500 font-medium leading-relaxed">
+                  {isAnxietyInsufficient && (
+                    <p>* 대화 내 불안 성향을 평가할 기회가 없어 <strong>몰입/불안형은 판단 보류</strong>되었습니다.</p>
+                  )}
+                  {isAvoidanceInsufficient && (
+                    <p>* 대화 내 회피 성향을 평가할 기회가 없어 <strong>거부-회피형은 판단 보류</strong>되었습니다.</p>
+                  )}
+                </div>
+              )}
             </div>
-          </div>
+          )}
           
           <div className="mt-6 pt-5 border-t border-zinc-100 flex justify-between">
             <div className="text-center">
               <span className="block text-[11px] text-zinc-400 font-bold mb-1">불안 차원 (Anxiety)</span>
-              <span className="block text-[18px] font-black text-zinc-800">{attachment_dimensions.anxiety} <span className="text-[12px] font-medium text-zinc-400">/ 100</span></span>
+              {attachment_dimensions.anxiety_status === "insufficient" ? (
+                <span className="block text-[15px] font-bold text-zinc-500 py-0.5">단서 부족</span>
+              ) : (
+                <span className="block text-[18px] font-black text-zinc-800">{attachment_dimensions.anxiety} <span className="text-[12px] font-medium text-zinc-400">/ 100</span></span>
+              )}
             </div>
             <div className="w-px bg-zinc-100" />
             <div className="text-center">
               <span className="block text-[11px] text-zinc-400 font-bold mb-1">회피 차원 (Avoidance)</span>
-              <span className="block text-[18px] font-black text-zinc-800">{attachment_dimensions.avoidance} <span className="text-[12px] font-medium text-zinc-400">/ 100</span></span>
+              {attachment_dimensions.avoidance_status === "insufficient" ? (
+                <span className="block text-[15px] font-bold text-zinc-500 py-0.5">단서 부족</span>
+              ) : (
+                <span className="block text-[18px] font-black text-zinc-800">{attachment_dimensions.avoidance} <span className="text-[12px] font-medium text-zinc-400">/ 100</span></span>
+              )}
             </div>
           </div>
         </motion.div>

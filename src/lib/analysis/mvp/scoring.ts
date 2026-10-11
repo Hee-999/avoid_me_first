@@ -12,7 +12,7 @@ export function calculateDimension(signals: MvpSignal[], expectedTotal: number):
   }
 
   const coverage = expectedTotal > 0 ? evaluable / expectedTotal : 0;
-  const status = evaluable < 2 ? "low_coverage" : "ok";
+  const status = evaluable === 0 ? "insufficient" : (evaluable < 2 ? "low_coverage" : "ok");
 
   // Score is calculated as sum / (3 * evaluable) * 100
   let score = 0;
@@ -45,7 +45,16 @@ export function calculateFitness(anxiety: number, avoidance: number): MvpFitness
   };
 }
 
-export function getPrimaryType(fitness: MvpFitness): AttachmentType {
+export function getPrimaryType(
+  fitness: MvpFitness,
+  anxietyDim?: MvpDimension,
+  avoidanceDim?: MvpDimension
+): AttachmentType {
+  // If either dimension has 0 evaluable signals, we cannot reliably determine a 2D attachment type
+  if ((anxietyDim && anxietyDim.evaluable === 0) || (avoidanceDim && avoidanceDim.evaluable === 0)) {
+    return "unclear";
+  }
+
   let max = -1;
   let type: AttachmentType = "secure";
 

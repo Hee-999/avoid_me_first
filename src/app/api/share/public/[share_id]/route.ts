@@ -22,7 +22,7 @@ export async function GET(request: Request, context: { params: Promise<{ share_i
 
     const { data, error } = await supabaseAdmin
       .from("analyses")
-      .select("share_alias, primary_type, secondary_type, secure_fit, preoccupied_fit, dismissive_fit, fearful_fit, anxiety_score, avoidance_score")
+      .select("share_alias, primary_type, secondary_type, secure_fit, preoccupied_fit, dismissive_fit, fearful_fit, anxiety_score, avoidance_score, extracted_signals")
       .eq("share_token_hash", shareTokenHash)
       .eq("share_enabled", true)
       .single();
@@ -44,7 +44,13 @@ export async function GET(request: Request, context: { params: Promise<{ share_i
       },
       attachment_dimensions: {
         anxiety: data.anxiety_score,
-        avoidance: data.avoidance_score
+        avoidance: data.avoidance_score,
+        anxiety_status: data.extracted_signals?.dimensions?.anxiety?.status || (
+          (data.extracted_signals?.AN01?.v === null && data.extracted_signals?.AN02?.v === null && data.extracted_signals?.AN03?.v === null) ? "insufficient" : "ok"
+        ),
+        avoidance_status: data.extracted_signals?.dimensions?.avoidance?.status || (
+          (data.extracted_signals?.AV02?.v === null && data.extracted_signals?.AV03?.v === null && data.extracted_signals?.AV04?.v === null && data.extracted_signals?.AV05?.v === null) ? "insufficient" : "ok"
+        )
       }
     };
 

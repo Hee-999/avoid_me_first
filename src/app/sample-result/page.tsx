@@ -174,12 +174,20 @@ export default function SampleResultPage() {
           <div className="mt-6 pt-5 border-t border-zinc-100 flex justify-between">
             <div className="text-center">
               <span className="block text-[11px] text-zinc-400 font-bold mb-1">불안 차원 (Anxiety)</span>
-              <span className="block text-[18px] font-black text-zinc-800">{attachment_dimensions.anxiety} <span className="text-[12px] font-medium text-zinc-400">/ 100</span></span>
+              {attachment_dimensions.anxiety_status === "insufficient" ? (
+                <span className="block text-[15px] font-bold text-zinc-500 py-0.5">단서 부족</span>
+              ) : (
+                <span className="block text-[18px] font-black text-zinc-800">{attachment_dimensions.anxiety} <span className="text-[12px] font-medium text-zinc-400">/ 100</span></span>
+              )}
             </div>
             <div className="w-px bg-zinc-100" />
             <div className="text-center">
               <span className="block text-[11px] text-zinc-400 font-bold mb-1">회피 차원 (Avoidance)</span>
-              <span className="block text-[18px] font-black text-zinc-800">{attachment_dimensions.avoidance} <span className="text-[12px] font-medium text-zinc-400">/ 100</span></span>
+              {attachment_dimensions.avoidance_status === "insufficient" ? (
+                <span className="block text-[15px] font-bold text-zinc-500 py-0.5">단서 부족</span>
+              ) : (
+                <span className="block text-[18px] font-black text-zinc-800">{attachment_dimensions.avoidance} <span className="text-[12px] font-medium text-zinc-400">/ 100</span></span>
+              )}
             </div>
           </div>
         </motion.div>

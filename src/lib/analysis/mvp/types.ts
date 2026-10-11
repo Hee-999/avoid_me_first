@@ -20,7 +20,7 @@ export interface MvpDimension {
   evaluable: number;
   total: number;
   coverage: number;
-  status: "ok" | "low_coverage";
+  status: "ok" | "low_coverage" | "insufficient";
 }
 
 export interface MvpFitness {
@@ -30,7 +30,7 @@ export interface MvpFitness {
   fearful: number;
 }
 
-export type AttachmentType = "secure" | "preoccupied" | "dismissing" | "fearful";
+export type AttachmentType = "secure" | "preoccupied" | "dismissing" | "fearful" | "unclear";
 
 export interface MvpAnalysisResult {
   version: string;
@@ -41,5 +41,6 @@ export interface MvpAnalysisResult {
   };
   fitness: MvpFitness;
   primary_type: AttachmentType;
-  primary_type_confidence: "normal" | "low";
+  primary_type_confidence: "high" | "normal" | "low";
 }
+

@@ -55,6 +55,8 @@ export function PremiumReport({ analysis, isPremium, onRetry, isRetrying = false
         primaryType={analysis.primary_type}
         anxiety={analysis.attachment_dimensions?.anxiety || 0}
         avoidance={analysis.attachment_dimensions?.avoidance || 0}
+        anxietyStatus={analysis.attachment_dimensions?.anxiety_status}
+        avoidanceStatus={analysis.attachment_dimensions?.avoidance_status}
       />
 
       <div className="premium-report-v2-container mt-12 pt-8 border-t border-zinc-200">
@@ -78,6 +80,8 @@ export function PremiumReport({ analysis, isPremium, onRetry, isRetrying = false
             anxiety={analysis.attachment_dimensions?.anxiety || 0} 
             avoidance={analysis.attachment_dimensions?.avoidance || 0} 
             primaryType={analysis.primary_type} 
+            anxietyStatus={analysis.attachment_dimensions?.anxiety_status}
+            avoidanceStatus={analysis.attachment_dimensions?.avoidance_status}
           />
 
           {/* Ch.3: Behavior Patterns */}

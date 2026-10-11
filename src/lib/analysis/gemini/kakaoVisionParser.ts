@@ -8,6 +8,7 @@ export interface VisionParseResult {
     speaker: "target" | "user";
     text: string;
     time?: string;
+    date?: string;
   }>;
 }
 
@@ -49,7 +50,8 @@ const KAKAO_VISION_PROMPT = `
     {
       "speaker": "user" 또는 "target",
       "text": "말풍선 대화 텍스트 또는 [이모티콘: ...]",
-      "time": "오후 11:32 (인식 가능한 경우, 없으면 생략 가능)"
+      "time": "오후 11:32 (인식 가능한 경우, 없으면 생략 가능)",
+      "date": "2024년 5월 12일 (날짜 구분선이 보이는 경우)"
     }
   ]
 }
@@ -85,10 +87,52 @@ export async function parseKakaoScreenshotsWithVision(
   let currentGroupId = 1;
   let currentEpisodeId = 1;
   let lastSpeaker: string | null = null;
+  let lastParsedMinutes: number | null = null;
+  let lastDate: string | null = null;
+
+  const parseMinutes = (timeStr?: string | null): number | null => {
+    if (!timeStr) return null;
+    const match = timeStr.match(/(오후|오전)\s*(\d+):(\d+)/);
+    if (!match) return null;
+    let h = parseInt(match[2], 10);
+    const m = parseInt(match[3], 10);
+    if (match[1] === "오후" && h < 12) h += 12;
+    if (match[1] === "오전" && h === 12) h = 0;
+    return h * 60 + m;
+  };
 
   const messages: ProcessedMessage[] = parsed.messages.map((m, idx) => {
     const isTarget = m.speaker === "target";
     const speakerId = isTarget ? "speaker_a" : "speaker_b";
+
+    const currentMinutes = parseMinutes(m.time);
+    let isNewEpisode = false;
+
+    // Episode separation rule:
+    // Requires date change OR major time reset (overnight / >= 12h gap)
+    // Short 1~2 hour pauses in the same day are considered part of the same conflict episode.
+    if (m.date && lastDate && m.date !== lastDate) {
+      isNewEpisode = true;
+    } else if (lastParsedMinutes !== null && currentMinutes !== null) {
+      let diff = currentMinutes - lastParsedMinutes;
+      if (diff < 0) diff += 24 * 60; // Next day wrap-around
+      if (diff >= 30) {
+        currentGroupId++; // Visual bubble grouping
+      }
+      if (diff >= 12 * 60) {
+        isNewEpisode = true; // 12+ hour overnight gap
+      }
+    }
+
+    if (isNewEpisode) {
+      currentEpisodeId++;
+      currentGroupId++;
+    }
+
+    if (m.date) lastDate = m.date;
+    if (currentMinutes !== null) {
+      lastParsedMinutes = currentMinutes;
+    }
 
     if (lastSpeaker && lastSpeaker !== speakerId) {
       currentGroupId++;

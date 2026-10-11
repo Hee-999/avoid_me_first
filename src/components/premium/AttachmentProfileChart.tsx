@@ -5,9 +5,11 @@ interface Props {
   anxiety: number;
   avoidance: number;
   primaryType: string;
+  anxietyStatus?: string;
+  avoidanceStatus?: string;
 }
 
-export function AttachmentProfileChart({ anxiety, avoidance, primaryType }: Props) {
+export function AttachmentProfileChart({ anxiety, avoidance, primaryType, anxietyStatus, avoidanceStatus }: Props) {
   // Normalize scores to 0-100 just in case
   const x = Math.max(0, Math.min(100, avoidance));
   const y = Math.max(0, Math.min(100, anxiety));
@@ -72,7 +74,7 @@ export function AttachmentProfileChart({ anxiety, avoidance, primaryType }: Prop
       {/* Legend / Info */}
       <div className="mt-8 flex justify-center gap-6 text-[11px] font-medium text-zinc-500">
         <div className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-blue-600"></span> 현재 위치</div>
-        <div>Anxiety: {y.toFixed(1)} / Avoidance: {x.toFixed(1)}</div>
+        <div>Anxiety: {anxietyStatus === 'insufficient' ? '단서 부족' : y.toFixed(1)} / Avoidance: {avoidanceStatus === 'insufficient' ? '단서 부족' : x.toFixed(1)}</div>
       </div>
     </div>
   );

@@ -6,9 +6,11 @@ interface Props {
   primaryType: string;
   anxiety: number;
   avoidance: number;
+  anxietyStatus?: string;
+  avoidanceStatus?: string;
 }
 
-export function PremiumCoverPage({ targetName, primaryType, anxiety, avoidance }: Props) {
+export function PremiumCoverPage({ targetName, primaryType, anxiety, avoidance, anxietyStatus, avoidanceStatus }: Props) {
   const today = new Date().toLocaleDateString('ko-KR', {
     year: 'numeric', month: 'long', day: 'numeric'
   });
@@ -48,12 +50,20 @@ export function PremiumCoverPage({ targetName, primaryType, anxiety, avoidance }
           <div className="flex items-center gap-12">
             <div>
               <p className="text-[12px] font-bold text-zinc-400 mb-1">불안 차원 (Anxiety)</p>
-              <p className="text-[24px] font-black text-zinc-800">{anxiety} <span className="text-[14px] font-medium text-zinc-400">/ 100</span></p>
+              {anxietyStatus === "insufficient" ? (
+                <p className="text-[20px] font-bold text-zinc-500 py-0.5">단서 부족</p>
+              ) : (
+                <p className="text-[24px] font-black text-zinc-800">{anxiety} <span className="text-[14px] font-medium text-zinc-400">/ 100</span></p>
+              )}
             </div>
             <div className="w-px h-12 bg-zinc-200"></div>
             <div>
               <p className="text-[12px] font-bold text-zinc-400 mb-1">회피 차원 (Avoidance)</p>
-              <p className="text-[24px] font-black text-zinc-800">{avoidance} <span className="text-[14px] font-medium text-zinc-400">/ 100</span></p>
+              {avoidanceStatus === "insufficient" ? (
+                <p className="text-[20px] font-bold text-zinc-500 py-0.5">단서 부족</p>
+              ) : (
+                <p className="text-[24px] font-black text-zinc-800">{avoidance} <span className="text-[14px] font-medium text-zinc-400">/ 100</span></p>
+              )}
             </div>
           </div>
         </div>
@@ -61,7 +71,7 @@ export function PremiumCoverPage({ targetName, primaryType, anxiety, avoidance }
 
       {/* Chart Preview on Cover */}
       <div className="w-full max-w-md mx-auto mt-8 opacity-90 scale-90 origin-bottom">
-        <AttachmentProfileChart anxiety={anxiety} avoidance={avoidance} primaryType={primaryType} />
+        <AttachmentProfileChart anxiety={anxiety} avoidance={avoidance} primaryType={primaryType} anxietyStatus={anxietyStatus} avoidanceStatus={avoidanceStatus} />
       </div>
 
       {/* Footer Area */}
