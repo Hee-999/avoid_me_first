@@ -149,8 +149,9 @@ export async function POST(request: Request) {
     // 5. Return the ID (Client will redirect to /result/[id])
     return NextResponse.json({ id: analysisId });
     
-  } catch (error) {
+  } catch (error: any) {
     console.error("Analyze API Error:", error);
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+    const userMessage = error?.message || "대화 분석 처리 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.";
+    return NextResponse.json({ error: userMessage }, { status: 500 });
   }
 }

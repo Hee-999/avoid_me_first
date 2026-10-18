@@ -49,7 +49,7 @@ const KAKAO_VISION_PROMPT = `
   "messages": [
     {
       "speaker": "user" 또는 "target",
-      "text": "말풍선 대화 텍스트 또는 [이모티콘: ...]",
+      "text": "말풍선 대화 텍스트 또는 [이모티콘: ...] (필수: 절대 null이나 생략 금지)",
       "time": "오후 11:32 (인식 가능한 경우, 없으면 생략 가능)",
       "date": "2024년 5월 12일 (날짜 구분선이 보이는 경우)"
     }
@@ -57,22 +57,34 @@ const KAKAO_VISION_PROMPT = `
 }
 `;
 
+function extractJsonFromVisionResponse(str: string): string {
+  const jsonBlockMatch = str.match(/```(?:json)?\s*([\s\S]*?)\s*```/);
+  if (jsonBlockMatch) return jsonBlockMatch[1].trim();
+
+  const firstBrace = str.indexOf("{");
+  const lastBrace = str.lastIndexOf("}");
+  if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
+    return str.slice(firstBrace, lastBrace + 1).trim();
+  }
+  return str.trim();
+}
+
 export async function parseKakaoScreenshotsWithVision(
   images: GeminiInlineData[]
 ): Promise<PreprocessedConversation> {
   const geminiRes = await callGeminiVision(images, KAKAO_VISION_PROMPT);
   
-  let rawContent = geminiRes.content.trim();
-  // Strip code blocks if present
-  if (rawContent.startsWith("```json")) {
-    rawContent = rawContent.replace(/^```json\s*/, "").replace(/```$/, "").trim();
-  } else if (rawContent.startsWith("```")) {
-    rawContent = rawContent.replace(/^```\s*/, "").replace(/```$/, "").trim();
+  const rawContent = extractJsonFromVisionResponse(geminiRes.content);
+
+  let parsed: VisionParseResult;
+  try {
+    parsed = JSON.parse(rawContent) as VisionParseResult;
+  } catch (parseErr: any) {
+    console.error("[GEMINI VISION] JSON parse failed. Raw response snippet:", rawContent.slice(0, 300));
+    throw new Error("대화 내용 구조 분석에 실패했습니다. 더 선명한 대화 화면을 올려주세요.");
   }
 
-  const parsed = JSON.parse(rawContent) as VisionParseResult;
-
-  if (!parsed.messages || parsed.messages.length === 0) {
+  if (!parsed.messages || !Array.isArray(parsed.messages) || parsed.messages.length === 0) {
     throw new Error("캡처 이미지에서 유효한 대화를 감지하지 못했습니다. 더 선명한 대화 화면을 업로드해주세요.");
   }
 
@@ -101,17 +113,17 @@ export async function parseKakaoScreenshotsWithVision(
     return h * 60 + m;
   };
 
-  const messages: ProcessedMessage[] = parsed.messages.map((m, idx) => {
-    const isTarget = m.speaker === "target";
+  const messages: ProcessedMessage[] = parsed.messages.map((m: any, idx) => {
+    const isTarget = m?.speaker === "target" || m?.speaker === "speaker_a" || m?.speaker === "상대방";
     const speakerId = isTarget ? "speaker_a" : "speaker_b";
 
-    const currentMinutes = parseMinutes(m.time);
+    const currentMinutes = parseMinutes(m?.time);
     let isNewEpisode = false;
 
     // Episode separation rule:
     // Requires date change OR major time reset (overnight / >= 12h gap)
     // Short 1~2 hour pauses in the same day are considered part of the same conflict episode.
-    if (m.date && lastDate && m.date !== lastDate) {
+    if (m?.date && lastDate && m.date !== lastDate) {
       isNewEpisode = true;
     } else if (lastParsedMinutes !== null && currentMinutes !== null) {
       let diff = currentMinutes - lastParsedMinutes;
@@ -129,7 +141,7 @@ export async function parseKakaoScreenshotsWithVision(
       currentGroupId++;
     }
 
-    if (m.date) lastDate = m.date;
+    if (m?.date) lastDate = m.date;
     if (currentMinutes !== null) {
       lastParsedMinutes = currentMinutes;
     }
@@ -139,16 +151,25 @@ export async function parseKakaoScreenshotsWithVision(
     }
     lastSpeaker = speakerId;
 
+    // Safe text extraction with intelligent fallbacks
+    const rawText = (
+      (typeof m?.text === "string" && m.text.trim().length > 0 ? m.text.trim() : null) ||
+      (typeof m?.content === "string" && m.content.trim().length > 0 ? m.content.trim() : null) ||
+      (typeof m?.message === "string" && m.message.trim().length > 0 ? m.message.trim() : null) ||
+      (m?.emoticon ? `[이모티콘: ${String(m.emoticon).trim()}]` : null) ||
+      "[이모티콘 반응]"
+    );
+
     let type: "text" | "media" | "system" = "text";
     let mediaType: string | undefined = undefined;
 
-    if (m.text.startsWith("[이모티콘:")) {
+    if (rawText.startsWith("[이모티콘:") || rawText === "[이모티콘 반응]") {
       type = "media";
       mediaType = "emoticon";
-    } else if (m.text === "[사진]" || m.text === "사진") {
+    } else if (rawText === "[사진]" || rawText === "사진") {
       type = "media";
       mediaType = "photo";
-    } else if (m.text === "[동영상]" || m.text === "동영상") {
+    } else if (rawText === "[동영상]" || rawText === "동영상") {
       type = "media";
       mediaType = "video";
     }
@@ -156,10 +177,10 @@ export async function parseKakaoScreenshotsWithVision(
     return {
       id: `m${String(idx + 1).padStart(6, "0")}`,
       speaker_id: speakerId,
-      timestamp: m.time || null,
+      timestamp: m?.time || null,
       type,
       media_type: mediaType,
-      text: m.text,
+      text: rawText,
       episode_id: `e${String(currentEpisodeId).padStart(3, "0")}`,
       message_group_id: `g${String(currentGroupId).padStart(3, "0")}`
     };
@@ -171,8 +192,8 @@ export async function parseKakaoScreenshotsWithVision(
     speaker_b_messages: messages.filter(m => m.speaker_id === "speaker_b").length,
     speaker_a_text_messages: messages.filter(m => m.speaker_id === "speaker_a" && m.type === "text").length,
     speaker_b_text_messages: messages.filter(m => m.speaker_id === "speaker_b" && m.type === "text").length,
-    speaker_a_character_count: messages.filter(m => m.speaker_id === "speaker_a").reduce((acc, m) => acc + m.text.length, 0),
-    speaker_b_character_count: messages.filter(m => m.speaker_id === "speaker_b").reduce((acc, m) => acc + m.text.length, 0),
+    speaker_a_character_count: messages.filter(m => m.speaker_id === "speaker_a").reduce((acc, m) => acc + (m.text?.length || 0), 0),
+    speaker_b_character_count: messages.filter(m => m.speaker_id === "speaker_b").reduce((acc, m) => acc + (m.text?.length || 0), 0),
     episode_count: currentEpisodeId,
     media_count: messages.filter(m => m.type === "media").length,
     system_message_count: 0,
