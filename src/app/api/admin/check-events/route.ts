@@ -87,7 +87,7 @@ export async function GET(request: Request) {
 
     // 4. Format Telegram Alert Message
     const lines: string[] = [
-      `🔔 [회피형 판독기 실시간 알림]`,
+      `🔔 [러브패턴 실시간 알림]`,
       `⏱️ 최근 ${minutes}분간 새 소식이 도착했습니다.\n`,
     ];
 
@@ -101,7 +101,7 @@ export async function GET(request: Request) {
         const targetName = item.extracted_signals?.target_speaker_label || "상대방";
         const amount = item.status?.payment?.amount
           ? `${Number(item.status.payment.amount).toLocaleString()}원`
-          : "4,900원";
+          : "2,900원";
 
         lines.push(`  ${idx + 1}. [${amount}] 대상: ${targetName} (${typeLabel}) - ${timeStr}`);
       });

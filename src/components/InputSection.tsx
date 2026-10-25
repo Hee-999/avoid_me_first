@@ -220,7 +220,7 @@ const InputSection = forwardRef<HTMLElement, InputSectionProps>(
               href="/sample-result"
               className="text-[13px] font-semibold text-zinc-500 hover:text-zinc-800 underline underline-offset-4 transition-colors flex items-center gap-1 py-1 px-3 rounded-lg hover:bg-zinc-100"
             >
-              <span>예시 결과 확인하기</span>
+              <span>예시 결과 보기</span>
               <svg className="w-3.5 h-3.5 text-zinc-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
               </svg>
@@ -231,7 +231,7 @@ const InputSection = forwardRef<HTMLElement, InputSectionProps>(
           <div className="mt-auto text-center text-[13px] text-zinc-400 font-medium pb-4">
             <div className="bg-zinc-50 border border-zinc-100 p-3.5 rounded-lg mb-3 mx-auto w-full text-left text-zinc-500 break-keep">
               <ul className="list-disc list-inside space-y-1.5 leading-relaxed">
-                <li>카카오톡 [프로필 가리기]로 캡처하시면 실명과 프로필 사진이 완벽하게 보호됩니다.</li>
+                <li>카카오톡 [프로필 가리기]로 캡처하시면 실명과 프로필 사진이 보호됩니다.</li>
                 <li>업로드된 캡처 이미지는 AI 분석 처리 직후 즉시 파기되며 서버에 저장되지 않습니다.</li>
                 <li>건강·성생활·정치·종교 등 민감한 개인정보가 포함된 대화는 업로드하지 않는 것을 권장합니다.</li>
               </ul>

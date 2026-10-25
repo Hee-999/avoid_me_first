@@ -66,7 +66,7 @@ export function PremiumReport({ analysis, isPremium, onRetry, isRetrying = false
           <h2 className="text-[26px] font-black text-zinc-900 mb-3 bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-purple-600">
             프리미엄 관계 심층 리포트
           </h2>
-          <p className="text-[15px] text-zinc-500">대화 속 숨겨진 진짜 속마음을 짚어낸 3,000자 핵심 요약 리포트입니다.</p>
+          <p className="text-[15px] text-zinc-500">대화에서 관찰된 반응과 가능한 해석을 담은 3,000자 핵심 요약 리포트입니다.</p>
         </div>
 
         <div className="space-y-16">

@@ -11,23 +11,90 @@ import { ShareResultCard } from "@/components/share/ShareResultCard";
 
 const ATTACHMENT_TYPE_MAPPING: Record<string, { ko: string, desc: string, en: string }> = {
   "secure": { ko: "안정형", desc: "상대방과 갈등이 발생해도 감정을 안정적으로 조절하며 솔직하고 원만하게 소통하는 패턴이 나타났어요.", en: "Secure Attachment" },
-  "preoccupied": { ko: "불안-몰입형", desc: "관계를 잃을까 불안해하면서, 상대의 반응에 따라 감정이 크게 흔들리는 패턴이 강하게 나타났어요.", en: "Preoccupied Attachment" },
-  "dismissing": { ko: "회피-독립형", desc: "갈등이 생기면 감정적인 대화를 피하고, 혼자만의 시간을 가지며 거리를 두려는 패턴이 나타났어요.", en: "Dismissive Attachment" },
-  "dismissive-avoidant": { ko: "회피-독립형", desc: "갈등이 생기면 감정적인 대화를 피하고, 혼자만의 시간을 가지며 거리를 두려는 패턴이 나타났어요.", en: "Dismissive-Avoidant" },
-  "fearful": { ko: "불안-회피형", desc: "가까워지고 싶은 욕구와 상처받을까 두려워하는 마음이 충돌하여 예측하기 어려운 패턴이 나타났어요.", en: "Fearful Attachment" },
-  "fearful-avoidant": { ko: "불안-회피형", desc: "가까워지고 싶은 욕구와 상처받을까 두려워하는 마음이 충돌하여 예측하기 어려운 패턴이 나타났어요.", en: "Fearful-Avoidant" },
+  "preoccupied": { ko: "몰입/불안형", desc: "관계를 잃을까 불안해하면서, 상대의 반응에 따라 감정이 크게 흔들리는 패턴이 강하게 나타났어요.", en: "Preoccupied Attachment" },
+  "dismissing": { ko: "거부-회피형", desc: "갈등이 생기면 감정적인 대화를 피하고, 혼자만의 시간을 가지며 거리를 두려는 패턴이 나타났어요.", en: "Dismissive Attachment" },
+  "dismissive-avoidant": { ko: "거부-회피형", desc: "갈등이 생기면 감정적인 대화를 피하고, 혼자만의 시간을 가지며 거리를 두려는 패턴이 나타났어요.", en: "Dismissive-Avoidant" },
+  "fearful": { ko: "공포-회피형", desc: "가까워지고 싶은 욕구와 상처받을까 두려워하는 마음이 충돌하여 예측하기 어려운 패턴이 나타났어요.", en: "Fearful Attachment" },
+  "fearful-avoidant": { ko: "공포-회피형", desc: "가까워지고 싶은 욕구와 상처받을까 두려워하는 마음이 충돌하여 예측하기 어려운 패턴이 나타났어요.", en: "Fearful-Avoidant" },
   "unclear": { ko: "판정 보류 (단서 부족)", desc: "제공된 대화에서 한 축 이상의 애착 신호를 평가할 기회가 부족하여 특정 유형으로 확정할 수 없습니다.", en: "Unclear / Insufficient Data" }
 };
 
-const SIGNAL_MAPPING: Record<string, { title: string, desc: string }> = {
-  "demanding_reassurance": { title: "관계 확인 욕구", desc: "관계가 괜찮은지 반복적으로 확인하려는 경향이 나타나요." },
-  "over_texting": { title: "과도한 연락", desc: "답장이 없으면 불안해하며 연락을 계속하는 패턴이 보여요." },
-  "fear_of_abandonment": { title: "버림받을 것에 대한 두려움", desc: "상대방이 떠날지도 모른다는 불안감을 표현하는 패턴이 보여요." },
-  "stonewalling": { title: "대화 단절 (Stonewalling)", desc: "갈등 상황에서 대화를 회피하고 침묵으로 일관하는 경향이 나타나요." },
-  "dismissing_emotions": { title: "감정 축소 및 회피", desc: "상대의 감정적 호소를 가볍게 넘기거나 이성적으로만 대하려는 패턴이 보여요." },
-  "intellectualization": { title: "지나친 이성화", desc: "감정적인 공감 대신 논리와 이성으로만 상황을 분석하려는 패턴이 보여요." },
-  "topic_shifting": { title: "화제 전환 (Topic Shifting)", desc: "불편한 감정이나 갈등 주제가 나오면 다른 이야기로 말을 돌리려는 경향이 나타나요." },
-  "validating_emotions": { title: "감정적 수용", desc: "상대방의 감정을 있는 그대로 인정하고 수용하는 안정적인 대화 패턴이 보여요." }
+const SIGNAL_MAPPING: Record<string, { title: string, behavior: string, reason: string }> = {
+  "demanding_reassurance": { 
+    title: "관계 확인 욕구", 
+    behavior: "상대방의 반응 속도나 감정 상태에 민감하게 반응하며 애정을 거듭 확인하려는 양상이 관찰됩니다.", 
+    reason: "관계의 연결성이 끊어질 수 있다는 불안감을 해소하기 위한 보호 행동입니다." 
+  },
+  "over_texting": { 
+    title: "과도한 연락 패턴", 
+    behavior: "답장이 지연될 때 감정적 불안이 높아지며 짧은 간격으로 메시지를 이어 보내는 모습이 나타납니다.", 
+    reason: "상대의 침묵을 거절 신호로 인식하여 즉각적인 통제감을 얻으려는 심리입니다." 
+  },
+  "fear_of_abandonment": { 
+    title: "거리감에 대한 민감성", 
+    behavior: "상대가 혼자만의 시간을 필요로 하거나 거리를 둘 때 급격한 불안감이나 서운함을 표출하는 패턴이 나타납니다.", 
+    reason: "거리두기를 이별이나 관계 단절의 징후로 해석하여 느끼는 불안 반응입니다." 
+  },
+  "stonewalling": { 
+    title: "대화 단절", 
+    behavior: "갈등 상황이나 감정적 압박이 생겼을 때, 즉각적인 답변을 멈추고 침묵으로 대화를 일방 중단하는 태도가 관찰됩니다.", 
+    reason: "직접적인 대립을 피하고 자신의 심리적 안전거리를 확보하려는 전형적인 회피 방어기제입니다." 
+  },
+  "dismissing_emotions": { 
+    title: "감정 축소 및 회피", 
+    behavior: "상대방의 서운함이나 감정적 호소에 공감하기보다, 대수롭지 않게 넘기거나 논리적인 반박으로 대응하는 모습이 관찰됩니다.", 
+    reason: "감정을 깊게 다루는 것을 취약함으로 인식하여 상황을 이성적으로 통제하려는 성향입니다." 
+  },
+  "intellectualization": { 
+    title: "지나친 이성화", 
+    behavior: "감정 교류가 필요한 대화에서도 논리와 사실관계 위주로만 상황을 분석하려는 반응이 나타납니다.", 
+    reason: "감정을 느끼는 대신 이성적 사고의 틀 안에서 방어하려는 태도입니다." 
+  },
+  "topic_shifting": { 
+    title: "화제 전환", 
+    behavior: "불편한 감정이나 갈등 주제가 언급되면 자연스럽게 다른 일상 이야기로 대화의 방향을 돌리는 양상이 나타납니다.", 
+    reason: "갈등 국면에 오래 머무르는 것을 피하고자 대화의 흐름을 분산시키는 반응입니다." 
+  },
+  "validating_emotions": { 
+    title: "감정적 수용", 
+    behavior: "상대방의 감정을 있는 그대로 인정하고 수용하는 차분하고 안정적인 대화 태도가 관찰됩니다.", 
+    reason: "감정의 차이를 안전하게 수용할 수 있는 안정된 심리적 기반을 가지고 있습니다." 
+  },
+  "AV02": { 
+    title: "갈등 상황 대화 철수", 
+    behavior: "갈등이나 문제 제기 상황에서 즉각적인 감정 표현을 피하고 대화 접점을 일방적으로 닫는 태도가 포착되었습니다.", 
+    reason: "갈등의 감정적 압박으로부터 자신을 보호하기 위해 물리적·심리적 거리를 확보하려는 회피 반응입니다." 
+  },
+  "AV03": { 
+    title: "친밀감 거리두기", 
+    behavior: "상대가 깊은 애정 표현이나 정서적 밀착을 요구할 때 심리적 부담을 느끼고 방어적인 태도를 보이는 경향이 나타납니다.", 
+    reason: "자신의 자율성과 독립성이 침해받는다고 느껴 방어막을 형성하려는 태도입니다." 
+  },
+  "AV04": { 
+    title: "과도한 자기의존", 
+    behavior: "어려운 상황에서도 상대에게 도움이나 감정을 터놓지 않고 혼자 해결하려는 반응이 관찰되었습니다.", 
+    reason: "타인에게 의지하는 것을 위험하거나 취약한 것으로 인식하는 방어 기제입니다." 
+  },
+  "AV05": { 
+    title: "감정 축소 및 차단", 
+    behavior: "상대방의 서운함이나 감정적 표현을 '별일 아닌 것'으로 축소하거나 이성적 잣대로만 평가하려는 양상이 보입니다.", 
+    reason: "상대의 격한 감정에 직면했을 때 생기는 내적 긴장을 억누르기 위한 무의식적 차단 반응입니다." 
+  },
+  "AN01": { 
+    title: "거절 및 이별 우려", 
+    behavior: "상대방의 사소한 태도 변화에도 관계가 단절될 수 있다는 염려와 위기감을 강하게 표현하는 경향이 나타납니다.", 
+    reason: "거절에 대한 두려움으로 인해 관계의 안전성을 지속적으로 확인받고자 하는 불안 반응입니다." 
+  },
+  "AN02": { 
+    title: "반복적 관계 확인 요구", 
+    behavior: "상대방의 애정과 관심을 거듭 확인하려 하며, 즉각적인 확답이 없을 때 초조해하는 반응이 관찰됩니다.", 
+    reason: "애착 대상과의 정서적 연결이 유지되고 있는지 안도감을 얻으려는 시도입니다." 
+  },
+  "AN03": { 
+    title: "반응 변화 과잉 민감성", 
+    behavior: "답장의 지연 시간이나 메시지 어투의 미세한 변화를 관계 이상 신호로 과잉 해석하는 경향이 관찰됩니다.", 
+    reason: "상대의 침묵이나 거리두기를 감정적 거절로 직결시켜 과잉 방어하는 패턴입니다." 
+  }
 };
 
 export default function Result() {
@@ -191,7 +258,7 @@ export default function Result() {
         pixelRatio: 1
       });
       const link = document.createElement('a');
-      link.download = 'avoidance-report.png';
+      link.download = 'lovepattern-report.png';
       link.href = dataUrl;
       link.click();
     } catch (err) {
@@ -370,7 +437,7 @@ export default function Result() {
 
         {/* FREE: 2D Fitness Score Board */}
         <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="bg-white rounded-2xl shadow-sm border border-zinc-200 p-6 mb-6">
-          <h3 className="text-[13px] font-bold text-zinc-500 mb-5">유형별 행동 적합도 (Euclidean Fitness)</h3>
+          <h3 className="text-[14px] font-bold text-zinc-700 mb-5">유형별 행동 적합도</h3>
           
           {!uiPres.showFitnessBars && uiPres.fitnessNotice ? (
             <div className="py-1 mb-2">
@@ -399,7 +466,7 @@ export default function Result() {
             <div className="space-y-4">
               <div>
                 <div className="flex justify-between text-[12px] font-bold mb-1.5">
-                  <span className={primary_type === "안정형 (Secure)" ? "text-blue-600 font-bold" : "text-zinc-600"}>안정형 (Secure)</span>
+                  <span className={primary_type === "안정형" ? "text-blue-600 font-bold" : "text-zinc-600"}>안정형</span>
                   <span className="text-zinc-900">{attachment_fitness.secure}%</span>
                 </div>
                 <div className="w-full bg-zinc-100 h-2 rounded-full overflow-hidden">
@@ -409,7 +476,7 @@ export default function Result() {
               
               <div>
                 <div className="flex justify-between text-[12px] font-bold mb-1.5">
-                  <span className={uiPres.mode === "anxiety_dominant" || primary_type === "몰입/불안형 (Preoccupied)" ? "text-blue-600 font-bold" : "text-zinc-600"}>몰입/불안형 (Preoccupied)</span>
+                  <span className={uiPres.mode === "anxiety_dominant" || primary_type === "몰입/불안형" ? "text-blue-600 font-bold" : "text-zinc-600"}>몰입/불안형</span>
                   {isAnxietyInsufficient ? (
                     <span className="text-amber-700/90 font-semibold bg-amber-50 px-2 py-0.5 rounded text-[11px] border border-amber-200/60">판단 보류 (단서 부족)</span>
                   ) : (
@@ -427,7 +494,7 @@ export default function Result() {
 
               <div>
                 <div className="flex justify-between text-[12px] font-bold mb-1.5">
-                  <span className={uiPres.mode === "avoidance_dominant" || primary_type === "거부-회피형 (Dismissive-Avoidant)" ? "text-blue-600 font-bold" : "text-zinc-600"}>거부-회피형 (Dismissive)</span>
+                  <span className={uiPres.mode === "avoidance_dominant" || primary_type === "거부-회피형" ? "text-blue-600 font-bold" : "text-zinc-600"}>거부-회피형</span>
                   {isAvoidanceInsufficient ? (
                     <span className="text-amber-700/90 font-semibold bg-amber-50 px-2 py-0.5 rounded text-[11px] border border-amber-200/60">판단 보류 (단서 부족)</span>
                   ) : (
@@ -445,7 +512,7 @@ export default function Result() {
 
               <div>
                 <div className="flex justify-between text-[12px] font-bold mb-1.5">
-                  <span className={primary_type === "공포-회피형 (Fearful-Avoidant)" ? "text-blue-600 font-bold" : "text-zinc-600"}>공포-회피형 (Fearful)</span>
+                  <span className={primary_type === "공포-회피형" ? "text-blue-600 font-bold" : "text-zinc-600"}>공포-회피형</span>
                   <span className="text-zinc-900">{attachment_fitness.fearful}%</span>
                 </div>
                 <div className="w-full bg-zinc-100 h-2 rounded-full overflow-hidden">
@@ -468,7 +535,7 @@ export default function Result() {
           
           <div className="mt-6 pt-5 border-t border-zinc-100 flex justify-between">
             <div className="text-center">
-              <span className="block text-[11px] text-zinc-400 font-bold mb-1">불안 차원 (Anxiety)</span>
+              <span className="block text-[11px] text-zinc-400 font-bold mb-1">불안 점수</span>
               {attachment_dimensions.anxiety_status === "insufficient" ? (
                 <span className="block text-[15px] font-bold text-zinc-500 py-0.5">단서 부족</span>
               ) : (
@@ -477,7 +544,7 @@ export default function Result() {
             </div>
             <div className="w-px bg-zinc-100" />
             <div className="text-center">
-              <span className="block text-[11px] text-zinc-400 font-bold mb-1">회피 차원 (Avoidance)</span>
+              <span className="block text-[11px] text-zinc-400 font-bold mb-1">회피 점수</span>
               {attachment_dimensions.avoidance_status === "insufficient" ? (
                 <span className="block text-[15px] font-bold text-zinc-500 py-0.5">단서 부족</span>
               ) : (
@@ -487,31 +554,139 @@ export default function Result() {
           </div>
         </motion.div>
 
-        {/* FREE: 02. 결과의 근거 미리보기 */}
+        {/* 1. 분석 근거: 대화 원문 노출 없이 관찰된 행동 양상과 해석 이유 제시 */}
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="mb-8">
-          <h3 className="text-[16px] font-bold text-zinc-900 mb-4">포착된 핵심 행동 패턴 (미리보기)</h3>
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-[16px] font-black text-zinc-900">01. 분석 근거</h3>
+            <span className="text-[11px] font-semibold text-zinc-400">포착된 행동 패턴과 해석</span>
+          </div>
           
-          <div className="space-y-3">
-            {signals && Object.entries(signals)
-              .filter(([_, signal]: any) => signal && Array.isArray(signal.evidence_quotes) && signal.evidence_quotes.length > 0)
-              .slice(0, 1)
-              .map(([key, signal]: any, idx) => {
-                const mappedSignal = SIGNAL_MAPPING[key] || { title: key.replace(/_/g, ' ').toUpperCase(), desc: `해당 성향을 나타내는 신호가 발견되었습니다.` };
+          <div className="space-y-4">
+            {(() => {
+              // Extract observed signals from signals object
+              const items = signals ? Object.entries(signals)
+                .filter(([key, signal]: any) => {
+                  if (!signal) return false;
+                  if (key === "dimensions" || key === "target_speaker_label") return false;
+                  if (signal.v && signal.v > 0) return true;
+                  if (signal.count && signal.count > 0) return true;
+                  if (Array.isArray(signal.evidence_quotes) && signal.evidence_quotes.length > 0) return true;
+                  return false;
+                })
+                .slice(0, 2)
+                .map(([key]: any) => {
+                  const mapped = SIGNAL_MAPPING[key] || { 
+                    title: key.replace(/_/g, ' '), 
+                    behavior: "해당 애착 성향을 나타내는 행동 반응이 관찰되었습니다.",
+                    reason: "애착 유형의 방어 기제가 대화 태도에 반영된 것으로 해석됩니다."
+                  };
+                  return {
+                    key,
+                    title: mapped.title,
+                    behavior: mapped.behavior,
+                    reason: mapped.reason
+                  };
+                }) : [];
+
+              if (items.length === 0) {
+                // Fallback graceful notice if no specific signal flagged
                 return (
-                  <div key={idx} className="bg-white p-5 rounded-2xl border border-zinc-200 shadow-sm">
-                    <div className="flex items-center gap-2 mb-2">
-                      <span className="text-blue-600 bg-blue-50 w-6 h-6 rounded-full flex items-center justify-center text-[12px] font-black">
-                        {idx + 1}
-                      </span>
-                      <strong className="text-[14px] text-zinc-900">{mappedSignal.title}</strong>
-                    </div>
-                    <p className="text-[13px] text-zinc-600 leading-relaxed pl-8">
-                      "{mappedSignal.desc}"
+                  <div className="bg-white p-5 rounded-2xl border border-zinc-200/90 shadow-sm text-center py-6">
+                    <p className="text-[13px] font-medium text-zinc-600">
+                      대화 전반의 문맥을 바탕으로 애착 점수와 적합도가 산출되었습니다.
                     </p>
                   </div>
                 );
-              })}
+              }
+
+              return items.map((item, idx) => (
+                <div key={idx} className="bg-white p-5 rounded-2xl border border-zinc-200/90 shadow-sm space-y-3">
+                  {/* 패턴 타이틀 배지 */}
+                  <div className="flex items-center gap-2">
+                    <span className="text-blue-600 bg-blue-50 w-5 h-5 rounded-full flex items-center justify-center text-[11px] font-black shrink-0">
+                      {idx + 1}
+                    </span>
+                    <strong className="text-[14px] text-zinc-900 font-bold">{item.title}</strong>
+                  </div>
+
+                  {/* [관찰된 행동 양상] 대화 내용 직접 노출 없이 행동 특성 요약 */}
+                  <div className="bg-zinc-50/80 p-3.5 rounded-xl border border-zinc-100 text-[12.5px] leading-relaxed text-zinc-700">
+                    <span className="text-[11px] font-bold text-zinc-500 block mb-1">🔍 관찰된 행동 양상</span>
+                    <p>{item.behavior}</p>
+                  </div>
+
+                  {/* [설명] 해당 행동을 해석한 이유 */}
+                  <div className="bg-blue-50/40 border border-blue-100/80 rounded-xl p-3.5 text-zinc-700 text-[12.5px] leading-relaxed">
+                    <div className="flex items-center gap-1.5 text-blue-700 font-bold text-[11.5px] mb-1">
+                      <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                      <span>해석한 이유</span>
+                    </div>
+                    <p>{item.reason}</p>
+                  </div>
+                </div>
+              ));
+            })()}
           </div>
+        </motion.div>
+
+        {/* 2. 무료 도움 한 가지: 맞춤 추천 대화 표현 */}
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} className="mb-8">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-[16px] font-black text-zinc-900">02. 무료 도움 한 가지</h3>
+            <span className="text-[11px] font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full">즉시 실천 팁</span>
+          </div>
+
+          {(() => {
+            const targetName = target_speaker_label || "상대방";
+            const norm = (primary_type || "").toLowerCase();
+            let advice = {
+              situation: `${targetName}이 갈등 후 대화를 회피하거나 입을 닫을 때`,
+              quote: "지금 당장 대답하지 않아도 괜찮아. 네가 편할 때 저녁 8시쯤 천천히 얘기하자.",
+              reason: "거부-회피형 성향의 상대는 감정적 압박을 느낄 때 방어기제로 대화를 일방 중단합니다. 응답해야 하는 시간에 여유를 주고 자율성을 보장해주면, 심리적 안전감을 느껴 스스로 대화로 복귀할 가능성이 높아집니다."
+            };
+
+            if (norm.includes("preoccup") || norm.includes("불안") || norm.includes("몰입")) {
+              advice = {
+                situation: `${targetName}이 불안해하며 즉각적인 확인과 연락을 요구할 때`,
+                quote: "내가 지금 중요한 일 처리 중이라 30분 뒤에 바로 연락할게! 우리 사이 문제없으니 안심해.",
+                reason: "불안형 상대는 침묵이나 지연을 거절로 오해합니다. 구체적인 재연락 시점과 관계가 안전하다는 확신을 먼저 제공하면 불안 반응이 빠르게 안정됩니다."
+              };
+            } else if (norm.includes("fearful") || norm.includes("공포")) {
+              advice = {
+                situation: `${targetName}이 가까워지다가도 갑자기 차가워지거나 거리를 둘 때`,
+                quote: "네가 부담스럽지 않은 속도로 천천히 맞춰갈게. 언제든 네 마음 편할 때 이야기해줘.",
+                reason: "공포-회피형은 친밀감에 대한 갈망과 상처받을 것에 대한 두려움이 공존합니다. 재촉하지 않고 일관된 온도로 기다려주는 것이 가장 큰 신뢰를 줍니다."
+              };
+            } else if (norm.includes("secure") || norm.includes("안정")) {
+              advice = {
+                situation: `${targetName}과 서로 다른 의견이나 서운한 점을 조율할 때`,
+                quote: "솔직하게 마음 표현해줘서 고마워. 서로 서운했던 점 같이 차근차근 맞춰보자.",
+                reason: "안정적인 상대와는 감정을 솔직히 인정하고 감사의 태도를 표현할 때 관계의 신뢰도가 가장 빠르게 강화됩니다."
+              };
+            }
+
+            return (
+              <div className="bg-gradient-to-br from-blue-50/60 via-white to-zinc-50 p-5 rounded-2xl border border-blue-200/80 shadow-sm space-y-3.5">
+                <div>
+                  <span className="text-[11px] font-bold text-zinc-400 block mb-1">상황별 맞춤 소통 제안</span>
+                  <h4 className="text-[13.5px] font-bold text-zinc-800">
+                    {advice.situation}
+                  </h4>
+                </div>
+
+                {/* 추천 말풍선 */}
+                <div className="bg-zinc-900 text-white p-4 rounded-2xl rounded-tr-sm text-[13.5px] font-semibold leading-relaxed shadow-sm">
+                  "{advice.quote}"
+                </div>
+
+                {/* 효과 및 해석 */}
+                <div className="bg-white p-3.5 rounded-xl border border-zinc-200/70 text-[12.5px] text-zinc-600 leading-relaxed">
+                  <strong className="text-zinc-800 block mb-1">💡 왜 이 표현이 효과적일까요?</strong>
+                  {advice.reason}
+                </div>
+              </div>
+            );
+          })()}
         </motion.div>
 
         {/* FREE: 03. 무료 결과 공유 */}
@@ -519,14 +694,14 @@ export default function Result() {
           <button 
             onClick={() => handleExport('jpg')}
             disabled={isExporting}
-            className="flex-1 py-3 bg-white text-zinc-900 border border-zinc-200 text-[13px] font-bold rounded-xl hover:bg-zinc-50 transition flex items-center justify-center gap-2"
+            className="flex-1 py-3 bg-white text-zinc-900 border border-zinc-200 text-[13px] font-bold rounded-xl hover:bg-zinc-50 transition flex items-center justify-center gap-2 cursor-pointer"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" /></svg>
             이미지 저장
           </button>
           <button 
             onClick={handleShareClick}
-            className="flex-1 py-3 bg-zinc-900 text-white text-[13px] font-bold rounded-xl hover:bg-zinc-800 transition flex items-center justify-center gap-2 shadow-md shadow-zinc-200"
+            className="flex-1 py-3 bg-zinc-900 text-white text-[13px] font-bold rounded-xl hover:bg-zinc-800 transition flex items-center justify-center gap-2 shadow-md shadow-zinc-200 cursor-pointer"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" /></svg>
             결과 링크 공유

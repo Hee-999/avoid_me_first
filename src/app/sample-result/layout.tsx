@@ -1,7 +1,7 @@
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: "예시 분석 결과 | 회피형 판독기",
+  title: "예시 분석 결과 | 러브패턴",
   robots: {
     index: false,
     follow: false,

@@ -16,11 +16,11 @@ export function ExecutiveSection({ summary, profile }: Props) {
         <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none"></div>
         
         <span className="inline-block px-3 py-1 bg-white/20 rounded-full text-[12px] font-bold tracking-widest uppercase mb-6 backdrop-blur-md">
-          Ch.1 Executive Summary
+          핵심 분석 요약
         </span>
         
         <h3 className="text-[24px] font-black leading-tight mb-4 text-white/95">
-          {summary.headline || "심층 분석 요약"}
+          {summary.headline || "핵심 분석 요약"}
         </h3>
         
         <p className="text-[15px] text-blue-100/90 leading-relaxed mb-8">

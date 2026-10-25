@@ -21,7 +21,7 @@ export function PremiumCoverPage({ targetName, primaryType, anxiety, avoidance, 
       {/* Top Header */}
       <div className="flex justify-between items-start border-b border-zinc-200 pb-8">
         <div>
-          <h1 className="text-[20px] font-black text-zinc-900 tracking-tight">AVOIDANCE READER</h1>
+          <h1 className="text-[20px] font-black text-zinc-900 tracking-tight">LOVE PATTERN (러브패턴)</h1>
           <p className="text-[12px] font-bold text-zinc-400 mt-1 uppercase tracking-widest">Premium Attachment Analysis</p>
         </div>
         <div className="text-right">
@@ -38,7 +38,7 @@ export function PremiumCoverPage({ targetName, primaryType, anxiety, avoidance, 
           </span>
           <h2 className="text-[42px] font-black text-zinc-900 leading-tight tracking-tight">
             <span className="text-blue-600">{targetName}</span>님의<br/>
-            진짜 속마음과<br/>
+            대화에서 관찰된 반응과<br/>
             관계 패턴 분석
           </h2>
         </div>

@@ -47,24 +47,24 @@ export default function Home() {
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "WebApplication",
-    "name": "회피형 판독기",
-    "url": process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000",
+    "name": "러브패턴",
+    "url": process.env.NEXT_PUBLIC_SITE_URL || "https://lovepattern.site",
     "description": "대화 캡처 기반 관계 행동 패턴 분석 (참고용 디지털 콘텐츠)",
     "applicationCategory": "UtilitiesApplication",
     "operatingSystem": "Web"
   };
 
   return (
-    <div className="relative h-[100dvh] bg-zinc-950 selection:bg-blue-200 overflow-hidden">
+    <div className="relative h-[100dvh] bg-zinc-100 selection:bg-blue-200 overflow-hidden">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
 
-      <div className="fixed inset-x-0 mx-auto top-0 w-full max-w-md h-[100dvh] bg-black z-0">
+      <div className="fixed inset-x-0 mx-auto top-0 w-full max-w-md h-[100dvh] bg-white z-0">
         {/* Step 1: The Hero Section (Video & Text) */}
         <HeroSection
-          backgroundVideoUrl="/Abstract_glowing_motion_background_202608301121.mp4"
+          backgroundVideoUrl="/hero_loop.mp4"
           onCtaClick={() => setViewState("input")}
           textOpacity={viewState === "hero" ? 1 : 0}
           textY={viewState === "hero" ? 0 : -50}

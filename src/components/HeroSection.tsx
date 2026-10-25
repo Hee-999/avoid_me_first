@@ -1,6 +1,7 @@
 "use client";
 
-import { motion, MotionValue } from "framer-motion";
+import Link from "next/link";
+import { motion } from "framer-motion";
 import HeroBackground from "./HeroBackground";
 
 interface HeroSectionProps {
@@ -21,9 +22,9 @@ export default function HeroSection({
   videoScale
 }: HeroSectionProps) {
   return (
-    <div className="absolute inset-0 w-full h-full flex flex-col items-center justify-center overflow-hidden">
+    <div className="absolute inset-0 w-full h-full flex flex-col items-center justify-start overflow-hidden bg-white">
       
-      {/* Background Media that zooms in massively */}
+      {/* Background Video (Clean watercolor animation) */}
       <motion.div 
         animate={{ scale: videoScale }}
         transition={{ duration: 0.8, ease: "easeInOut" }}
@@ -37,59 +38,53 @@ export default function HeroSection({
             muted 
             loop 
             playsInline
-            className="w-full h-full object-cover opacity-80 mix-blend-screen"
+            className="w-full h-full object-cover object-bottom"
           />
         ) : (
           <div className="w-full h-full bg-zinc-50 relative">
             <HeroBackground />
-            <div className="absolute inset-0 bg-gradient-to-b from-white/40 to-white/90"></div>
           </div>
         )}
-        <div className="absolute inset-0 bg-zinc-950/40 mix-blend-multiply" />
       </motion.div>
       
-      {/* Hero Content that fades out and moves up */}
+      {/* Hero Content positioned in the upper clean area above characters */}
       <motion.div 
         animate={{ opacity: textOpacity, y: textY }}
         transition={{ duration: 0.5, ease: "easeOut" }}
-        className="relative z-10 flex flex-col items-center text-center px-6 mt-[-10vh]"
+        className="relative z-10 flex flex-col items-center text-center px-6 pt-7 sm:pt-9 w-full max-w-sm"
       >
-        <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/90 backdrop-blur-sm text-zinc-900 text-xs font-semibold rounded-full mb-6 shadow-sm border border-zinc-200">
-          <span className="relative flex h-2 w-2">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-500 opacity-40"></span>
-            <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-600"></span>
-          </span>
-          AI 심리 분석 리포트
-        </div>
+        {/* Brand Name */}
+        <p className="text-[13px] sm:text-[14px] font-bold text-zinc-900 tracking-wider mb-3">
+          러브패턴
+        </p>
         
-        <h1 className={`text-4xl md:text-5xl font-extrabold tracking-tight leading-[1.15] text-white`}>
+        {/* Main Title */}
+        <h1 className="text-[30px] sm:text-[34px] font-black tracking-tight leading-[1.2] text-zinc-950">
           그 사람,<br />
           정말 회피형일까?
         </h1>
         
-        <p className={`mt-6 text-[15px] font-medium max-w-sm leading-relaxed text-zinc-300`}>
-          바솔로뮤 성인 애착 모델 기반으로 카톡 대화를 분석하여<br/>
-          상대의 불안형·회피형 애착 유형과 행동 패턴을 판독합니다.<br/>
-          힘든 회피형 연애의 돌파구를 지금 확인해 보세요.
+        {/* Subtitle */}
+        <p className="mt-2.5 sm:mt-3 text-[14px] sm:text-[15px] font-medium leading-snug text-zinc-800">
+          카톡 대화 속에 담긴<br />
+          애착과 행동 패턴을 살펴보세요.
         </p>
 
+        {/* Primary CTA Button */}
         <button 
           onClick={onCtaClick}
-          className="mt-10 px-8 py-4 bg-white text-zinc-950 font-bold text-[15px] rounded-xl transform transition hover:bg-zinc-100 active:scale-[0.98] flex items-center justify-center gap-2 shadow-xl shadow-white/10"
+          className="mt-5 sm:mt-6 w-full max-w-[250px] py-3.5 px-6 bg-zinc-950 text-white font-bold text-[15px] rounded-full transform transition hover:bg-zinc-800 active:scale-[0.98] shadow-lg shadow-zinc-950/20 cursor-pointer"
         >
-          대화 붙여넣고 분석하기
-          <svg className="w-4 h-4 animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 14l-7 7m0 0l-7-7m7 7V3" /></svg>
+          카톡 캡처로 분석하기
         </button>
-      </motion.div>
 
-      {/* Scroll Indicator */}
-      <motion.div 
-        animate={{ opacity: textOpacity }}
-        transition={{ duration: 0.5 }}
-        className={`absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center text-white`}
-      >
-        <span className="text-[10px] font-bold tracking-widest uppercase mb-2 opacity-80">Scroll to start</span>
-        <svg className="w-5 h-5 animate-bounce opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" /></svg>
+        {/* Secondary Link */}
+        <Link 
+          href="/sample-result"
+          className="mt-2.5 text-[13px] sm:text-[13.5px] font-semibold text-zinc-800 hover:text-black underline underline-offset-4 transition py-1 cursor-pointer"
+        >
+          예시 결과 보기
+        </Link>
       </motion.div>
     </div>
   );

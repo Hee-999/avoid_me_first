@@ -2,7 +2,7 @@ export function PremiumReportLocked({ onUnlock, isProcessing = false }: { onUnlo
   return (
     <section className="relative mt-8 pt-8 border-t border-zinc-200">
       <div className="mb-8 text-center">
-        <h2 className="text-[22px] font-black text-zinc-900 mb-2">프리미엄 관계 분석 리포트 (V2.0)</h2>
+        <h2 className="text-[22px] font-black text-zinc-900 mb-2">프리미엄 관계 분석 리포트</h2>
         <p className="text-[14px] text-zinc-500">핵심 밀착형 프리미엄 리포트 (3,000자 요약판)</p>
       </div>
 
@@ -13,7 +13,7 @@ export function PremiumReportLocked({ onUnlock, isProcessing = false }: { onUnlo
           
           <div className="text-left">
             <h3 className="text-[18px] font-black text-zinc-900 mb-4 flex items-center gap-2">
-              <span className="text-xl">📋</span> Ch.1 심층 분석 요약 (Executive Summary)
+              <span className="text-xl">📋</span> 핵심 분석 요약
             </h3>
             <div className="space-y-4">
               <p className="text-[14px] text-zinc-700 leading-relaxed font-medium">
@@ -32,7 +32,7 @@ export function PremiumReportLocked({ onUnlock, isProcessing = false }: { onUnlo
 
           <div>
             <h3 className="text-[16px] font-bold text-zinc-800 mb-3 flex items-center gap-2">
-              <span>⏰</span> 갈등 후 다시 연락하기 좋은 타이밍
+              <span>⏰</span> 다시 대화를 제안할 때 참고할 신호
             </h3>
             <div className="h-20 bg-zinc-100 rounded-xl border border-zinc-300"></div>
           </div>
@@ -57,22 +57,46 @@ export function PremiumReportLocked({ onUnlock, isProcessing = false }: { onUnlo
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
             </div>
             
-            <h4 className="text-[18px] font-black text-zinc-900 mb-4 mt-4">내 상대 사용설명서 열기</h4>
+            <h4 className="text-[18px] font-black text-zinc-900 mb-2 mt-4">내 상대 사용설명서 열기</h4>
+            <p className="text-[12px] text-zinc-500 mb-4">유료 리포트에서만 제공되는 심층 분석 항목</p>
             
-            <ul className="text-[13px] text-zinc-600 space-y-2.5 mb-6 text-left w-full px-2 font-medium">
-              <li className="flex gap-2.5 items-start"><span className="text-blue-500 font-bold mt-0.5">✓</span> 갈등 상황에서의 진짜 속마음</li>
-              <li className="flex gap-2.5 items-start"><span className="text-blue-500 font-bold mt-0.5">✓</span> 상대방에게 다가가는 최적의 타이밍</li>
-              <li className="flex gap-2.5 items-start"><span className="text-blue-500 font-bold mt-0.5">✓</span> 피해야 할 발작 버튼과 추천 대화법</li>
+            <ul className="text-[13px] text-zinc-700 space-y-2 mb-5 text-left w-full px-2 font-medium bg-zinc-50/70 p-3.5 rounded-xl border border-zinc-100">
+              <li className="flex gap-2.5 items-start">
+                <span className="text-blue-600 font-bold mt-0.5">✓</span> 
+                <span><strong>핵심 분석 요약</strong> 및 2차원 애착 성향 프로필</span>
+              </li>
+              <li className="flex gap-2.5 items-start">
+                <span className="text-blue-600 font-bold mt-0.5">✓</span> 
+                <span><strong>대화에서 관찰된 반응과 가능한 해석</strong></span>
+              </li>
+              <li className="flex gap-2.5 items-start">
+                <span className="text-blue-600 font-bold mt-0.5">✓</span> 
+                <span>상대방을 위축시키는 <strong>핵심 심리적 트리거</strong> (발작 버튼)</span>
+              </li>
+              <li className="flex gap-2.5 items-start">
+                <span className="text-blue-600 font-bold mt-0.5">✓</span> 
+                <span><strong>다시 대화를 제안할 때 참고할 신호</strong>와 안전한 타이밍</span>
+              </li>
+              <li className="flex gap-2.5 items-start">
+                <span className="text-blue-600 font-bold mt-0.5">✓</span> 
+                <span>갈등 방지를 위한 <strong>1:1 맞춤 카톡 실전 화법</strong></span>
+              </li>
             </ul>
 
-            <p className="text-[12.5px] text-zinc-500 leading-relaxed mb-4 bg-zinc-50 px-3 py-2 rounded-lg">
-              상대의 행동 이유부터 연락 타이밍, 갈등 대응 방법까지 지금 바로 확인해보세요.
-            </p>
-
-            <div className="text-[11px] text-zinc-400 bg-zinc-50/80 w-full p-2.5 rounded-lg mb-5 text-left border border-zinc-100 leading-relaxed">
+            <div className="text-[11px] text-zinc-400 bg-zinc-50/80 w-full p-2.5 rounded-lg mb-4 text-left border border-zinc-100 leading-relaxed">
               결제 완료 후 개인화된 상세 리포트 생성이 즉시 시작됩니다.<br/>
               생성이 시작된 이후에는 디지털 콘텐츠 특성상 <span className="text-zinc-500 font-semibold">단순 변심에 의한 환불이 제한될 수 있습니다.</span><br/>
-              <span className="block mt-1.5 text-zinc-500 font-medium tracking-tight">✓ 구매 후 1년간 다시보기 지원 &nbsp;&nbsp; ✓ PDF 저장 기능 지원</span>
+              <span className="block mt-1 text-zinc-500 font-medium tracking-tight">✓ 구매 후 1년간 다시보기 지원 &nbsp;&nbsp; ✓ PDF 저장 기능 지원</span>
+            </div>
+
+            {/* 얼리버드 가격 안내 (결제 버튼 바로 위) */}
+            <div className="mb-3 text-center w-full">
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-amber-50 text-amber-900 border border-amber-200 rounded-full text-[12px] font-bold">
+                <span>🔥</span> 얼리버드 특별가 2,900원
+              </div>
+              <p className="text-[11.5px] text-zinc-500 font-medium mt-1">
+                초기 판매 종료 후 단계적으로 인상 예정입니다.
+              </p>
             </div>
 
             {onUnlock && (
@@ -85,12 +109,10 @@ export function PremiumReportLocked({ onUnlock, isProcessing = false }: { onUnlo
                     : "bg-zinc-950 hover:bg-zinc-800 active:scale-95"
                 }`}
               >
-                {isProcessing ? "결제창을 여는 중..." : "내 상대 사용설명서 열기 · ₩2,900"}
+                {isProcessing ? "결제창을 여는 중..." : "내 상대 사용설명서 열기 · 2,900원 결제"}
                 {!isProcessing && <svg className="w-4 h-4 text-zinc-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>}
               </button>
             )}
-            {/* The previous text is replaced by the disclaimer block above. 
-                We remove the 11px text below the button to keep UI clean. */}
           </div>
         </div>
         

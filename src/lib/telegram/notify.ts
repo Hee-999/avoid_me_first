@@ -86,7 +86,7 @@ export async function notifyFreeAnalysis(data: {
 }
 
 /**
- * Notification for when a user completes a 4,900 KRW payment
+ * Notification for when a user completes a 2,900 KRW payment
  */
 export async function notifyPaidConversion(data: {
   id: string;

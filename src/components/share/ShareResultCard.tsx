@@ -34,7 +34,7 @@ export const ShareResultCard = forwardRef<HTMLDivElement, ShareResultCardProps>(
           <div className="flex justify-between items-center mb-16 relative z-10">
             <div className="text-2xl font-bold tracking-tight text-zinc-900 flex items-center gap-3">
               <div className="w-8 h-8 bg-black rounded-lg"></div>
-              Avoidance Reader
+              러브패턴
             </div>
             <div className="px-6 py-2 bg-zinc-100 rounded-full text-zinc-600 font-bold text-xl">
               AI 애착 유형 분석
@@ -90,7 +90,7 @@ export const ShareResultCard = forwardRef<HTMLDivElement, ShareResultCardProps>(
                 <div className="space-y-6">
                   <div>
                     <div className="flex justify-between text-xl font-bold mb-3">
-                      <span className={primary_type === "secure" ? "text-blue-600 font-bold" : "text-zinc-600"}>안정형 (Secure)</span>
+                      <span className={primary_type === "secure" ? "text-blue-600 font-bold" : "text-zinc-600"}>안정형</span>
                       <span className="text-zinc-900">{attachment_fitness.secure}%</span>
                     </div>
                     <div className="w-full bg-zinc-200 h-4 rounded-full overflow-hidden">
@@ -100,7 +100,7 @@ export const ShareResultCard = forwardRef<HTMLDivElement, ShareResultCardProps>(
                   
                   <div>
                     <div className="flex justify-between text-xl font-bold mb-3">
-                      <span className={uiPres.mode === "anxiety_dominant" || primary_type === "preoccupied" ? "text-blue-600 font-bold" : "text-zinc-600"}>몰입/불안형 (Preoccupied)</span>
+                      <span className={uiPres.mode === "anxiety_dominant" || primary_type === "preoccupied" ? "text-blue-600 font-bold" : "text-zinc-600"}>몰입/불안형</span>
                       {isAnxietyInsufficient ? (
                         <span className="text-amber-800 font-semibold bg-amber-50 px-3 py-1 rounded-md text-lg border border-amber-200">판단 보류 (단서 부족)</span>
                       ) : (
@@ -118,7 +118,7 @@ export const ShareResultCard = forwardRef<HTMLDivElement, ShareResultCardProps>(
 
                   <div>
                     <div className="flex justify-between text-xl font-bold mb-3">
-                      <span className={uiPres.mode === "avoidance_dominant" || primary_type === "dismissing" || primary_type === "dismissive-avoidant" ? "text-blue-600 font-bold" : "text-zinc-600"}>거부-회피형 (Dismissive)</span>
+                      <span className={uiPres.mode === "avoidance_dominant" || primary_type === "dismissing" || primary_type === "dismissive-avoidant" ? "text-blue-600 font-bold" : "text-zinc-600"}>거부-회피형</span>
                       {isAvoidanceInsufficient ? (
                         <span className="text-amber-800 font-semibold bg-amber-50 px-3 py-1 rounded-md text-lg border border-amber-200">판단 보류 (단서 부족)</span>
                       ) : (
@@ -136,7 +136,7 @@ export const ShareResultCard = forwardRef<HTMLDivElement, ShareResultCardProps>(
 
                   <div>
                     <div className="flex justify-between text-xl font-bold mb-3">
-                      <span className={primary_type === "fearful" || primary_type === "fearful-avoidant" ? "text-blue-600 font-bold" : "text-zinc-600"}>공포-회피형 (Fearful)</span>
+                      <span className={primary_type === "fearful" || primary_type === "fearful-avoidant" ? "text-blue-600 font-bold" : "text-zinc-600"}>공포-회피형</span>
                       <span className="text-zinc-900">{attachment_fitness.fearful}%</span>
                     </div>
                     <div className="w-full bg-zinc-200 h-4 rounded-full overflow-hidden">
@@ -182,7 +182,7 @@ export const ShareResultCard = forwardRef<HTMLDivElement, ShareResultCardProps>(
           {/* Footer */}
           <div className="mt-16 text-center relative z-10">
             <p className="text-2xl font-bold text-zinc-400">나의 카카오톡 대화 분석해보기</p>
-            <p className="text-xl text-zinc-300 mt-2">avoidance.com</p>
+            <p className="text-xl text-zinc-300 mt-2">lovepattern.site</p>
           </div>
 
           {/* Decorative Background Elements */}
