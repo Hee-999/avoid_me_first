@@ -15,7 +15,7 @@ import { parseKakaoScreenshotsWithVision } from "@/lib/analysis/gemini/kakaoVisi
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { images, text, target_role = "target", target_speaker_id, target_speaker_label } = body;
+    const { images, text, target_role = "target", target_speaker_id, target_speaker_label, context_intake } = body;
 
     let preprocessed;
     let resolvedTargetId = target_speaker_id;
@@ -77,14 +77,18 @@ export async function POST(request: Request) {
     const derivedContext = await buildDerivedReportContext(
       conversationJsonString,
       sanitizedTargetId,
-      analysisResult
+      analysisResult,
+      context_intake
     );
 
     // 3. Construct Persistent Payload (Safe to save, no raw text)
     const persistentPayload = {
       ...analysisResult,
       target_speaker_label: resolvedTargetLabel || resolvedTargetId,
-      derived_context: derivedContext,
+      derived_context: {
+        ...(derivedContext || {}),
+        context_intake: context_intake || null
+      },
       premium_report: null, // Will be generated async
       access: { premium_unlocked: false },
       status: { scoring: "completed", report: "generating" }

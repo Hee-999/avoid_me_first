@@ -63,6 +63,7 @@ export interface FinalAnalysis {
   primary_type_confidence?: string;
   target_speaker_label?: string;
   premium_report?: any;
+  derived_context?: any;
 }
 
 export const ATTACHMENT_TYPE_MAPPING: Record<string, { ko: string, desc: string, en: string }> = {
@@ -93,7 +94,7 @@ export const getDimensionObservationText = (score: number, dimension: 'anxiety' 
 };
 
 export interface AnalysisUiPresentation {
-  mode: "standard" | "avoidance_dominant" | "anxiety_dominant" | "insufficient_all";
+  mode: "standard" | "avoidance_dominant" | "anxiety_dominant" | "insufficient_all" | "micro_signal_detected";
   headlinePrefix: string;
   headlineMain: string;
   headlineSuffix: string;
@@ -122,14 +123,14 @@ export function getAnalysisUiPresentation(opts: UiPresentationOptions): Analysis
   const isAvoidanceInsufficient = avoidanceStatus === "insufficient";
   const isUnclear = !primaryType || primaryType.toLowerCase().includes("unclear") || primaryType.includes("보류");
 
-  const speaker = speakerLabel || "상대";
+  const speaker = speakerLabel || "상대방";
 
   // 1. Both dimensions are evaluable AND not unclear
   if (!isAnxietyInsufficient && !isAvoidanceInsufficient && !isUnclear) {
     const mapped = getMappedType(primaryType);
     return {
       mode: "standard",
-      headlinePrefix: `${speaker}의 주 애착 유형은`,
+      headlinePrefix: `${speaker}의 주 애착 성향은`,
       headlineMain: `"${mapped.ko}"`,
       headlineSuffix: "입니다.",
       subEn: mapped.en,
@@ -139,7 +140,7 @@ export function getAnalysisUiPresentation(opts: UiPresentationOptions): Analysis
     };
   }
 
-  // 2. Avoidance only evaluable and score >= 60
+  // 2-A. Avoidance high (>= 60)
   if (!isAvoidanceInsufficient && isAnxietyInsufficient && avoidanceScore >= 60) {
     return {
       mode: "avoidance_dominant",
@@ -147,35 +148,17 @@ export function getAnalysisUiPresentation(opts: UiPresentationOptions): Analysis
       headlineMain: '"회피 성향이 비교적 뚜렷하게 보여요"',
       headlineSuffix: "",
       subEn: "High Avoidance Pattern Observed",
-      description: "다만 불안 성향을 평가할 단서가 부족해 거부-회피형(Dismissing)과 공포-회피형(Fearful) 중 어느 유형에 가까운지는 아직 구분하기 어렵습니다.",
+      description: "갈등이나 감정적 압박 상황에서 대화를 일방적으로 닫거나 거리를 두는 방어 행동이 반복적으로 관찰되었습니다.",
       showFitnessBars: true,
       fitnessNotice: {
-        title: "4가지 애착 유형은 판정 보류",
-        description: `회피 패턴은 비교적 뚜렷하게 관찰됨 (${avoidanceScore}점)`,
-        subText: "대화 내 불안 성향을 평가할 단서가 부족하여 몰입/불안형은 판단 보류되었습니다."
+        title: "불안 성향은 추가 확인 필요",
+        description: `회피 패턴이 뚜렷하게 관찰됨 (${avoidanceScore}점)`,
+        subText: "대화 내 불안 성향을 평가할 상황은 나타나지 않아 회피 차원을 중심으로 분석되었습니다."
       }
     };
   }
 
-  // 3. Anxiety only evaluable and score >= 60
-  if (!isAnxietyInsufficient && isAvoidanceInsufficient && anxietyScore >= 60) {
-    return {
-      mode: "anxiety_dominant",
-      headlinePrefix: `${speaker}에게서`,
-      headlineMain: '"불안 성향이 비교적 뚜렷하게 보여요"',
-      headlineSuffix: "",
-      subEn: "High Anxiety Pattern Observed",
-      description: "다만 회피 성향을 평가할 단서가 부족해 몰입/불안형(Preoccupied)과 공포-회피형(Fearful) 중 어느 유형에 가까운지는 아직 구분하기 어렵습니다.",
-      showFitnessBars: true,
-      fitnessNotice: {
-        title: "4가지 애착 유형은 판정 보류",
-        description: `불안 패턴은 비교적 뚜렷하게 관찰됨 (${anxietyScore}점)`,
-        subText: "대화 내 회피 성향을 평가할 단서가 부족하여 거부-회피형은 판단 보류되었습니다."
-      }
-    };
-  }
-
-  // 2-B. Avoidance moderate (40~59) with anxiety insufficient
+  // 2-B. Avoidance moderate (40~59)
   if (!isAvoidanceInsufficient && isAnxietyInsufficient && avoidanceScore >= 40) {
     return {
       mode: "avoidance_dominant",
@@ -183,17 +166,53 @@ export function getAnalysisUiPresentation(opts: UiPresentationOptions): Analysis
       headlineMain: '"회피 성향이 일부 관찰돼요"',
       headlineSuffix: "",
       subEn: "Moderate Avoidance Pattern Observed",
-      description: "다만 불안 성향을 평가할 단서가 부족해 거부-회피형(Dismissing)과 공포-회피형(Fearful) 중 어느 유형에 가까운지는 아직 구분하기 어렵습니다.",
+      description: "갈등이나 부담스러운 상황에서 대화를 미루거나 방어적인 태도를 취하는 모습이 관찰되었습니다.",
       showFitnessBars: true,
       fitnessNotice: {
-        title: "4가지 애착 유형은 판정 보류",
+        title: "불안 성향은 추가 확인 필요",
         description: `회피 패턴이 중간 수준으로 관찰됨 (${avoidanceScore}점)`,
-        subText: "대화 내 불안 성향을 평가할 단서가 부족하여 몰입/불안형은 판단 보류되었습니다."
+        subText: "대화 내 불안 성향을 평가할 상황은 나타나지 않아 회피 차원을 중심으로 분석되었습니다."
       }
     };
   }
 
-  // 3-B. Anxiety moderate (40~59) with avoidance insufficient
+  // 2-C. Avoidance micro-signal (1~39) -> 포착된 행동 중심 안내 (오늘 33점 케이스)
+  if (!isAvoidanceInsufficient && avoidanceScore > 0) {
+    return {
+      mode: "micro_signal_detected",
+      headlinePrefix: `${speaker}에게서`,
+      headlineMain: '"갈등 유보·거리두기 반응이 1건 포착되었어요"',
+      headlineSuffix: "",
+      subEn: "Initial Boundary Signal Observed",
+      description: "특정 상황에서 대화를 유보하거나 시간을 두려는 방어적 반응이 관찰되었습니다. 다만 이 1번의 표현만으로 성향을 단정할 수는 없으며, 감정이 가라앉은 뒤 대화를 다시 이어왔는지 전후 맥락을 함께 보아야 합니다.",
+      showFitnessBars: true,
+      fitnessNotice: {
+        title: "미세 방어 신호 1건 포착",
+        description: `특정 장면에서 완곡한 거리두기 반응 관찰 (${avoidanceScore}점)`,
+        subText: "성향을 섣불리 단정하기보다 당시 상황의 압박감을 함께 고려하는 것이 권장됩니다."
+      }
+    };
+  }
+
+  // 3-A. Anxiety high (>= 60)
+  if (!isAnxietyInsufficient && isAvoidanceInsufficient && anxietyScore >= 60) {
+    return {
+      mode: "anxiety_dominant",
+      headlinePrefix: `${speaker}에게서`,
+      headlineMain: '"불안 성향이 비교적 뚜렷하게 보여요"',
+      headlineSuffix: "",
+      subEn: "High Anxiety Pattern Observed",
+      description: "관계의 불확실성이나 연락 지연에 대해 안심을 거듭 요구하거나 예민하게 반응하는 양상이 관찰되었습니다.",
+      showFitnessBars: true,
+      fitnessNotice: {
+        title: "회피 성향은 추가 확인 필요",
+        description: `불안 패턴이 뚜렷하게 관찰됨 (${anxietyScore}점)`,
+        subText: "대화 내 회피 성향을 평가할 상황은 나타나지 않아 불안 차원을 중심으로 분석되었습니다."
+      }
+    };
+  }
+
+  // 3-B. Anxiety moderate (40~59)
   if (!isAnxietyInsufficient && isAvoidanceInsufficient && anxietyScore >= 40) {
     return {
       mode: "anxiety_dominant",
@@ -201,30 +220,44 @@ export function getAnalysisUiPresentation(opts: UiPresentationOptions): Analysis
       headlineMain: '"불안 성향이 일부 관찰돼요"',
       headlineSuffix: "",
       subEn: "Moderate Anxiety Pattern Observed",
-      description: "다만 회피 성향을 평가할 단서가 부족해 몰입/불안형(Preoccupied)과 공포-회피형(Fearful) 중 어느 유형에 가까운지는 아직 구분하기 어렵습니다.",
+      description: "관계 상태에 대한 확인이나 상대 반응에 대한 관심이 다소 높게 관찰되었습니다.",
       showFitnessBars: true,
       fitnessNotice: {
-        title: "4가지 애착 유형은 판정 보류",
+        title: "회피 성향은 추가 확인 필요",
         description: `불안 패턴이 중간 수준으로 관찰됨 (${anxietyScore}점)`,
-        subText: "대화 내 회피 성향을 평가할 단서가 부족하여 거부-회피형은 판단 보류되었습니다."
+        subText: "대화 내 회피 성향을 평가할 상황은 나타나지 않아 불안 차원을 중심으로 분석되었습니다."
       }
     };
   }
 
-  // 4. Both insufficient or below threshold
+  // 3-C. Anxiety micro-signal (1~39)
+  if (!isAnxietyInsufficient && anxietyScore > 0) {
+    return {
+      mode: "micro_signal_detected",
+      headlinePrefix: `${speaker}에게서`,
+      headlineMain: '"관계 확인·안심 요구 반응이 1건 포착되었어요"',
+      headlineSuffix: "",
+      subEn: "Initial Reassurance Signal Observed",
+      description: "상대방의 상태나 관계에 대해 재확인을 구하는 모습이 관찰되었습니다. 일시적인 확인인지 반복되는 패턴인지는 추가적인 관찰이 필요합니다.",
+      showFitnessBars: true,
+      fitnessNotice: {
+        title: "미세 확인 신호 1건 포착",
+        description: `특정 장면에서 관계 안심 확인 반응 관찰 (${anxietyScore}점)`,
+        subText: "성향을 섣불리 단정하기보다 당시 상황의 배경을 함께 고려하는 것이 권장됩니다."
+      }
+    };
+  }
+
+  // 4. Both insufficient or below threshold (일상적 대화 / 방어기제 미발생)
   return {
     mode: "insufficient_all",
-    headlinePrefix: "현재 대화에서는",
-    headlineMain: '"애착 유형을 판단할 단서가 부족해요"',
+    headlinePrefix: "제출해주신 대화에서는",
+    headlineMain: '"일상적인 대화와 상호작용이 확인되었어요"',
     headlineSuffix: "",
-    subEn: "Insufficient Data for Evaluation",
-    description: "현재 대화에서는 갈등이나 감정 표현 상황이 충분하지 않아, 불안 및 회피 성향을 평가하기 어렵습니다.",
+    subEn: "Everyday Interaction",
+    description: "갈등이나 일방적인 거리두기 없이, 일상적인 대화와 조율이 이루어졌습니다.",
     showFitnessBars: false,
-    fitnessNotice: {
-      title: "애착 유형을 계산할 단서가 부족합니다.",
-      description: "현재 대화에서는 불안·회피 패턴을 평가할 상황이 충분하지 않음",
-      subText: "갈등 상황이 포함된 더 많은 대화를 분석하면 정밀한 유형 확인이 가능합니다."
-    }
+    fitnessNotice: null
   };
 }
 

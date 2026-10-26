@@ -204,7 +204,8 @@ export class AnalysisRepository {
         secondary_type: data.secondary_type,
         signals: data.extracted_signals,
         dimensions: data.extracted_signals?.dimensions || null,
-        target_speaker_label: data.extracted_signals?.target_speaker_label
+        target_speaker_label: data.extracted_signals?.target_speaker_label,
+        derived_context: data.derived_context || null
       }
     };
 

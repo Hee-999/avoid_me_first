@@ -224,81 +224,249 @@ export default function SampleResultPage() {
           </div>
         </motion.div>
 
-        {/* 1. 분석 근거: 대화 원문 노출 없이 관찰된 행동 양상과 해석 이유 제시 */}
-        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="mb-8">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-[16px] font-black text-zinc-900">01. 분석 근거</h3>
-            <span className="text-[11px] font-semibold text-zinc-400">포착된 행동 패턴과 해석</span>
-          </div>
-          
-          <div className="space-y-4">
-            {signals && Object.entries(signals)
-              .slice(0, 2)
-              .map(([key, _]: any, idx) => {
-                const mappedSignal = SIGNAL_MAPPING[key] || { 
-                  title: key.replace(/_/g, ' '), 
-                  behavior: "해당 애착 성향을 나타내는 행동 반응이 관찰되었습니다.",
-                  reason: "애착 유형의 방어 기제가 대화 태도에 반영된 것으로 해석됩니다."
-                };
+        {(() => {
+          const targetName = target_speaker_label || "상대방";
 
-                return (
-                  <div key={idx} className="bg-white p-5 rounded-2xl border border-zinc-200/90 shadow-sm space-y-3">
-                    {/* 패턴 타이틀 배지 */}
-                    <div className="flex items-center gap-2">
-                      <span className="text-blue-600 bg-blue-50 w-5 h-5 rounded-full flex items-center justify-center text-[11px] font-black shrink-0">
-                        {idx + 1}
-                      </span>
-                      <strong className="text-[14px] text-zinc-900 font-bold">{mappedSignal.title}</strong>
-                    </div>
+          // Helper: Check if Korean character has final consonant (받침)
+          const hasFinalConsonant = (word: string): boolean => {
+            if (!word) return false;
+            const lastChar = word.trim().slice(-1);
+            const code = lastChar.charCodeAt(0);
+            if (code < 0xac00 || code > 0xd7a3) return false;
+            return (code - 0xac00) % 28 > 0;
+          };
 
-                    {/* [관찰된 행동 양상] 대화 내용 직접 노출 없이 행동 특성 요약 */}
-                    <div className="bg-zinc-50/80 p-3.5 rounded-xl border border-zinc-100 text-[12.5px] leading-relaxed text-zinc-700">
-                      <span className="text-[11px] font-bold text-zinc-500 block mb-1">🔍 관찰된 행동 양상</span>
-                      <p>{mappedSignal.behavior}</p>
-                    </div>
+          // Helper: text cleanup and Korean postposition (조사) correction
+          const cleanText = (str?: string) => {
+            if (!str) return "";
+            let res = str;
 
-                    {/* [설명] 해당 행동을 해석한 이유 */}
-                    <div className="bg-blue-50/40 border border-blue-100/80 rounded-xl p-3.5 text-zinc-700 text-[12.5px] leading-relaxed">
-                      <div className="flex items-center gap-1.5 text-blue-700 font-bold text-[11.5px] mb-1">
-                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                        <span>해석한 이유</span>
+            const hasBatchim = hasFinalConsonant(targetName);
+            const josaEun = hasBatchim ? "은" : "는";
+            const josaI = hasBatchim ? "이" : "가";
+            const josaEul = hasBatchim ? "을" : "를";
+            const josaGwa = hasBatchim ? "과" : "와";
+
+            res = res
+              .replace(/SPEAKER_A(?:는|은)/g, `${targetName}${josaEun}`)
+              .replace(/SPEAKER_A(?:가|이)/g, `${targetName}${josaI}`)
+              .replace(/SPEAKER_A(?:를|을)/g, `${targetName}${josaEul}`)
+              .replace(/SPEAKER_A(?:와|과)/g, `${targetName}${josaGwa}`)
+              .replace(/SPEAKER_A/g, targetName)
+              .replace(/The other person/gi, targetName)
+              .replace(/the other person/gi, targetName);
+
+            if (hasBatchim) {
+              res = res
+                .replace(new RegExp(`${targetName}는`, "g"), `${targetName}은`)
+                .replace(new RegExp(`${targetName}가`, "g"), `${targetName}이`)
+                .replace(new RegExp(`${targetName}를`, "g"), `${targetName}을`)
+                .replace(new RegExp(`${targetName}와`, "g"), `${targetName}과`);
+            } else {
+              res = res
+                .replace(new RegExp(`${targetName}은`, "g"), `${targetName}는`)
+                .replace(new RegExp(`${targetName}이`, "g"), `${targetName}가`)
+                .replace(new RegExp(`${targetName}을`, "g"), `${targetName}를`)
+                .replace(new RegExp(`${targetName}과`, "g"), `${targetName}와`);
+            }
+
+            res = res
+              .replace(/상대방는/g, "상대방은")
+              .replace(/상대방가/g, "상대방이")
+              .replace(/상대방를/g, "상대방을")
+              .replace(/상대방와/g, "상대방과")
+              .replace(/상대방로/g, "상대방으로");
+
+            return res.trim();
+          };
+
+          const keySituations = (analysis as any).derived_context?.key_situations || [];
+          const relationshipContext = cleanText((analysis as any).derived_context?.relationship_context);
+
+          const items = signals ? Object.entries(signals)
+            .filter(([key, signal]: any) => {
+              if (!signal) return false;
+              if (key === "dimensions" || key === "target_speaker_label") return false;
+              if (signal.count && signal.count > 0) return true;
+              return false;
+            })
+            .slice(0, 2)
+            .map(([key]: any) => {
+              const mapped = SIGNAL_MAPPING[key] || { 
+                title: key.replace(/_/g, ' '), 
+                behavior: "해당 애착 성향을 나타내는 행동 반응이 관찰되었습니다.",
+                reason: "애착 유형의 방어 기제가 대화 태도에 반영된 것으로 해석됩니다."
+              };
+              return {
+                key,
+                title: mapped.title,
+                behavior: mapped.behavior,
+                reason: mapped.reason
+              };
+            }) : [];
+
+          return (
+            <div className="space-y-8 mb-8">
+              {/* ============================================================== */}
+              {/* 01. 실제 대화 흐름 (Conversation Flow) */}
+              {/* ============================================================== */}
+              <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-[16px] font-black text-zinc-900">01. 실제 대화 흐름</h3>
+                  <span className="text-[11px] font-semibold text-zinc-400">캡처에서 확인된 주요 장면</span>
+                </div>
+
+                <div className="space-y-3.5">
+                  {keySituations.length > 0 ? (
+                    keySituations.slice(0, 3).map((item: any, idx: number) => (
+                      <div key={idx} className="bg-white p-5 rounded-2xl border border-zinc-200/90 shadow-sm space-y-3">
+                        <div className="flex items-center gap-2">
+                          <span className="w-6 h-6 rounded-lg bg-blue-500/10 flex items-center justify-center text-blue-600 font-bold text-[12px] shrink-0">
+                            {idx + 1}
+                          </span>
+                          <strong className="text-[14px] text-zinc-900 font-bold leading-snug">{cleanText(item.situation)}</strong>
+                        </div>
+
+                        <div className="bg-zinc-50/90 p-3.5 rounded-xl border border-zinc-100 space-y-2 text-[12.5px] leading-relaxed">
+                          {item.target_behavior && (
+                            <div>
+                              <span className="text-[11px] font-bold text-zinc-400 block mb-0.5">{targetName}의 반응</span>
+                              <p className="font-medium text-zinc-800">{cleanText(item.target_behavior)}</p>
+                            </div>
+                          )}
+                          {item.interaction_result && (
+                            <div className="pt-2 border-t border-zinc-200/60">
+                              <span className="text-[11px] font-bold text-zinc-400 block mb-0.5">대화 결과</span>
+                              <p className="text-zinc-600">{cleanText(item.interaction_result)}</p>
+                            </div>
+                          )}
+                        </div>
                       </div>
-                      <p>{mappedSignal.reason}</p>
+                    ))
+                  ) : (
+                    <div className="bg-white p-5 rounded-2xl border border-zinc-200/90 shadow-sm space-y-2.5">
+                      <div className="flex items-center gap-2">
+                        <span className="w-5 h-5 rounded-md bg-blue-100 text-blue-600 flex items-center justify-center shrink-0">
+                          <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                            <polyline points="14 2 14 8 20 8"/>
+                          </svg>
+                        </span>
+                        <strong className="text-[13.5px] text-zinc-900 font-bold">대화 전반 요약</strong>
+                      </div>
+                      <p className="text-[13px] text-zinc-700 leading-relaxed font-medium">
+                        {relationshipContext || "일상적인 메시지 교류와 일정 조율이 이루어졌으며, 급격한 갈등이나 일방적인 단절 없이 대화가 이어졌습니다."}
+                      </p>
                     </div>
+                  )}
+                </div>
+              </motion.div>
+
+              {/* ============================================================== */}
+              {/* 02. 가능한 해석 (Plausible Interpretations) */}
+              {/* ============================================================== */}
+              <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}>
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-[16px] font-black text-zinc-900">02. 가능한 해석</h3>
+                  <span className="text-[11px] font-semibold text-zinc-400">대화 장면에 근거한 분석</span>
+                </div>
+
+                <div className="space-y-3.5">
+                  {items.map((item, idx) => (
+                    <div key={idx} className="bg-white p-5 rounded-2xl border border-zinc-200/90 shadow-sm space-y-3">
+                      <div className="flex items-center gap-2">
+                        <span className="w-6 h-6 rounded-lg bg-amber-500/10 flex items-center justify-center text-amber-600 font-black text-[11px] shrink-0">
+                          {idx + 1}
+                        </span>
+                        <strong className="text-[14px] text-zinc-900 font-bold">{item.title}</strong>
+                      </div>
+
+                      <div className="bg-zinc-50/80 p-3.5 rounded-xl border border-zinc-100 text-[12.5px] leading-relaxed text-zinc-700">
+                        <span className="text-[11px] font-bold text-zinc-400 flex items-center gap-1.5 mb-1">
+                          <svg className="w-3 h-3 text-zinc-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <circle cx="11" cy="11" r="8"/>
+                            <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                          </svg>
+                          관찰된 행동 양상
+                        </span>
+                        <p className="font-medium text-zinc-800">{cleanText(item.behavior)}</p>
+                      </div>
+
+                      <div className="bg-blue-50/40 border border-blue-100/80 rounded-xl p-3.5 text-zinc-700 text-[12.5px] leading-relaxed">
+                        <div className="flex items-center gap-1.5 text-blue-700 font-bold text-[11.5px] mb-1">
+                          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                          <span>해석한 이유</span>
+                        </div>
+                        <p>{cleanText(item.reason)}</p>
+                      </div>
+                    </div>
+                  ))}
+
+                  {/* 심리 분석가의 관찰 포인트 */}
+                  <div className="bg-indigo-50/40 border border-indigo-100/80 rounded-2xl p-4 text-[12.5px] leading-relaxed text-zinc-700 space-y-1.5">
+                    <div className="flex items-center gap-1.5 text-indigo-700 font-bold text-[12px]">
+                      <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <circle cx="12" cy="12" r="10"/>
+                        <line x1="12" y1="16" x2="12" y2="12"/>
+                        <line x1="12" y1="8" x2="12.01" y2="8"/>
+                      </svg>
+                      <span>심리 분석가의 관찰 포인트</span>
+                    </div>
+                    <p>
+                      이번 대화에서 나타난 거리두기나 대화 미루기 반응은 {targetName}의 기질적인 회피 애착 성향일 수도 있지만, 당시 극심한 피로나 스트레스로 인한 일시적인 감정 과부하(에너지 고갈) 상태였을 가능성도 함께 고려해야 합니다.
+                    </p>
+                    <p className="text-zinc-600 text-[12px] pt-1 border-t border-indigo-100/60 mt-1">
+                      감정이 가라앉은 뒤 {targetName}이 스스로 대화를 다시 이어오는지, 아니면 여전히 문제를 덮어두려 하는지를 함께 지켜보시면 상대방의 실제 애착 패턴을 훨씬 더 입체적이고 정확하게 파악하실 수 있습니다.
+                    </p>
                   </div>
-                );
-              })}
-          </div>
-        </motion.div>
+                </div>
+              </motion.div>
 
-        {/* 2. 무료 도움 한 가지: 대화 표현 제안 1개 */}
-        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} className="mb-8">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-[16px] font-black text-zinc-900">02. 무료 도움 한 가지</h3>
-            <span className="text-[11px] font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full">즉시 실천 팁</span>
-          </div>
+              {/* ============================================================== */}
+              {/* 03. 상황에 맞는 도움 하나 (Actionable Help) */}
+              {/* ============================================================== */}
+              <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-[16px] font-black text-zinc-900">03. 상황에 맞는 도움 하나</h3>
+                  <span className="text-[11px] font-bold text-blue-600 bg-blue-50 px-2.5 py-0.5 rounded-full">
+                    요청하신 대화 핑퐁 점검 팁
+                  </span>
+                </div>
 
-          <div className="bg-gradient-to-br from-blue-50/60 via-white to-zinc-50 p-5 rounded-2xl border border-blue-200/80 shadow-sm space-y-3.5">
-            <div>
-              <span className="text-[11px] font-bold text-zinc-400 block mb-1">상황별 맞춤 소통 제안</span>
-              <h4 className="text-[13.5px] font-bold text-zinc-800">
-                {target_speaker_label || "상대방"}이 갈등 후 대화를 회피하거나 입을 닫을 때
-              </h4>
+                <div className="bg-gradient-to-br from-blue-50/60 via-white to-zinc-50 p-5 rounded-2xl border border-blue-200/80 shadow-sm space-y-3.5">
+                  <div>
+                    <span className="text-[11px] font-bold text-zinc-400 block mb-1">대화 미루기·회피 패턴 끊기 솔루션</span>
+                    <h4 className="text-[13.5px] font-bold text-zinc-800">
+                      {targetName}이 "피곤하다", "지금은 얘기하고 싶지 않다"며 대화를 미루거나 거절할 때
+                    </h4>
+                  </div>
+
+                  {/* 추천 말풍선 */}
+                  <div className="bg-zinc-900 text-white p-4 rounded-2xl rounded-tr-sm text-[13.5px] font-semibold leading-relaxed shadow-sm">
+                    "지금 많이 지치고 피곤한 상태라면 편하게 쉬어. 대신 내일 저녁 8시쯤 다시 편하게 이야기하자. 언제 다시 얘기할 수 있을지만 정해줘."
+                  </div>
+
+                  {/* 효과 및 해석 */}
+                  <div className="bg-white p-3.5 rounded-xl border border-zinc-200/70 text-[12.5px] text-zinc-600 leading-relaxed">
+                    <div className="flex items-center gap-1.5 text-zinc-800 font-bold mb-1">
+                      <svg className="w-3.5 h-3.5 text-blue-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <circle cx="12" cy="12" r="10"/>
+                        <line x1="12" y1="16" x2="12" y2="12"/>
+                        <line x1="12" y1="8" x2="12.01" y2="8"/>
+                      </svg>
+                      <span>회피를 방지하는 '타임아웃 + 재개 시점 합의' 대화법</span>
+                    </div>
+                    <p>
+                      피로나 스트레스를 이유로 대화를 미루는 상대에게 당장 대화를 요구하면 방어벽이 더 두꺼워집니다. 상대의 휴식 욕구를 온전히 인정해주되, '언제 다시 이야기할지 구체적인 시점'을 명확히 약속받으면 일방적인 회피로 흐르는 것을 막고 안전하게 대화를 재개할 수 있습니다.
+                    </p>
+                  </div>
+                </div>
+              </motion.div>
             </div>
-
-            {/* 추천 말풍선 */}
-            <div className="bg-zinc-900 text-white p-4 rounded-2xl rounded-tr-sm text-[13.5px] font-semibold leading-relaxed shadow-sm">
-              "지금 당장 대답하지 않아도 괜찮아. 네가 편할 때 저녁 8시쯤 천천히 얘기하자."
-            </div>
-
-            {/* 효과 및 해석 */}
-            <div className="bg-white p-3.5 rounded-xl border border-zinc-200/70 text-[12.5px] text-zinc-600 leading-relaxed">
-              <strong className="text-zinc-800 block mb-1">💡 왜 이 표현이 효과적일까요?</strong>
-              거부-회피형 성향의 상대는 감정적 압박을 느낄 때 방어기제로 대화를 일방 중단합니다. 
-              응답해야 하는 시간에 여유를 주고 자율성을 보장해주면, 심리적 안전감을 느껴 스스로 대화로 복귀할 가능성이 높아집니다.
-            </div>
-          </div>
-        </motion.div>
+          );
+        })()}
 
         {/* FREE: 03. 무료 결과 공유 영역 */}
         <div className="mb-8 flex gap-3 print:hidden">

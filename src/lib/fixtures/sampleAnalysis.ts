@@ -59,6 +59,28 @@ export const SAMPLE_ANALYSIS: FinalAnalysis = {
       ]
     }
   },
+  derived_context: {
+    relationship_context: "평소에는 친밀하게 일상을 나누었으나, 주말 일정 조율 및 서운한 감정을 표현하는 과정에서 대화가 일시적으로 중단되었습니다.",
+    key_situations: [
+      {
+        situation: "주말 만남 일정 및 시간 조율",
+        target_behavior: "피로를 이유로 들며 당장 이야기하기 어렵다고 대화를 미룸",
+        other_person_behavior: "서운함을 표하며 이유를 묻고 대화를 이어가려 함",
+        interaction_result: "상대방이 읽고 답장을 멈추며 대화가 일시 중단됨"
+      },
+      {
+        situation: "갈등 발생 후 다음 날 연락 재개",
+        target_behavior: "전날의 갈등에 대한 언급 없이 일상적인 화제로 가볍게 말을 건넴",
+        other_person_behavior: "어색함을 느끼며 전날 상황에 대해 다시 조심스럽게 언급함",
+        interaction_result: "갈등 원인을 직접 다루지 않고 화제를 전환하여 일단락됨"
+      }
+    ],
+    context_intake: {
+      situation: "서운함·다툼",
+      recurrence: "가끔 반복",
+      desired_focus: "반복되는 관계 패턴"
+    }
+  },
   status: {
     scoring: "completed",
     report: "completed"

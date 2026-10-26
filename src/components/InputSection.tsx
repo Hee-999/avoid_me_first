@@ -6,11 +6,13 @@ import { motion } from "framer-motion";
 import { Footer } from "@/components/legal/Footer";
 import { ImageUploader } from "@/components/upload/ImageUploader";
 import { CaptureGuideModal } from "@/components/guide/CaptureGuideModal";
+import { ContextIntakeModal, ContextIntakeData } from "@/components/upload/ContextIntakeModal";
 
 export interface AnalyzeRequestPayload {
   slices: Array<{ base64: string; mimeType: string }>;
   targetRole: "target" | "user";
   targetLabel: string;
+  contextIntake?: ContextIntakeData | null;
 }
 
 interface InputSectionProps {
@@ -23,6 +25,7 @@ const InputSection = forwardRef<HTMLElement, InputSectionProps>(
   ({ onAnalyzeImages, onBack, isSubmitting = false }, ref) => {
     const [isGuideOpen, setIsGuideOpen] = useState(false);
     const [isModelInfoOpen, setIsModelInfoOpen] = useState(false);
+    const [isIntakeOpen, setIsIntakeOpen] = useState(false);
     const [slices, setSlices] = useState<Array<{ base64: string; mimeType: string }>>([]);
     const [targetRole, setTargetRole] = useState<"target" | "user">("target");
     const [targetLabel, setTargetLabel] = useState<string>("상대방");
@@ -62,10 +65,17 @@ const InputSection = forwardRef<HTMLElement, InputSectionProps>(
         alert("카카오톡 대화 캡처 사진을 최소 1장 이상 등록해주세요!");
         return;
       }
+      // 맥락 질문 모달 열기
+      setIsIntakeOpen(true);
+    };
+
+    const handleIntakeSubmit = (intakeData: ContextIntakeData | null) => {
+      setIsIntakeOpen(false);
       onAnalyzeImages({
         slices,
         targetRole,
-        targetLabel: targetLabel.trim() || (targetRole === "target" ? "상대방" : "나")
+        targetLabel: targetLabel.trim() || (targetRole === "target" ? "상대방" : "나"),
+        contextIntake: intakeData
       });
     };
 
@@ -246,6 +256,14 @@ const InputSection = forwardRef<HTMLElement, InputSectionProps>(
 
         {/* 5-Step Capture & Privacy Guide Modal */}
         <CaptureGuideModal isOpen={isGuideOpen} onClose={() => setIsGuideOpen(false)} />
+
+        {/* 3-Question Context Intake Modal */}
+        <ContextIntakeModal
+          isOpen={isIntakeOpen}
+          onClose={() => setIsIntakeOpen(false)}
+          onSubmit={handleIntakeSubmit}
+          targetLabel={targetLabel}
+        />
       </section>
     );
   }

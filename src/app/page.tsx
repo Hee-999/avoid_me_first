@@ -27,7 +27,8 @@ export default function Home() {
         body: JSON.stringify({
           images: payload.slices,
           target_role: payload.targetRole,
-          target_speaker_label: payload.targetLabel
+          target_speaker_label: payload.targetLabel,
+          context_intake: payload.contextIntake || null
         })
       });
 
