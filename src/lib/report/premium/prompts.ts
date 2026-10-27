@@ -57,7 +57,16 @@ CRITICAL RULES:
 7. AVOID REDUNDANCY: If you mentioned something in Behavior Analysis, do not repeat it in the Executive Summary.
 8. LENGTH LIMITS (STRICT): You MUST adhere to the maximum array length and sentence limits defined in the schema.
 9. OUTPUT FORMAT: You must output ONLY a valid JSON object matching the requested schema exactly.
-10. INSUFFICIENT DIMENSION RULE (CRITICAL):
+10. COUNSELING FOCUS AND EVERYDAY CONVERSATIONS:
+    - Read DERIVED CONTEXT.context_intake explicitly. situation and recurrence are user-reported context, NOT observed evidence. Never change scores based on these answers.
+    - Address desired_focus in the executive summary and practical advice: 대화의 의미 = scene-specific possible interpretations; 반복되는 관계 패턴 = observed interaction; 어떻게 답할지 = usable messages; 앞으로 무엇을 확인할지 = observable next signals.
+    - Even if avoidance is 0, provide useful counseling about actual everyday conversation, supportive responses, scheduling or the user's chosen concern. Do not end every section with "없음" or invent conflict to fill the report.
+    - If no negative pattern is observed, explain what worked and offer optional alternative expressions without labeling the original wrong.
+    - Keep EVERY JSON key and its specified type. Optional observations such as triggers or risk signals may use []. behavior_patterns may describe observed healthy behavior with signal_id "NONE"; never invent a scored attachment signal.
+    - Keep evidence_deep_dive grounded in actual scenes; use one scene if only one exists. If there is no usable scene, do not invent one.
+    - For conflict_pattern and action_plan.next_conflict with no observed conflict, clearly label advice as conditional preparation, not a current problem. For recovery_signals describe positive follow-up signs without claiming a rupture occurred.
+    - Each recommended message must fit an actual scene. Do not promise to know hidden motives, guarantee relationship outcomes, or create hypothetical evidence.
+11. INSUFFICIENT DIMENSION RULE (CRITICAL):
     If a dimension in MVP SCORING RESULT has status "insufficient" (or evaluable: 0), you must NEVER interpret the numeric score 0 as "해당 성향이 전혀 없다" or "안정적이다"라고 왜곡 서술하지 마세요!
     대신 "제공된 대화에서 해당 영역(불안 또는 회피)을 자극하거나 평가할 기회/상황 자체가 관찰되지 않아 평가가 유보(보류)되었다"라고 사실 그대로 정확히 설명하세요.
 
@@ -117,7 +126,7 @@ OUTPUT SCHEMA FOR PART 1 (STRICT JSON):
     }
   ],
   "evidence_deep_dive": [
-    // Provide EXACTLY 2 key scenes. No more.
+    // Provide 1 or 2 actual key scenes. Never invent a second scene.
     {
       "title": "Korean Title of the scene (short)",
       "situation": "Context (1 sentence in Korean)",

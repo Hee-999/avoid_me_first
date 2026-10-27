@@ -94,7 +94,7 @@ export const getDimensionObservationText = (score: number, dimension: 'anxiety' 
 };
 
 export interface AnalysisUiPresentation {
-  mode: "standard" | "avoidance_dominant" | "anxiety_dominant" | "insufficient_all" | "micro_signal_detected";
+  mode: "not_observed" | "standard" | "avoidance_dominant" | "anxiety_dominant" | "insufficient_all" | "micro_signal_detected";
   headlinePrefix: string;
   headlineMain: string;
   headlineSuffix: string;
@@ -124,6 +124,28 @@ export function getAnalysisUiPresentation(opts: UiPresentationOptions): Analysis
   const isUnclear = !primaryType || primaryType.toLowerCase().includes("unclear") || primaryType.includes("보류");
 
   const speaker = speakerLabel || "상대방";
+
+  // Missing opportunity is different from an evaluated absence of behavior.
+  if ((isAnxietyInsufficient && isAvoidanceInsufficient) || (isUnclear && !anxietyStatus && !avoidanceStatus)) {
+    return {
+      mode: "insufficient_all", headlinePrefix: "제출해주신 대화만으로는",
+      headlineMain: '"애착 성향을 판단할 단서가 부족해요"', headlineSuffix: "",
+      subEn: "대화 맥락 추가 확인",
+      description: "불안·회피 반응을 평가할 상황이 충분히 확인되지 않았어요. 문제가 없다는 뜻은 아니며, 대화 장면의 의미와 소통 방법은 별도로 살펴볼 수 있어요.",
+      showFitnessBars: false,
+      fitnessNotice: { title: "유형 판단은 보류했어요", description: "서운함을 표현하거나 관계에 대해 이야기한 장면의 전후 대화를 함께 확인해주세요." }
+    };
+  }
+  if ((!isAnxietyInsufficient || !isAvoidanceInsufficient) && anxietyScore === 0 && avoidanceScore === 0) {
+    return {
+      mode: "not_observed", headlinePrefix: "이번 대화에서 평가 가능한 부분에서는",
+      headlineMain: '"뚜렷한 불안·회피 반응이 관찰되지 않았어요"', headlineSuffix: "",
+      subEn: "평가 가능한 장면의 관찰 결과",
+      description: "이번 장면에서 해당 반응이 확인되지 않았다는 의미예요. 관계 전체의 상태나 상대의 속마음을 확정하는 결과는 아니며, 궁금했던 대화의 의미와 다음 표현을 함께 살펴볼 수 있어요.",
+      showFitnessBars: !isAnxietyInsufficient && !isAvoidanceInsufficient,
+      fitnessNotice: isAnxietyInsufficient || isAvoidanceInsufficient ? { title: "일부 영역은 추가 확인이 필요해요", description: "평가할 상황이 없었던 영역은 0점으로 해석하지 않았어요." } : null
+    };
+  }
 
   // 1. Both dimensions are evaluable AND not unclear
   if (!isAnxietyInsufficient && !isAvoidanceInsufficient && !isUnclear) {
@@ -252,10 +274,10 @@ export function getAnalysisUiPresentation(opts: UiPresentationOptions): Analysis
   return {
     mode: "insufficient_all",
     headlinePrefix: "제출해주신 대화에서는",
-    headlineMain: '"일상적인 대화와 상호작용이 확인되었어요"',
+    headlineMain: '"애착 성향을 판단할 단서가 부족해요"',
     headlineSuffix: "",
-    subEn: "Everyday Interaction",
-    description: "갈등이나 일방적인 거리두기 없이, 일상적인 대화와 조율이 이루어졌습니다.",
+    subEn: "대화 맥락 추가 확인",
+    description: "평가할 상황이 충분하지 않아 유형 판단을 보류했어요. 대화에 문제가 없다고 확정하는 의미는 아니에요.",
     showFitnessBars: false,
     fitnessNotice: null
   };

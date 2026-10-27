@@ -26,7 +26,7 @@ interface PremiumReportProps {
 export function PremiumReport({ analysis, isPremium, onRetry, isRetrying = false, onUnlock, isProcessing = false }: PremiumReportProps) {
   // 1. LOCKED State
   if (!isPremium) {
-    return <PremiumReportLocked onUnlock={onUnlock} isProcessing={isProcessing} />;
+    return <PremiumReportLocked analysis={analysis} onUnlock={onUnlock} isProcessing={isProcessing} />;
   }
 
   // Premium Access Granted
@@ -104,7 +104,7 @@ export function PremiumReport({ analysis, isPremium, onRetry, isRetrying = false
                 지금부터 어떻게 행동해야 할까요?
               </h2>
               <p className="text-[14px] text-slate-400 mt-2 print:text-zinc-500">
-                분석을 넘어, 실제 관계 개선과 대화 단절을 막기 위한 행동 가이드입니다.
+                일상 대화부터 고민되는 장면까지, 선택하신 관심사에 맞춘 소통 가이드입니다.
               </p>
             </div>
             

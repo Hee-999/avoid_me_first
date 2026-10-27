@@ -11,7 +11,7 @@ export function TriggerSection({ triggers }: { triggers: PremiumReportV2['trigge
   return (
     <section className="relative">
       <h3 className="text-[18px] font-black text-zinc-900 mb-6 flex items-center gap-2">
-        <span className="text-xl">⚡</span> Ch.5 트리거 프로필 (발작 버튼)
+        <span className="text-xl">⚡</span> Ch.5 반응을 유발한 상황과 접근 방법
       </h3>
       
       <div className="grid gap-4">
@@ -27,7 +27,7 @@ export function TriggerSection({ triggers }: { triggers: PremiumReportV2['trigge
                 <p className="text-[13px] text-zinc-700 bg-red-50/50 p-2 rounded-lg">{trigger.observed_response}</p>
               </div>
               <div>
-                <span className="text-[11px] font-bold text-zinc-400 block mb-1">해석 (왜 발작하는가?)</span>
+                <span className="text-[11px] font-bold text-zinc-400 block mb-1">반응에 대한 가능한 해석</span>
                 <p className="text-[13px] text-zinc-700">{trigger.interpretation}</p>
               </div>
               <div className="pt-3 border-t border-zinc-100">
@@ -47,7 +47,7 @@ export function LoopSection({ loop }: { loop?: PremiumReportV2['interaction_loop
   return (
     <section className="relative">
       <h3 className="text-[18px] font-black text-zinc-900 mb-6 flex items-center gap-2">
-        <span className="text-xl">🔁</span> Ch.6 상호작용 악순환 고리
+        <span className="text-xl">🔁</span> Ch.6 두 사람의 상호작용 흐름
       </h3>
       
       <div className="bg-zinc-900 text-white p-8 rounded-3xl shadow-lg print:bg-white print:text-zinc-900 print:border print:border-zinc-200 print:shadow-none">
@@ -76,7 +76,7 @@ export function LoopSection({ loop }: { loop?: PremiumReportV2['interaction_loop
           <div className="mt-8 pt-6 border-t border-zinc-800 print:border-zinc-200 break-inside-avoid">
             <span className="text-[12px] font-bold text-green-400 uppercase tracking-widest block mb-4 flex items-center gap-2 print:text-green-600">
               <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse print:bg-green-500"></span>
-              고리 끊어내기 (Break Points)
+              소통을 조율할 지점
             </span>
             <div className="space-y-2">
               {loop.break_points.map((point, idx) => (

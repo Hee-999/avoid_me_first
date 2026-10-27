@@ -682,7 +682,7 @@ export default function Result() {
                         <strong className="text-[13.5px] text-zinc-900 font-bold">대화 전반 요약</strong>
                       </div>
                       <p className="text-[13px] text-zinc-700 leading-relaxed font-medium">
-                        {relationshipContext || "일상적인 메시지 교류와 일정 조율이 이루어졌으며, 급격한 갈등이나 일방적인 단절 없이 대화가 이어졌습니다."}
+                        {relationshipContext || "대화 장면 요약을 충분히 확인하지 못했어요. 이 안내만으로 대화의 상태를 판단하지는 않았어요."}
                       </p>
                     </div>
                   )}
@@ -755,20 +755,20 @@ export default function Result() {
                     <div className="bg-white p-5 rounded-2xl border border-zinc-200/90 shadow-sm space-y-3.5">
                       <div className="space-y-2 text-[13px] text-zinc-700 leading-relaxed font-medium">
                         <p>
-                          제출해주신 캡처 대화에서는 서로 일정을 조율하고 일상을 나누는 협조적인 상호작용이 주를 이루었습니다.
+                          {uiPres.description}
                         </p>
                         <p className="text-zinc-600">
-                          현재 대화 구간에서는 상대방이 일방적으로 대화를 차단하거나 과도하게 불안해하는 전형적인 애착 방어 행동은 관찰되지 않았습니다.
+                          유형 판정과 별개로, 위에 정리된 실제 장면과 선택하신 고민을 바탕으로 대화의 의미와 다음 표현을 살펴볼 수 있어요.
                         </p>
                       </div>
 
                       <div className="bg-zinc-50 border border-zinc-200/80 rounded-xl p-3.5 text-[12px] text-zinc-600 leading-relaxed space-y-1">
-                        <strong className="text-zinc-800 block text-[12.5px]">💡 정확한 애착 진단을 위한 안내</strong>
+                        <strong className="text-zinc-800 block text-[12.5px]">💡 더 구체적인 대화 상담을 위한 안내</strong>
                         <p>
                           사람의 진짜 애착 방어기제는 평소의 일상 모습보다 <strong>서운함을 표현했을 때, 갈등이 생겼을 때, 연락이 어긋났을 때</strong> 명확하게 드러납니다.
                         </p>
                         <p className="text-zinc-500 text-[11.5px] pt-1">
-                          상대방에게 답답함이나 거리감을 느꼈던 당시의 대화를 추가로 분석하시면 훨씬 정확한 심리 패턴을 확인하실 수 있습니다.
+                          상대방에게 답답함이나 거리감을 느꼈던 당시의 대화를 추가로 분석하시면 고민하신 반응의 맥락을 더 구체적으로 살펴볼 수 있습니다.
                         </p>
                       </div>
                     </div>

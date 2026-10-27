@@ -62,9 +62,9 @@ export function PrintablePremiumReport({ analysis, isPremium }: Props) {
       </div>
 
       {/* Group 4: Ch.3 Behavior Patterns */}
-      <div className="break-before-page pt-10">
+      {reportData.behavior_patterns?.length > 0 && <div className="break-before-page pt-10">
         <BehaviorSection patterns={reportData.behavior_patterns} />
-      </div>
+      </div>}
 
       {/* Group 5: Ch.4 Evidence Deep Dive */}
       <div className="break-before-page pt-10">
@@ -72,12 +72,12 @@ export function PrintablePremiumReport({ analysis, isPremium }: Props) {
       </div>
 
       {/* Group 6: Ch.5 Trigger Profile + Ch.6 Loop */}
-      <div className="break-before-page pt-10">
+      {(reportData.trigger_profile?.length > 0 || reportData.interaction_loop?.steps?.length > 0) && <div className="break-before-page pt-10">
         <TriggerSection triggers={reportData.trigger_profile} />
         <div className="mt-12">
           <LoopSection loop={reportData.interaction_loop} />
         </div>
-      </div>
+      </div>}
 
       {/* Group 7: Action Guide Intro + Ch.7 Communication */}
       <div className="break-before-page pt-10">
@@ -89,7 +89,7 @@ export function PrintablePremiumReport({ analysis, isPremium }: Props) {
             지금부터 어떻게 행동해야 할까요?
           </h2>
           <p className="text-[14px] text-zinc-500 mt-2">
-            분석을 넘어, 실제 관계 개선과 대화 단절을 막기 위한 행동 가이드입니다.
+            일상 대화부터 고민되는 장면까지, 선택하신 관심사에 맞춘 소통 가이드입니다.
           </p>
         </div>
         <CommunicationSection conflict={reportData.conflict_pattern} guide={reportData.communication_guide} />

@@ -1,15 +1,20 @@
-export function PremiumReportLocked({ onUnlock, isProcessing = false }: { onUnlock?: () => void, isProcessing?: boolean }) {
+import Link from "next/link";
+import { FinalAnalysis } from "@/lib/analysis/types";
+import { getPremiumOffer } from "@/lib/report/premium/offer";
+export function PremiumReportLocked({ analysis, onUnlock, isProcessing = false }: { analysis?: Partial<FinalAnalysis>; onUnlock?: () => void; isProcessing?: boolean }) {
+  const offer = getPremiumOffer(analysis);
   return (
     <section className="relative mt-8 pt-8 border-t border-zinc-200">
       <div className="mb-8 text-center">
         <h2 className="text-[22px] font-black text-zinc-900 mb-2">프리미엄 관계 분석 리포트</h2>
-        <p className="text-[14px] text-zinc-500">핵심 밀착형 프리미엄 리포트 (3,000자 요약판)</p>
+        <p className="text-[14px] text-zinc-500">선택하신 고민에 맞춘 대화 상담 가이드 (3,000자 핵심 요약)</p>
       </div>
 
       <div className="bg-white p-6 rounded-2xl border border-zinc-200 relative overflow-hidden select-none">
         
         {/* Fake blurred content background (Simulated Report) */}
-        <div className="opacity-40 blur-[3px] pointer-events-none space-y-8">
+        <p className="text-[11px] text-zinc-500 mb-3">아래는 제공 항목의 구성 예시이며, 실제 분석 내용이 아닙니다.</p>
+        <div className="absolute inset-x-6 top-14 opacity-40 blur-[3px] pointer-events-none space-y-8">
           
           <div className="text-left">
             <h3 className="text-[18px] font-black text-zinc-900 mb-4 flex items-center gap-2">
@@ -17,12 +22,12 @@ export function PremiumReportLocked({ onUnlock, isProcessing = false }: { onUnlo
             </h3>
             <div className="space-y-4">
               <p className="text-[14px] text-zinc-700 leading-relaxed font-medium">
-                분석 대상자는 현재 갈등 상황에서 강한 방어기제를 작동시키고 있습니다. 특히 자신의 감정을 보호하기 위해 상대방과의 거리를 두거나...
+                {offer.preview}
               </p>
               <ul className="space-y-2 pl-2">
                 <li className="flex gap-2 text-[14px] text-zinc-700 font-medium">
                   <span className="text-blue-500 font-bold">•</span>
-                  <span>핵심 방어기제: 무의식적인 감정 회피 및...</span>
+                  <span>실제 장면의 해석과 상황에 맞는 소통 방법</span>
                 </li>
               </ul>
               <div className="h-4 bg-zinc-200 rounded w-4/5 mt-4"></div>
@@ -32,14 +37,14 @@ export function PremiumReportLocked({ onUnlock, isProcessing = false }: { onUnlo
 
           <div>
             <h3 className="text-[16px] font-bold text-zinc-800 mb-3 flex items-center gap-2">
-              <span>⏰</span> 다시 대화를 제안할 때 참고할 신호
+              <span>⏰</span> 앞으로 살펴볼 반응과 대화 방법
             </h3>
             <div className="h-20 bg-zinc-100 rounded-xl border border-zinc-300"></div>
           </div>
           
           <div>
             <h3 className="text-[16px] font-bold text-zinc-800 mb-3 flex items-center gap-2">
-              <span>💬</span> 상대에게 절대 하면 안 되는 말
+              <span>💬</span> 상황에 맞는 추천 표현과 이유
             </h3>
             <div className="space-y-3">
               <div className="h-10 bg-red-50 rounded-lg"></div>
@@ -50,42 +55,28 @@ export function PremiumReportLocked({ onUnlock, isProcessing = false }: { onUnlo
         </div>
 
         {/* Lock Overlay */}
-        <div className="absolute inset-0 bg-gradient-to-b from-white/10 via-white/80 to-white backdrop-blur-[1px] z-10 flex flex-col items-center justify-end pb-8 px-4">
+        <div className="relative mt-12 bg-gradient-to-b from-white/10 via-white/80 to-white backdrop-blur-[1px] z-10 flex flex-col items-center justify-end pb-8 px-4">
           
           <div className="relative bg-white/95 p-6 rounded-3xl shadow-2xl shadow-zinc-200/60 border border-zinc-100 flex flex-col items-center text-center w-full max-w-sm mx-auto">
             <div className="w-14 h-14 bg-zinc-900 rounded-full flex items-center justify-center text-white mb-5 shadow-lg transform -translate-y-12 absolute">
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
             </div>
             
-            <h4 className="text-[18px] font-black text-zinc-900 mb-2 mt-4">내 상대 사용설명서 열기</h4>
-            <p className="text-[12px] text-zinc-500 mb-4">유료 리포트에서만 제공되는 심층 분석 항목</p>
+            <h4 className="text-[18px] font-black text-zinc-900 mb-2 mt-4">{offer.title}</h4>
+            <p className="text-[12px] text-zinc-500 mb-4">{offer.description}</p>
             
             <ul className="text-[13px] text-zinc-700 space-y-2 mb-5 text-left w-full px-2 font-medium bg-zinc-50/70 p-3.5 rounded-xl border border-zinc-100">
-              <li className="flex gap-2.5 items-start">
-                <span className="text-blue-600 font-bold mt-0.5">✓</span> 
-                <span><strong>핵심 분석 요약</strong> 및 2차원 애착 성향 프로필</span>
-              </li>
-              <li className="flex gap-2.5 items-start">
-                <span className="text-blue-600 font-bold mt-0.5">✓</span> 
-                <span><strong>대화에서 관찰된 반응과 가능한 해석</strong></span>
-              </li>
-              <li className="flex gap-2.5 items-start">
-                <span className="text-blue-600 font-bold mt-0.5">✓</span> 
-                <span>상대방을 위축시키는 <strong>핵심 심리적 트리거</strong> (발작 버튼)</span>
-              </li>
-              <li className="flex gap-2.5 items-start">
-                <span className="text-blue-600 font-bold mt-0.5">✓</span> 
-                <span><strong>다시 대화를 제안할 때 참고할 신호</strong>와 안전한 타이밍</span>
-              </li>
-              <li className="flex gap-2.5 items-start">
-                <span className="text-blue-600 font-bold mt-0.5">✓</span> 
-                <span>갈등 방지를 위한 <strong>1:1 맞춤 카톡 실전 화법</strong></span>
-              </li>
+              {offer.benefits.map((benefit) => (
+                <li key={benefit} className="flex gap-2.5 items-start">
+                  <span className="text-blue-600 font-bold mt-0.5">✓</span>
+                  <span>{benefit}</span>
+                </li>
+              ))}
             </ul>
 
             <div className="text-[11px] text-zinc-400 bg-zinc-50/80 w-full p-2.5 rounded-lg mb-4 text-left border border-zinc-100 leading-relaxed">
-              결제 완료 후 개인화된 상세 리포트 생성이 즉시 시작됩니다.<br/>
-              생성이 시작된 이후에는 디지털 콘텐츠 특성상 <span className="text-zinc-500 font-semibold">단순 변심에 의한 환불이 제한될 수 있습니다.</span><br/>
+              개인화된 리포트는 분석 후 미리 준비되며, 결제 완료 후 열람할 수 있습니다.<br/>
+              디지털 콘텐츠 제공 개시 후에는 환불정책에 따라 <span className="text-zinc-500 font-semibold">단순 변심에 의한 환불이 제한될 수 있습니다.</span><br/>
               <span className="block mt-1 text-zinc-500 font-medium tracking-tight">✓ 구매 후 1년간 다시보기 지원 &nbsp;&nbsp; ✓ PDF 저장 기능 지원</span>
             </div>
 
@@ -99,7 +90,13 @@ export function PremiumReportLocked({ onUnlock, isProcessing = false }: { onUnlo
               </p>
             </div>
 
-            {onUnlock && (
+            {offer.insufficient && (
+              <Link href="/" className="block w-full mb-3 rounded-xl border border-blue-200 bg-blue-50 p-3 text-[13px] font-bold text-blue-700">
+                고민했던 장면을 추가로 분석하기
+              </Link>
+            )}
+            {!offer.canOffer && <p className="mb-3 text-[12px] text-zinc-600">{analysis?.status?.report === "failed" ? "리포트를 준비하지 못했어요. 잠시 후 다시 확인해주세요." : "구체적인 상담을 위해 대화 장면을 조금 더 확인해주세요."}</p>}
+            {onUnlock && offer.canOffer && (
               <button 
                 onClick={onUnlock}
                 disabled={isProcessing}
@@ -109,7 +106,7 @@ export function PremiumReportLocked({ onUnlock, isProcessing = false }: { onUnlo
                     : "bg-zinc-950 hover:bg-zinc-800 active:scale-95"
                 }`}
               >
-                {isProcessing ? "결제창을 여는 중..." : "내 상대 사용설명서 열기 · 2,900원 결제"}
+                {isProcessing ? "결제창을 여는 중..." : "맞춤 대화 리포트 열기 · 2,900원 결제"}
                 {!isProcessing && <svg className="w-4 h-4 text-zinc-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>}
               </button>
             )}

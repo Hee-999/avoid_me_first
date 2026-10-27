@@ -74,12 +74,14 @@ export async function POST(request: Request) {
     }
 
     // 2. Derived Context Generation (Requires Safe Pseudonymized Text)
-    const derivedContext = await buildDerivedReportContext(
+    const summarizedContext = await buildDerivedReportContext(
       conversationJsonString,
       sanitizedTargetId,
       analysisResult,
       context_intake
     );
+
+    const derivedContext = { ...summarizedContext, context_intake: context_intake || null };
 
     // 3. Construct Persistent Payload (Safe to save, no raw text)
     const persistentPayload = {

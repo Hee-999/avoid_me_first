@@ -27,8 +27,8 @@ export function RewriteSection({ rewrites }: { rewrites: PremiumReportV2['conver
             
             <div className="space-y-4">
               <div className="bg-zinc-50 p-4 rounded-xl relative opacity-80">
-                <span className="text-[10px] font-bold text-zinc-400 block mb-2">기존 발화 패턴 (비추천)</span>
-                <p className="text-[14px] text-zinc-500 line-through decoration-zinc-300">"{rw.original_pattern_summary}"</p>
+                <span className="text-[10px] font-bold text-zinc-400 block mb-2">현재 대화 방식</span>
+                <p className="text-[14px] text-zinc-600">"{rw.original_pattern_summary}"</p>
               </div>
               
               <div className="flex justify-center text-blue-300">
@@ -56,14 +56,14 @@ export function SignalSection({ recovery, risk }: { recovery: PremiumReportV2['r
   return (
     <section className="relative">
       <h3 className="text-[18px] font-black text-white print:text-zinc-900 mb-6 flex items-center gap-2">
-        <span className="text-xl">📡</span> Ch.10 회복 신호 및 위험 신호 감지
+        <span className="text-xl">📡</span> Ch.10 이후 살펴볼 긍정적 신호와 주의점
       </h3>
       
       <div className="grid gap-6">
         {recovery && recovery.length > 0 && (
           <div className="bg-zinc-800/50 p-6 rounded-2xl border border-green-900/50 print:bg-green-50 print:border-green-100 break-inside-avoid">
             <h4 className="text-[14px] font-bold text-green-400 print:text-green-700 mb-4 flex items-center gap-2">
-              <span className="text-green-500">🌱</span> 긍정적 회복 신호 (이럴 땐 다가가세요)
+              <span className="text-green-500">🌱</span> 긍정적인 후속 신호
             </h4>
             <ul className="space-y-3">
               {recovery.map((sig, idx) => (
@@ -78,7 +78,7 @@ export function SignalSection({ recovery, risk }: { recovery: PremiumReportV2['r
         {risk && risk.length > 0 && (
           <div className="bg-zinc-800/50 p-6 rounded-2xl border border-red-900/50 print:bg-red-50 print:border-red-100 break-inside-avoid">
             <h4 className="text-[14px] font-bold text-red-400 print:text-red-700 mb-4 flex items-center gap-2">
-              <span className="text-red-500">🚨</span> 경계해야 할 위험 신호 (이럴 땐 거리두기)
+              <span className="text-red-500">🚨</span> 주의 깊게 살펴볼 변화
             </h4>
             <ul className="space-y-3">
               {risk.map((sig, idx) => (
@@ -103,16 +103,19 @@ export function PlanSection({ plan }: { plan: PremiumReportV2['action_plan'] }) 
       </h3>
       
       <div className="space-y-6">
+        {!!plan.next_conflict?.length && (
         <div className="bg-white p-6 rounded-2xl border border-red-100 shadow-sm relative overflow-hidden break-inside-avoid">
           <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-red-400"></div>
-          <h4 className="text-[14px] font-bold text-zinc-900 mb-4">🚨 다음번 갈등 발생 직후 (Next Conflict)</h4>
+          <h4 className="text-[14px] font-bold text-zinc-900 mb-4">🚨 갈등이 생긴다면 참고할 방법</h4>
           <ul className="space-y-2">
             {(plan.next_conflict || []).map((p, i) => (
               <li key={i} className="text-[13px] text-zinc-700 flex gap-2"><span className="text-red-400">-</span> {p}</li>
             ))}
           </ul>
         </div>
+        )}
         
+        {!!plan.next_7_days?.length && (
         <div className="bg-white p-6 rounded-2xl border border-blue-100 shadow-sm relative overflow-hidden break-inside-avoid">
           <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-blue-400"></div>
           <h4 className="text-[14px] font-bold text-zinc-900 mb-4">🗓️ 앞으로 7일간의 목표 (Next 7 Days)</h4>
@@ -122,7 +125,9 @@ export function PlanSection({ plan }: { plan: PremiumReportV2['action_plan'] }) 
             ))}
           </ul>
         </div>
+        )}
         
+        {!!plan.next_30_days?.length && (
         <div className="bg-white p-6 rounded-2xl border border-purple-100 shadow-sm relative overflow-hidden break-inside-avoid">
           <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-purple-400"></div>
           <h4 className="text-[14px] font-bold text-zinc-900 mb-4">🎯 장기적 관계 유지 전략 (Next 30 Days)</h4>
@@ -132,6 +137,7 @@ export function PlanSection({ plan }: { plan: PremiumReportV2['action_plan'] }) 
             ))}
           </ul>
         </div>
+        )}
       </div>
     </section>
   );
@@ -155,28 +161,32 @@ export function ManualSection({ manual }: { manual: PremiumReportV2['manual_summ
         </h4>
         
         <div className="grid gap-x-8 gap-y-6">
+          {!!manual.effective_approach?.length && (
           <div className="break-inside-avoid">
             <span className="text-[11px] font-bold text-zinc-400 block mb-2 uppercase tracking-widest print:text-zinc-500">효과적인 접근법</span>
             <ul className="space-y-1">
               {(manual.effective_approach || []).map((a, i) => <li key={i} className="text-[13px] text-zinc-200 print:text-zinc-800">✓ {a}</li>)}
             </ul>
           </div>
+          )}
           
+          {!!manual.ineffective_approach?.length && (
           <div className="break-inside-avoid">
-            <span className="text-[11px] font-bold text-zinc-400 block mb-2 uppercase tracking-widest print:text-zinc-500">금기 사항</span>
+            <span className="text-[11px] font-bold text-zinc-400 block mb-2 uppercase tracking-widest print:text-zinc-500">피하면 좋은 접근</span>
             <ul className="space-y-1">
               {(manual.ineffective_approach || []).map((a, i) => <li key={i} className="text-[13px] text-zinc-200 text-red-300 print:text-red-600">✗ {a}</li>)}
             </ul>
           </div>
+          )}
           
           <div className="sm:col-span-2 pt-4 border-t border-zinc-800 print:border-zinc-200">
             <div className="grid gap-4">
               <div className="bg-zinc-800/50 p-4 rounded-xl print:bg-zinc-50 break-inside-avoid">
-                <span className="text-[11px] font-bold text-zinc-400 block mb-1 print:text-zinc-500">갈등 재진입 요령</span>
+                <span className="text-[11px] font-bold text-zinc-400 block mb-1 print:text-zinc-500">진지한 대화를 이어가는 방법</span>
                 <p className="text-[13px] text-zinc-300 print:text-zinc-800">{manual.conflict_reentry}</p>
               </div>
               <div className="bg-zinc-800/50 p-4 rounded-xl print:bg-zinc-50 break-inside-avoid">
-                <span className="text-[11px] font-bold text-zinc-400 block mb-1 print:text-zinc-500">거리두기 대처법</span>
+                <span className="text-[11px] font-bold text-zinc-400 block mb-1 print:text-zinc-500">대화에 여유가 필요할 때</span>
                 <p className="text-[13px] text-zinc-300 print:text-zinc-800">{manual.distance_response}</p>
               </div>
               <div className="bg-zinc-800/50 p-4 rounded-xl print:bg-zinc-50 break-inside-avoid">

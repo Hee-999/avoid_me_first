@@ -2,7 +2,7 @@ import { callResilientLLM } from "../../analysis/llmRouter";
 import { MvpAnalysisResult } from "../../analysis/mvp/types";
 import { DerivedReportContext, PremiumReportV2 } from "./types";
 import { buildPremiumReportPromptPart1, buildPremiumReportPromptPart2, LANGUAGE_CORRECTION_PREFIX } from "./prompts";
-import { validateKoreanReportChapter } from "./validator";
+import { validateKoreanReportChapter, validatePremiumReportPart } from "./validator";
 
 export interface GenerationMetrics {
   partName: string;
@@ -16,83 +16,40 @@ export interface GenerationMetrics {
 export const lastGenerationMetrics: GenerationMetrics[] = [];
 
 async function generateWithLanguageEnforcement(
-  prompt: string, 
-  partName: string
+  prompt: string,
+  partName: "Part_1" | "Part_2"
 ): Promise<any> {
-  let start = Date.now();
-  let retry_count = 0;
+  const start = Date.now();
   const maxTokens = parseInt(process.env.DEEPSEEK_PREMIUM_REPORT_MAX_TOKENS || "4200", 10);
-  let response = await callResilientLLM(prompt, maxTokens);
-  let rawOutput = response.content;
-  let jsonStr = extractJsonSubstring(rawOutput);
-  let input_tokens = response.usage?.prompt_tokens || 0;
-  let output_tokens = response.usage?.completion_tokens || 0;
-  
-  if (!jsonStr) {
-    throw new Error(`Failed to extract JSON from ${partName}`);
-  }
-
-  let parsedResult: any;
-  try {
-    parsedResult = JSON.parse(jsonStr);
-  } catch (parseError) {
-    console.log(`[JSON Parse Error] ${partName} failed to parse JSON. Retrying...`);
-    retry_count++;
-    const retryPrompt = "Your previous output had a JSON syntax error. Please output strictly valid JSON.\n\n" + prompt;
-    response = await callResilientLLM(retryPrompt, maxTokens);
-    rawOutput = response.content;
-    jsonStr = extractJsonSubstring(rawOutput);
-    input_tokens += response.usage?.prompt_tokens || 0;
-    output_tokens += response.usage?.completion_tokens || 0;
-    
-    if (!jsonStr) throw new Error(`Failed to extract JSON from ${partName} during retry`);
-    
+  let inputTokens = 0;
+  let outputTokens = 0;
+  let correction = "";
+  for (let attempt = 0; attempt < 2; attempt++) {
+    const response = await callResilientLLM(correction + prompt, maxTokens);
+    inputTokens += response.usage?.prompt_tokens || 0;
+    outputTokens += response.usage?.completion_tokens || 0;
+    const json = extractJsonSubstring(response.content);
+    let parsed: unknown;
     try {
-      parsedResult = JSON.parse(jsonStr);
-    } catch (e2) {
-      throw new Error(`JSON parse failed again for ${partName} after retry: ${e2}`);
+      parsed = JSON.parse(json);
+    } catch {
+      correction = "이전 출력은 유효한 JSON이 아닙니다. 모든 필수 키와 올바른 자료형을 포함한 순수 JSON만 다시 작성하세요.\n\n";
+      if (attempt === 1) throw new Error(`${partName}: 재시도 후에도 응답 형식을 확인하지 못했습니다`);
+      continue;
     }
-  }
-
-  let isValidKorean = validateKoreanReportChapter(jsonStr);
-  let language_status: "passed" | "failed" = isValidKorean ? "passed" : "failed";
-
-  if (!isValidKorean && retry_count === 0) {
-    console.log(`[Language Enforcement] ${partName} failed Korean validation. Retrying...`);
-    retry_count++;
-    
-    // Retry once with Correction Prefix
-    const retryPrompt = LANGUAGE_CORRECTION_PREFIX + "\n\n" + prompt;
-    response = await callResilientLLM(retryPrompt, maxTokens);
-    rawOutput = response.content;
-    jsonStr = extractJsonSubstring(rawOutput);
-    input_tokens += response.usage?.prompt_tokens || 0;
-    output_tokens += response.usage?.completion_tokens || 0;
-    
-    if (!jsonStr) throw new Error(`Failed to extract JSON from ${partName} during retry`);
-    
-    isValidKorean = validateKoreanReportChapter(jsonStr);
-    language_status = isValidKorean ? "passed" : "failed";
-    
-    try {
-      parsedResult = JSON.parse(jsonStr);
-    } catch (e3) {
-      throw new Error(`JSON parse failed during language retry for ${partName}: ${e3}`);
+    const issues = validatePremiumReportPart(parsed, partName);
+    const korean = validateKoreanReportChapter(json);
+    if (issues.length === 0 && korean) {
+      lastGenerationMetrics.push({ partName, language_status: "passed", retry_count: attempt,
+        input_tokens: inputTokens, output_tokens: outputTokens, latency_ms: Date.now() - start });
+      return parsed;
     }
+    correction = (korean ? "" : LANGUAGE_CORRECTION_PREFIX) +
+      "이전 출력에 필수 내용 또는 형식 누락이 있습니다. 아래 필드의 문제를 수정하세요. 관찰하지 않은 갈등은 만들지 말고 실제 장면에 맞는 구체적인 조언을 작성하세요.\n" +
+      issues.slice(0, 12).join("\n") + "\n\n";
+    if (attempt === 1) throw new Error(`${partName}: 필수 내용 검증에 실패했습니다 (${issues.map(i => i.split(":")[0]).join(", ") || "language"})`);
   }
-
-  const latency_ms = Date.now() - start;
-
-  lastGenerationMetrics.push({
-    partName,
-    language_status,
-    retry_count,
-    input_tokens,
-    output_tokens,
-    latency_ms
-  });
-
-  return parsedResult;
+  throw new Error(`${partName}: 리포트를 준비하지 못했습니다`);
 }
 
 export async function generatePremiumReport(
@@ -122,7 +79,7 @@ export async function generatePremiumReport(
     return finalReport;
   } catch (e: any) {
     console.error("Premium Report Generation Error:", e);
-    throw new Error("Failed to generate premium report: " + e.message);
+    throw new Error("유료 리포트를 준비하지 못했습니다: " + e.message);
   }
 }
 

@@ -91,6 +91,7 @@ export interface PremiumReportV2 {
 }
 
 export interface DerivedReportContext {
+  context_intake?: { situation?: string; recurrence?: string; desired_focus?: string } | null;
   relationship_context: string;
   key_situations: Array<{
     situation: string;

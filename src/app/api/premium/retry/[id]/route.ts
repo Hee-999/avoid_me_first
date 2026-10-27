@@ -28,8 +28,11 @@ export async function POST(
     }
 
     const mvpResult = {
-      anxiety_score: data.anxiety_score,
-      avoidance_score: data.avoidance_score,
+      version: data.analysis_version || "mvp-scoring-v2.0",
+      dimensions: data.extracted_signals?.dimensions || {
+        anxiety: { score: data.anxiety_score, evaluable: data.primary_type === "unclear" ? 0 : 1, status: data.primary_type === "unclear" ? "insufficient" : "low_coverage" },
+        avoidance: { score: data.avoidance_score, evaluable: data.primary_type === "unclear" ? 0 : 1, status: data.primary_type === "unclear" ? "insufficient" : "low_coverage" }
+      },
       fitness: {
         secure: data.secure_fit,
         preoccupied: data.preoccupied_fit,

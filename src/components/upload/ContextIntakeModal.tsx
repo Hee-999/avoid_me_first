@@ -42,9 +42,9 @@ export function ContextIntakeModal({
   ];
 
   const focusOptions = [
-    { label: "대화의 의미", desc: `${targetLabel}의 실제 심리와 의도` },
+    { label: "대화의 의미", desc: `${targetLabel}의 반응과 가능한 해석` },
     { label: "반복되는 관계 패턴", desc: "둘 사이에 반복되는 상호작용 고리" },
-    { label: "어떻게 답할지", desc: "지금 상황에 맞는 최선의 답장 표현" },
+    { label: "어떻게 답할지", desc: "일상·갈등 상황에 맞는 자연스러운 답장" },
     { label: "앞으로 무엇을 확인할지", desc: "앞으로 주의 깊게 관찰할 행동" }
   ];
 
@@ -148,7 +148,7 @@ export function ContextIntakeModal({
             {/* Q2 */}
             <div>
               <label className="block text-[13.5px] font-bold text-zinc-900 mb-2">
-                2. 이번에 고민되는 반응이 이전에도 있었나요?
+                2. 궁금한 대화 방식이나 반응이 이전에도 있었나요?
               </label>
               <div className="grid grid-cols-2 gap-1.5">
                 {recurrenceOptions.map((opt) => {
@@ -177,7 +177,7 @@ export function ContextIntakeModal({
             {/* Q3 */}
             <div>
               <label className="block text-[13.5px] font-bold text-zinc-900 mb-2">
-                3. 이번 분석에서 가장 알고 싶은 것은?
+                3. 이번 대화에서 어떤 도움을 받고 싶나요?
               </label>
               <div className="grid grid-cols-1 gap-1.5">
                 {focusOptions.map((opt) => {

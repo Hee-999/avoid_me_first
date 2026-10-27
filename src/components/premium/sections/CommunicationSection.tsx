@@ -13,7 +13,7 @@ export function CommunicationSection({ conflict, guide }: Props) {
       {conflict && (
         <section className="relative">
           <h3 className="text-[18px] font-black text-white print:text-zinc-900 mb-6 flex items-center gap-2">
-            <span className="text-xl">⚔️</span> Ch.7 갈등 대처 패턴 요약
+            <span className="text-xl">⚔️</span> Ch.7 소통 방식과 상황별 대처
           </h3>
           
           <div className="bg-white p-8 rounded-3xl border border-zinc-200 shadow-sm">
@@ -23,6 +23,7 @@ export function CommunicationSection({ conflict, guide }: Props) {
             
             <div className="grid gap-6">
               {/* Works Better */}
+              {!!conflict.works_better?.length && (
               <div className="bg-green-50/50 p-6 rounded-2xl border border-green-100">
                 <span className="text-[12px] font-bold text-green-600 block mb-4 flex items-center gap-2">
                   <span className="w-2 h-2 rounded-full bg-green-500"></span> 
@@ -36,8 +37,10 @@ export function CommunicationSection({ conflict, guide }: Props) {
                   ))}
                 </ul>
               </div>
+              )}
               
               {/* Likely to Worsen */}
+              {!!conflict.likely_to_worsen?.length && (
               <div className="bg-red-50/50 p-6 rounded-2xl border border-red-100">
                 <span className="text-[12px] font-bold text-red-600 block mb-4 flex items-center gap-2">
                   <span className="w-2 h-2 rounded-full bg-red-500"></span> 
@@ -51,6 +54,7 @@ export function CommunicationSection({ conflict, guide }: Props) {
                   ))}
                 </ul>
               </div>
+              )}
             </div>
           </div>
         </section>

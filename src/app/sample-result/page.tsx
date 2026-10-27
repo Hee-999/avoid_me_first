@@ -488,7 +488,7 @@ export default function SampleResultPage() {
 
         {/* PREMIUM SECTIONS & PAYWALL (NICEPAY 결제 진입 검증 영역) */}
         <div className="relative">
-          <PremiumReportLocked 
+          <PremiumReportLocked analysis={SAMPLE_ANALYSIS}
             onUnlock={handleUnlock} 
             isProcessing={isPaymentProcessing} 
           />
