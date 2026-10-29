@@ -98,16 +98,16 @@ export function PremiumReportLocked({ analysis, onUnlock, isProcessing = false }
             {!offer.canOffer && <p className="mb-3 text-[12px] text-zinc-600">{analysis?.status?.report === "failed" ? "리포트를 준비하지 못했어요. 잠시 후 다시 확인해주세요." : "구체적인 상담을 위해 대화 장면을 조금 더 확인해주세요."}</p>}
             {onUnlock && offer.canOffer && (
               <button 
+                data-purchase-placement="details"
                 onClick={onUnlock}
                 disabled={isProcessing}
                 className={`w-full py-4 text-white text-[15px] font-bold rounded-xl transition transform shadow-xl flex justify-center items-center gap-2 ${
                   isProcessing 
                     ? "bg-zinc-400 cursor-not-allowed scale-100" 
-                    : "bg-zinc-950 hover:bg-zinc-800 active:scale-95"
+                    : "bg-[#C2410C] hover:bg-[#9A3412] active:scale-95"
                 }`}
               >
-                {isProcessing ? "결제창을 여는 중..." : "맞춤 대화 리포트 열기 · 2,900원 결제"}
-                {!isProcessing && <svg className="w-4 h-4 text-zinc-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>}
+                {isProcessing ? "결제창을 여는 중..." : "맞춤 대화 리포트 열기 · 2,900원"}
               </button>
             )}
           </div>

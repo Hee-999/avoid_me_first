@@ -1,3 +1,4 @@
+import { PremiumPurchasePrompt, getPurchaseLabel } from "../../../components/premium/PremiumPurchasePrompt";
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { PremiumReport } from "../../../components/premium/PremiumReport";
@@ -79,4 +80,16 @@ test("기존 리포트 20개 웹·인쇄 렌더링과 일상 대화 구매 버�
   assert.ok(html.includes("얼리버드 특별가 2,900원"));
   assert.ok(html.includes("맞춤 대화 리포트 열기"));
   assert.ok(!html.includes("강한 방어기제"));
+});
+
+test("요약 구매 안내는 관심사·가격·코랄 버튼을 표시하고 구매 완료 시 사라짐", () => {
+  const daily = { ...SAMPLE_ANALYSIS, primary_type: "secure", attachment_dimensions: { anxiety: 0, avoidance: 0 }, derived_context: { context_intake: { desired_focus: "어떻게 답할지" } } };
+  assert.equal(getPurchaseLabel(daily), "내 대화에 맞는 답장 확인");
+  const props = { analysis: daily, onUnlock() {} };
+  const html = renderToStaticMarkup(React.createElement(PremiumPurchasePrompt, props));
+  assert.ok(html.includes("내 대화에 맞는 답장 확인"));
+  assert.ok(html.includes("2,900원"));
+  assert.ok(html.includes("#C2410C"));
+  assert.equal(renderToStaticMarkup(React.createElement(PremiumPurchasePrompt, { ...props, isPremium: true })), "");
+  assert.equal(renderToStaticMarkup(React.createElement(PremiumPurchasePrompt, { ...props, analysis: { ...daily, status: { report: "failed" } } })), "");
 });

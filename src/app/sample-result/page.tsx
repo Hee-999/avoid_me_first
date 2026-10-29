@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { SAMPLE_ANALYSIS } from "@/lib/fixtures/sampleAnalysis";
 import { ATTACHMENT_TYPE_MAPPING } from "@/lib/analysis/types";
 import { PremiumReportLocked } from "@/components/premium/PremiumReportLocked";
+import { PremiumPurchasePrompt } from "@/components/premium/PremiumPurchasePrompt";
 import { ShareResultCard } from "@/components/share/ShareResultCard";
 
 const SIGNAL_MAPPING: Record<string, { title: string, behavior: string, reason: string }> = {
@@ -156,6 +157,8 @@ export default function SampleResultPage() {
             </p>
           )}
         </motion.div>
+
+        <PremiumPurchasePrompt analysis={analysis} onUnlock={handleUnlock} isProcessing={isPaymentProcessing} />
 
         {/* FREE: 2D Fitness Score Board */}
         <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="bg-white rounded-2xl shadow-sm border border-zinc-200 p-6 mb-6">
@@ -468,16 +471,25 @@ export default function SampleResultPage() {
           );
         })()}
 
+        {/* PREMIUM SECTIONS & PAYWALL (NICEPAY 결제 진입 검증 영역) */}
+        <div id="premium-purchase-details" className="relative scroll-mt-6">
+          <PremiumReportLocked analysis={SAMPLE_ANALYSIS}
+            onUnlock={handleUnlock}
+            isProcessing={isPaymentProcessing}
+          />
+        </div>
+
+        <div className="mt-8">
         {/* FREE: 03. 무료 결과 공유 영역 */}
         <div className="mb-8 flex gap-3 print:hidden">
-          <button 
+          <button
             onClick={() => alert("예시 결과 화면입니다.")}
             className="flex-1 py-3 bg-white text-zinc-900 border border-zinc-200 text-[13px] font-bold rounded-xl hover:bg-zinc-50 transition flex items-center justify-center gap-2 cursor-pointer"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" /></svg>
             이미지 저장
           </button>
-          <button 
+          <button
             onClick={() => alert("예시 결과 화면입니다.")}
             className="flex-1 py-3 bg-zinc-900 text-white text-[13px] font-bold rounded-xl hover:bg-zinc-800 transition flex items-center justify-center gap-2 shadow-md shadow-zinc-200 cursor-pointer"
           >
@@ -486,14 +498,8 @@ export default function SampleResultPage() {
           </button>
         </div>
 
-        {/* PREMIUM SECTIONS & PAYWALL (NICEPAY 결제 진입 검증 영역) */}
-        <div className="relative">
-          <PremiumReportLocked analysis={SAMPLE_ANALYSIS}
-            onUnlock={handleUnlock} 
-            isProcessing={isPaymentProcessing} 
-          />
         </div>
-
+        <div className="h-24 print:hidden" aria-hidden="true" />
       </main>
 
       <div className="absolute top-[-9999px] left-[-9999px]">

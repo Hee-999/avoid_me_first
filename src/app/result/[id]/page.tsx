@@ -7,6 +7,7 @@ import { FinalAnalysis, getDimensionObservationText, getAnalysisUiPresentation }
 import { PremiumReport } from "@/components/premium/PremiumReport";
 import { PrintablePremiumReport } from "@/components/premium/PrintablePremiumReport";
 import { ShareAliasModal } from "@/components/share/ShareAliasModal";
+import { PremiumPurchasePrompt } from "@/components/premium/PremiumPurchasePrompt";
 import { ShareResultCard } from "@/components/share/ShareResultCard";
 
 const ATTACHMENT_TYPE_MAPPING: Record<string, { ko: string, desc: string, en: string }> = {
@@ -435,6 +436,8 @@ export default function Result() {
             </p>
           )}
         </motion.div>
+
+        <PremiumPurchasePrompt analysis={analysis} onUnlock={handleUnlock} isProcessing={isPaymentProcessing} isPremium={isPremium} />
 
         {/* FREE: 2D Fitness Score Board - Only render when valid scores/signals exist */}
         {uiPres.showFitnessBars && (
@@ -988,30 +991,8 @@ export default function Result() {
           );
         })()}
 
-        {/* FREE: 03. 무료 결과 공유 */}
-        <div className="mb-8 flex gap-3 print:hidden">
-          <button 
-            onClick={() => handleExport('jpg')}
-            disabled={isExporting}
-            className="flex-1 py-3 bg-white text-zinc-900 border border-zinc-200 text-[13px] font-bold rounded-xl hover:bg-zinc-50 transition flex items-center justify-center gap-2 cursor-pointer"
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" /></svg>
-            이미지 저장
-          </button>
-          <button 
-            onClick={handleShareClick}
-            className="flex-1 py-3 bg-zinc-900 text-white text-[13px] font-bold rounded-xl hover:bg-zinc-800 transition flex items-center justify-center gap-2 shadow-md shadow-zinc-200 cursor-pointer"
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" /></svg>
-            결과 링크 공유
-          </button>
-        </div>
-        <p className="text-center text-[11px] text-zinc-400 mb-8 print:hidden">
-          무료 분석 결과는 30일간 보관되며 기간이 지나면 자동 삭제됩니다.
-        </p>
-
         {/* PREMIUM SECTIONS & PAYWALL */}
-        <div className="relative">
+        <div id="premium-purchase-details" className="relative scroll-mt-6">
           
           <div className="print:hidden">
             <PremiumReport 
@@ -1069,6 +1050,31 @@ export default function Result() {
               )}
           </div>
 
+        <div className="mt-8">
+        {/* FREE: 03. 무료 결과 공유 */}
+        <div className="mb-8 flex gap-3 print:hidden">
+          <button
+            onClick={() => handleExport('jpg')}
+            disabled={isExporting}
+            className="flex-1 py-3 bg-white text-zinc-900 border border-zinc-200 text-[13px] font-bold rounded-xl hover:bg-zinc-50 transition flex items-center justify-center gap-2 cursor-pointer"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" /></svg>
+            이미지 저장
+          </button>
+          <button
+            onClick={handleShareClick}
+            className="flex-1 py-3 bg-zinc-900 text-white text-[13px] font-bold rounded-xl hover:bg-zinc-800 transition flex items-center justify-center gap-2 shadow-md shadow-zinc-200 cursor-pointer"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" /></svg>
+            결과 링크 공유
+          </button>
+        </div>
+        <p className="text-center text-[11px] text-zinc-400 mb-8 print:hidden">
+          무료 분석 결과는 30일간 보관되며 기간이 지나면 자동 삭제됩니다.
+        </p>
+
+        </div>
+        <div className="h-24 print:hidden" aria-hidden="true" />
       </main>
 
       <ShareAliasModal 
