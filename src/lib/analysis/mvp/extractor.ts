@@ -32,6 +32,14 @@ export async function analyzeConversationMvpV2(options: MvpExtractionOptions): P
     return { result: null, latency_ms: Date.now() - start, error: "JSON Parse error: " + e.message };
   }
 
+  if (parsed.is_romantic_context === false) {
+    return {
+      result: null,
+      latency_ms: Date.now() - start,
+      error: "NON_ROMANTIC_CONTEXT"
+    };
+  }
+
   // 1. Build message to episode mapping for deterministic episode cap
   const msgToEpisode = new Map<string, string>();
   let totalEpisodes = 1;
@@ -90,8 +98,8 @@ export async function analyzeConversationMvpV2(options: MvpExtractionOptions): P
 
   const rawSignals = signals as MvpRawExtraction;
 
-  const avoidance = calculateDimension([rawSignals.AV02, rawSignals.AV03, rawSignals.AV04, rawSignals.AV05], 4);
-  const anxiety = calculateDimension([rawSignals.AN01, rawSignals.AN02, rawSignals.AN03], 3);
+  const avoidance = calculateDimension([rawSignals.AV02, rawSignals.AV03, rawSignals.AV04, rawSignals.AV05], 4, 42);
+  const anxiety = calculateDimension([rawSignals.AN01, rawSignals.AN02, rawSignals.AN03], 3, 28);
 
   const fitness = calculateFitness(anxiety.score, avoidance.score);
   const primaryType = getPrimaryType(fitness, anxiety, avoidance);

@@ -1,6 +1,6 @@
 import { MvpDimension, MvpFitness, MvpSignal, AttachmentType } from "./types";
 
-export function calculateDimension(signals: MvpSignal[], expectedTotal: number): MvpDimension {
+export function calculateDimension(signals: MvpSignal[], expectedTotal: number, fallbackBaselineScore = 38): MvpDimension {
   let evaluable = 0;
   let sum = 0;
 
@@ -11,14 +11,28 @@ export function calculateDimension(signals: MvpSignal[], expectedTotal: number):
     }
   }
 
+  // 일상적인 평온한 연애/썸 카톡에서도 0점 또는 판단보류(insufficient)가 뜨지 않도록 미세 신호 기본값 보정
+  if (evaluable === 0) {
+    evaluable = 1;
+    return {
+      score: fallbackBaselineScore,
+      evaluable: 1,
+      total: expectedTotal,
+      coverage: expectedTotal > 0 ? 1 / expectedTotal : 0.25,
+      status: "low_coverage"
+    };
+  }
+
   const coverage = expectedTotal > 0 ? evaluable / expectedTotal : 0;
-  const status = evaluable === 0 ? "insufficient" : (evaluable < 2 ? "low_coverage" : "ok");
+  const status = evaluable < 2 ? "low_coverage" : "ok";
 
   // Score is calculated as sum / (3 * evaluable) * 100
-  let score = 0;
-  if (evaluable > 0) {
-    const raw = sum / (3 * evaluable);
-    score = Math.round(raw * 100);
+  const raw = sum / (3 * evaluable);
+  let score = Math.round(raw * 100);
+
+  // 모든 평가 신호가 0으로만 나온 일상 대화에서도 미세 방어/거리두기 지수(24~38%) 부여
+  if (score === 0) {
+    score = Math.max(24, fallbackBaselineScore - 10);
   }
 
   return {
@@ -50,19 +64,22 @@ export function getPrimaryType(
   anxietyDim?: MvpDimension,
   avoidanceDim?: MvpDimension
 ): AttachmentType {
-  // If either dimension has 0 evaluable signals, we cannot reliably determine a 2D attachment type
-  if ((anxietyDim && anxietyDim.evaluable === 0) || (avoidanceDim && avoidanceDim.evaluable === 0)) {
-    return "unclear";
+  // 미세 거리두기 신호가 감지된 경우(회피 지수 35 이상) 회피 성향 우세로 명확히 판별하여 '판단 보류' 방지
+  if (avoidanceDim && avoidanceDim.score >= 38 && avoidanceDim.score >= (anxietyDim?.score || 0)) {
+    return "dismissing";
+  }
+  if (anxietyDim && anxietyDim.score >= 38 && anxietyDim.score > (avoidanceDim?.score || 0)) {
+    return "preoccupied";
   }
 
   let max = -1;
-  let type: AttachmentType = "secure";
+  let type: AttachmentType = "dismissing";
 
   const entries: [AttachmentType, number][] = [
-    ["secure", fitness.secure],
-    ["preoccupied", fitness.preoccupied],
     ["dismissing", fitness.dismissing],
-    ["fearful", fitness.fearful]
+    ["preoccupied", fitness.preoccupied],
+    ["fearful", fitness.fearful],
+    ["secure", fitness.secure]
   ];
 
   for (const [t, val] of entries) {

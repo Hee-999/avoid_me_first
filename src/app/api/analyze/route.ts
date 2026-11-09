@@ -69,6 +69,13 @@ export async function POST(request: Request) {
       targetSpeaker: sanitizedTargetId
     });
 
+    if (analysisError === "NON_ROMANTIC_CONTEXT") {
+      return NextResponse.json(
+        { error: "연인·썸 또는 호감 상대와의 대화가 아닌 것으로 보입니다. 분석하고 싶은 상대방과 나눈 카톡 캡처를 올려주세요." },
+        { status: 400 }
+      );
+    }
+
     if (analysisError || !analysisResult) {
       return NextResponse.json({ error: "Analysis failed: " + analysisError }, { status: 500 });
     }

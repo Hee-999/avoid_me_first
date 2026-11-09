@@ -14,19 +14,26 @@ export interface PremiumPurchasePromptProps {
 
 export function getPurchaseLabel(analysis: Partial<FinalAnalysis>): string {
   const focus = analysis.derived_context?.context_intake?.desired_focus || "";
-  if (focus.includes("답할지")) return "내 대화에 맞는 답장 확인";
-  if (focus.includes("관계 패턴")) return "두 사람의 소통 패턴 확인";
-  if (focus.includes("대화의 의미")) return "이 반응의 의미 더 알아보기";
-  if (focus.includes("앞으로")) return "앞으로 살펴볼 반응 확인";
-  return "내 맞춤 대화 리포트 열기";
+  if (focus.includes("답할지")) return "맞춤 카톡 답장 3선 & 속마음 열기";
+  if (focus.includes("관계 패턴")) return "숨은 속마음 & 관계 주도권 열기";
+  if (focus.includes("대화의 의미")) return "말풍선 속 진짜 속마음 판독 열기";
+  if (focus.includes("앞으로")) return "향후 행동 예측 & 맞춤 답장 열기";
+  return "상대방 속마음 & 맞춤 카톡 답장 열기";
 }
 
-export function PremiumPurchasePrompt({ analysis, onUnlock, isProcessing = false, isPremium = false }: PremiumPurchasePromptProps) {
+export function PremiumPurchasePrompt({
+  analysis,
+  onUnlock,
+  isProcessing = false,
+  isPremium = false,
+}: PremiumPurchasePromptProps) {
   const cardRef = useRef<HTMLElement>(null);
   const [showSticky, setShowSticky] = useState(false);
   const offer = getPremiumOffer(analysis);
   const label = getPurchaseLabel(analysis);
   const available = !isPremium && offer.canOffer;
+
+  const targetName = analysis.target_speaker_label || "상대방";
 
   useEffect(() => {
     if (!available) return;
@@ -40,7 +47,9 @@ export function PremiumPurchasePrompt({ analysis, onUnlock, isProcessing = false
       const detailsVisible = !!rect && rect.top < window.innerHeight && rect.bottom > 0;
       setShowSticky(card.getBoundingClientRect().bottom < 0 && !detailsVisible);
     };
-    const schedule = () => { if (!frame) frame = requestAnimationFrame(measure); };
+    const schedule = () => {
+      if (!frame) frame = requestAnimationFrame(measure);
+    };
     measure();
     window.addEventListener("scroll", schedule, { passive: true });
     window.addEventListener("resize", schedule);
@@ -52,26 +61,120 @@ export function PremiumPurchasePrompt({ analysis, onUnlock, isProcessing = false
   }, [available]);
 
   if (!available) return null;
+
   return (
     <>
-      <section ref={cardRef} aria-label="맞춤 대화 리포트 안내" className="my-7 rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm print:hidden">
-        <p className="mb-2 text-[12px] font-bold text-amber-800">🔥 얼리버드 특별가 · 일회 결제</p>
-        <h2 className="text-[19px] font-black leading-snug text-zinc-950">그래서, 다음 카톡은 어떻게 보내면 좋을까요?</h2>
-        <p className="mt-2 text-[13px] leading-relaxed text-zinc-600">{offer.description}</p>
-        <p className="mt-3 text-[12px] leading-relaxed text-zinc-600">추천 카톡 문장과 표현의 이유 · 대화 장면별 해석 · 앞으로의 소통 가이드</p>
-        <button type="button" onClick={onUnlock} disabled={isProcessing} data-purchase-placement="summary" className="mt-4 flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#C2410C] px-3 py-3 text-[14px] font-bold text-white shadow-md transition hover:bg-[#9A3412] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#C2410C] disabled:cursor-wait disabled:opacity-60">
-          {isProcessing ? "결제창을 여는 중..." : `🔒 ${label} · 2,900원`}
+      <section
+        ref={cardRef}
+        aria-label="맞춤 대화 리포트 안내"
+        className="my-7 rounded-2xl border-2 border-amber-500/40 bg-gradient-to-b from-amber-50/60 via-white to-white p-5 shadow-md print:hidden"
+      >
+        <div className="flex items-center justify-between gap-2 mb-2">
+          <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2.5 py-0.5 text-[11px] font-extrabold text-amber-900">
+            🔥 정밀 해독 완료 · 미공개 리포트 잠금
+          </span>
+          <span className="text-[11px] font-semibold text-zinc-500">일회성 열람 · 자동결제 없음</span>
+        </div>
+
+        <h2 className="text-[19px] font-black leading-snug text-zinc-950">
+          {offer.title}
+        </h2>
+        <p className="mt-1.5 text-[13px] leading-relaxed text-zinc-600">
+          {offer.description}
+        </p>
+
+        {/* 절단신공 (Saju-style 10% Teaser + 90% Blurred Lock Box) */}
+        <div className="mt-4 rounded-xl border border-zinc-200 bg-zinc-50/90 p-3.5 space-y-2.5">
+          <div className="text-[12px] font-bold text-zinc-800 flex items-center justify-between">
+            <span>🔎 {targetName}님의 카톡에서 포착된 핵심 해독 항목</span>
+            <span className="text-[11px] text-amber-700 font-extrabold">3개 항목 잠금 중</span>
+          </div>
+
+          <div className="rounded-lg bg-white p-3 border border-zinc-200/80">
+            <p className="text-[12px] font-bold text-zinc-900">
+              1. 🔒 {targetName}님이 저 카톡을 보낸 진짜 무의식 속마음
+            </p>
+            <p className="mt-1 text-[12px] text-zinc-600">
+              겉으로 드러난 말투와 실제 속마음의 온도차를 분석한 결과, 현재 관계에서{" "}
+              <span className="select-none blur-[4px] bg-zinc-200/70 px-1 rounded">
+                감정적 에너지를 아끼며 주도권을 지키려는 방어 기제
+              </span>
+              가 작동하고 있습니다.
+            </p>
+          </div>
+
+          <div className="rounded-lg bg-white p-3 border border-zinc-200/80">
+            <p className="text-[12px] font-bold text-red-700">
+              2. 🚫 지금 이 상황에서 절대 보내면 안 되는 카톡 금기어
+            </p>
+            <p className="mt-1 text-[12px] text-zinc-600">
+              지금 불안한 마음에{" "}
+              <span className="select-none blur-[4px] bg-red-100 px-1 rounded">
+                서운함을 직접 확인하거나 일정 확답을 재촉하는 카톡
+              </span>
+              을 보내면 상대가 즉시 동굴로 들어갈 위험이 높습니다.
+            </p>
+          </div>
+
+          <div className="rounded-lg bg-white p-3 border border-zinc-200/80">
+            <p className="text-[12px] font-bold text-emerald-800">
+              3. 💬 복사해서 바로 보내는 상황별 맞춤 카톡 답장 3선
+            </p>
+            <p className="mt-1 text-[12px] text-zinc-600">
+              상대의 방어벽을 무장해제시키고{" "}
+              <span className="select-none blur-[4px] bg-emerald-100 px-1 rounded">
+                부담 없이 먼저 역질문과 연락이 오게 만드는 실전 답장 문장
+              </span>
+              을 즉시 복사해 쓰실 수 있습니다.
+            </p>
+          </div>
+        </div>
+
+        <button
+          type="button"
+          onClick={onUnlock}
+          disabled={isProcessing}
+          data-purchase-placement="summary"
+          className="mt-4 flex min-h-13 w-full items-center justify-center gap-2 rounded-xl bg-[#C2410C] px-3 py-3.5 text-[15px] font-extrabold text-white shadow-lg shadow-amber-900/20 transition hover:bg-[#9A3412] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#C2410C] disabled:cursor-wait disabled:opacity-60 cursor-pointer"
+        >
+          {isProcessing ? "결제창을 여는 중..." : `🔓 ${label} (2,900원)`}
         </button>
-        <button type="button" onClick={() => document.getElementById("premium-purchase-details")?.scrollIntoView({ behavior: "smooth", block: "start" })} className="mx-auto mt-3 block text-[12px] font-semibold text-zinc-500 underline underline-offset-4">리포트에 담긴 내용 자세히 보기</button>
+
+        <button
+          type="button"
+          onClick={() =>
+            document
+              .getElementById("premium-purchase-details")
+              ?.scrollIntoView({ behavior: "smooth", block: "start" })
+          }
+          className="mx-auto mt-3 block text-[12px] font-semibold text-zinc-500 underline underline-offset-4 cursor-pointer"
+        >
+          리포트에 담긴 전체 구성 자세히 보기
+        </button>
       </section>
-      {showSticky && createPortal(
-        <aside aria-label="맞춤 리포트 구매" className="fixed inset-x-0 bottom-0 z-40 mx-auto w-full max-w-md border-t border-zinc-200 bg-white/95 px-4 pt-2 shadow-[0_-4px_18px_rgba(0,0,0,0.08)] backdrop-blur-sm print:hidden" style={{ paddingBottom: "max(0.5rem, env(safe-area-inset-bottom))" }}>
-          <p className="mb-1 text-center text-[11px] font-semibold text-amber-800">🔥 얼리버드 특별가 · 일회 결제</p>
-          <button type="button" onClick={onUnlock} disabled={isProcessing} data-purchase-placement="sticky" className="flex min-h-12 w-full items-center justify-center gap-1 rounded-xl bg-[#C2410C] px-2 py-3 text-[13px] font-bold text-white shadow-sm transition hover:bg-[#9A3412] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#C2410C] disabled:cursor-wait disabled:opacity-60">
-            {isProcessing ? "결제창을 여는 중..." : `💬 ${label} · 2,900원`}
-          </button>
-        </aside>, document.body
-      )}
+
+      {showSticky &&
+        createPortal(
+          <aside
+            aria-label="맞춤 리포트 구매"
+            className="fixed inset-x-0 bottom-0 z-40 mx-auto w-full max-w-md border-t border-zinc-200 bg-white/95 px-4 pt-2 shadow-[0_-4px_18px_rgba(0,0,0,0.08)] backdrop-blur-sm print:hidden"
+            style={{ paddingBottom: "max(0.5rem, env(safe-area-inset-bottom))" }}
+          >
+            <p className="mb-1 text-center text-[11px] font-semibold text-amber-800">
+              🔥 속마음 정밀 해독 & 맞춤 카톡 답장 3선 즉시 열람
+            </p>
+            <button
+              type="button"
+              onClick={onUnlock}
+              disabled={isProcessing}
+              data-purchase-placement="sticky"
+              className="flex min-h-12 w-full items-center justify-center gap-1 rounded-xl bg-[#C2410C] px-2 py-3 text-[14px] font-extrabold text-white shadow-sm transition hover:bg-[#9A3412] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#C2410C] disabled:cursor-wait disabled:opacity-60 cursor-pointer"
+            >
+              {isProcessing ? "결제창을 여는 중..." : `🔓 ${label} · 2,900원`}
+            </button>
+          </aside>,
+          document.body
+        )}
     </>
   );
 }
