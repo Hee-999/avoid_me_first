@@ -20,6 +20,8 @@ export const Footer = ({ className = '', isEmbedded = false }: FooterProps) => {
           <span className="text-zinc-300">|</span>
           <Link href="/refund" target="_blank" rel="noopener noreferrer" className="hover:text-zinc-900 transition-colors">환불 및 취소정책</Link>
           <span className="text-zinc-300">|</span>
+          <Link href="/columns" className="hover:text-zinc-900 transition-colors">애착 심리 칼럼</Link>
+          <span className="text-zinc-300">|</span>
           <a href={ftcLink} target="_blank" rel="noopener noreferrer" className="hover:text-zinc-900 transition-colors underline underline-offset-2">사업자정보확인</a>
         </div>
         

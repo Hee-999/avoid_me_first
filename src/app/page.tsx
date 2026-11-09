@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import Loading from "@/components/Loading";
@@ -11,6 +11,15 @@ export default function Home() {
   const router = useRouter();
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [viewState, setViewState] = useState<"hero" | "input">("hero");
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get("view") === "input") {
+        setViewState("input");
+      }
+    }
+  }, []);
 
   const handleAnalyzeImages = async (payload: AnalyzeRequestPayload) => {
     if (!payload.slices || payload.slices.length === 0) {
