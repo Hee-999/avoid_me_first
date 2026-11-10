@@ -11,6 +11,9 @@ export default function Home() {
   const router = useRouter();
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [viewState, setViewState] = useState<"hero" | "input">("hero");
+  const [trafficSource, setTrafficSource] = useState<{ referrer: string; utmSource?: string }>({
+    referrer: "",
+  });
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -18,6 +21,9 @@ export default function Home() {
       if (params.get("view") === "input") {
         setViewState("input");
       }
+      const ref = document.referrer || "";
+      const utm = params.get("utm_source") || undefined;
+      setTrafficSource({ referrer: ref, utmSource: utm });
     }
   }, []);
 
@@ -37,7 +43,9 @@ export default function Home() {
           images: payload.slices,
           target_role: payload.targetRole,
           target_speaker_label: payload.targetLabel,
-          context_intake: payload.contextIntake || null
+          context_intake: payload.contextIntake || null,
+          referrer: trafficSource.referrer,
+          utm_source: trafficSource.utmSource
         })
       });
 

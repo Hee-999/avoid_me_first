@@ -15,7 +15,8 @@ import { parseKakaoScreenshotsWithVision } from "@/lib/analysis/gemini/kakaoVisi
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { images, text, target_role = "target", target_speaker_id, target_speaker_label, context_intake } = body;
+    const { images, text, target_role = "target", target_speaker_id, target_speaker_label, context_intake, referrer, utm_source } = body;
+    const resolvedReferrer = referrer || request.headers.get("referer") || "";
 
     let preprocessed;
     let resolvedTargetId = target_speaker_id;
@@ -116,6 +117,8 @@ export async function POST(request: Request) {
         primaryType: persistentPayload.primary_type,
         anxietyScore: persistentPayload.dimensions?.anxiety?.score,
         avoidanceScore: persistentPayload.dimensions?.avoidance?.score,
+        referrer: resolvedReferrer,
+        utmSource: utm_source,
       });
     } catch (telegramErr) {
       console.error("[TELEGRAM] Failed to dispatch free analysis alert:", telegramErr);
