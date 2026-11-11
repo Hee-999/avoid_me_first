@@ -9,6 +9,7 @@ import { PrintablePremiumReport } from "@/components/premium/PrintablePremiumRep
 import { ShareAliasModal } from "@/components/share/ShareAliasModal";
 import { PremiumPurchasePrompt } from "@/components/premium/PremiumPurchasePrompt";
 import { ShareResultCard } from "@/components/share/ShareResultCard";
+import { ShimmerButton } from "@/components/ui/shimmer-button";
 
 const ATTACHMENT_TYPE_MAPPING: Record<string, { ko: string, desc: string, en: string }> = {
   "secure": { ko: "안정형", desc: "상대방과 갈등이 발생해도 감정을 안정적으로 조절하며 솔직하고 원만하게 소통하는 패턴이 나타났어요.", en: "Secure Attachment" },
@@ -983,15 +984,21 @@ export default function Result() {
                             </span>
                             "
                           </p>
-                          <button
-                            type="button"
+                          <ShimmerButton
                             onClick={handleUnlock}
                             disabled={isPaymentProcessing}
-                            className="w-full py-2.5 px-3 rounded-xl bg-[#C2410C] hover:bg-[#9A3412] text-white text-[12.5px] font-extrabold transition flex items-center justify-center gap-1.5 cursor-pointer"
+                            shimmerColor="#ffffff"
+                            shimmerSize="0.08em"
+                            shimmerDuration="2.5s"
+                            background="linear-gradient(135deg, #18181b 0%, #27272a 100%)"
+                            borderRadius="12px"
+                            className="w-full py-2.5 text-[12.5px] font-black shadow-md"
                           >
-                            <span>🔓</span>
-                            <span>전체 답장 문장 & 상황별 맞춤 카톡 3선 열기</span>
-                          </button>
+                            <span className="flex items-center justify-center gap-1.5">
+                              <span>🔓</span>
+                              <span>전체 답장 문장 & 맞춤 카톡 3선 열기 (2,900원)</span>
+                            </span>
+                          </ShimmerButton>
                         </div>
                       )}
 

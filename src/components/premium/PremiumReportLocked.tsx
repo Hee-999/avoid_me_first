@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { FinalAnalysis } from "@/lib/analysis/types";
 import { getPremiumOffer } from "@/lib/report/premium/offer";
+import { ShimmerButton } from "@/components/ui/shimmer-button";
 
 export function PremiumReportLocked({
   analysis,
@@ -163,13 +164,17 @@ export function PremiumReportLocked({
               </span>
             </div>
 
-            {/* 얼리버드 가격 안내 (결제 버튼 바로 위) */}
-            <div className="mb-3 text-center w-full">
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-amber-50 text-amber-900 border border-amber-200 rounded-full text-[12px] font-bold">
-                <span>🔥</span> 얼리버드 특별가 2,900원
+            {/* 오픈 특가 가격 안내 (4,900원 취소선 + 2,900원 + 41% 할인율 표기) */}
+            <div className="mb-4 w-full rounded-2xl bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200/80 p-3.5 text-center">
+              <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 bg-amber-600 text-white rounded-md text-[10.5px] font-black">
+                <span>🔥</span> 오픈 기념 한정 특가 41% OFF
               </div>
-              <p className="text-[11.5px] text-zinc-500 font-medium mt-1">
-                일회성 결제 · 자동 정기결제 없음
+              <div className="mt-2 flex items-center justify-center gap-2">
+                <span className="text-[14px] text-zinc-400 line-through font-medium">정상가 4,900원</span>
+                <span className="text-[20px] font-black text-zinc-950">2,900원</span>
+              </div>
+              <p className="text-[11px] text-zinc-500 font-medium mt-1">
+                일회성 결제 · 자동 추가결제 없음
               </p>
             </div>
 
@@ -189,18 +194,22 @@ export function PremiumReportLocked({
               </p>
             )}
             {onUnlock && offer.canOffer && (
-              <button
-                data-purchase-placement="details"
+              <ShimmerButton
                 onClick={onUnlock}
                 disabled={isProcessing}
-                className={`w-full py-4 text-white text-[15px] font-bold rounded-xl transition transform shadow-xl flex justify-center items-center gap-2 cursor-pointer ${
-                  isProcessing
-                    ? "bg-zinc-400 cursor-not-allowed scale-100"
-                    : "bg-[#C2410C] hover:bg-[#9A3412] active:scale-95"
-                }`}
+                data-purchase-placement="details"
+                shimmerColor="#ffffff"
+                shimmerSize="0.1em"
+                shimmerDuration="2.5s"
+                background="linear-gradient(135deg, #18181b 0%, #27272a 50%, #09090b 100%)"
+                borderRadius="18px"
+                className="w-full py-4 text-[15px] font-black shadow-xl shadow-zinc-950/20"
               >
-                {isProcessing ? "결제창을 여는 중..." : "🔓 맞춤 대화 리포트 열기 · 2,900원"}
-              </button>
+                <span className="flex items-center justify-center gap-2 tracking-tight">
+                  <span>🔓</span>
+                  <span>{isProcessing ? "결제창을 여는 중..." : "맞춤 대화 리포트 열기 · 2,900원"}</span>
+                </span>
+              </ShimmerButton>
             )}
           </div>
         </div>

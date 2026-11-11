@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import type { FinalAnalysis } from "@/lib/analysis/types";
 import { getPremiumOffer } from "@/lib/report/premium/offer";
+import { ShimmerButton } from "@/components/ui/shimmer-button";
 
 export interface PremiumPurchasePromptProps {
   analysis: Partial<FinalAnalysis>;
@@ -145,15 +146,36 @@ export function PremiumPurchasePrompt({
           </div>
         </div>
 
-        <button
-          type="button"
+        {/* 가격 & 오픈 특가 안내 (4,900원 취소선 + 2,900원 + 41% 할인율) */}
+        <div className="mt-4 mb-2 flex items-center justify-between rounded-xl bg-amber-500/10 border border-amber-500/20 px-3.5 py-2">
+          <div className="flex items-center gap-1.5">
+            <span className="rounded-md bg-amber-600 px-1.5 py-0.5 text-[10px] font-black text-white">
+              오픈 특가 41% OFF
+            </span>
+            <span className="text-[12px] font-medium text-zinc-400 line-through">4,900원</span>
+          </div>
+          <div className="flex items-baseline gap-1">
+            <span className="text-[11px] font-bold text-amber-900">특별 할인가</span>
+            <span className="text-[18px] font-black text-zinc-950">2,900원</span>
+          </div>
+        </div>
+
+        <ShimmerButton
           onClick={onUnlock}
           disabled={isProcessing}
           data-purchase-placement="summary"
-          className="mt-4 flex min-h-13 w-full items-center justify-center gap-2 rounded-xl bg-[#C2410C] px-3 py-3.5 text-[15px] font-extrabold text-white shadow-lg shadow-amber-900/20 transition hover:bg-[#9A3412] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#C2410C] disabled:cursor-wait disabled:opacity-60 cursor-pointer"
+          shimmerColor="#ffffff"
+          shimmerSize="0.1em"
+          shimmerDuration="2.5s"
+          background="linear-gradient(135deg, #18181b 0%, #27272a 50%, #09090b 100%)"
+          borderRadius="16px"
+          className="mt-2 w-full py-4 text-[15px] font-black shadow-xl shadow-zinc-950/20"
         >
-          {isProcessing ? "결제창을 여는 중..." : `🔓 ${label} (2,900원)`}
-        </button>
+          <span className="flex items-center justify-center gap-2 tracking-tight">
+            <span>🔓</span>
+            <span>{isProcessing ? "결제창을 여는 중..." : `${label} 열기`}</span>
+          </span>
+        </ShimmerButton>
 
         <div className="mt-2.5 flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-[11px] font-medium text-zinc-500">
           <span>✓ 결제 즉시 열람</span>
@@ -183,18 +205,26 @@ export function PremiumPurchasePrompt({
             className="fixed inset-x-0 bottom-0 z-40 mx-auto w-full max-w-md border-t border-zinc-200 bg-white/95 px-4 pt-2 shadow-[0_-4px_18px_rgba(0,0,0,0.08)] backdrop-blur-sm print:hidden"
             style={{ paddingBottom: "max(0.5rem, env(safe-area-inset-bottom))" }}
           >
-            <p className="mb-1 text-center text-[11px] font-semibold text-amber-800">
-              🔥 속마음 정밀 해독 & 맞춤 카톡 답장 3선 즉시 열람
-            </p>
-            <button
-              type="button"
+            <div className="mb-1.5 flex items-center justify-between text-[11px] px-1">
+              <span className="font-extrabold text-amber-700">🔥 오픈 특가 41% 할인 적용 중</span>
+              <span className="text-zinc-400 line-through">4,900원 &rarr; <strong className="text-zinc-900 font-black not-italic">2,900원</strong></span>
+            </div>
+            <ShimmerButton
               onClick={onUnlock}
               disabled={isProcessing}
               data-purchase-placement="sticky"
-              className="flex min-h-12 w-full items-center justify-center gap-1 rounded-xl bg-[#C2410C] px-2 py-3 text-[14px] font-extrabold text-white shadow-sm transition hover:bg-[#9A3412] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#C2410C] disabled:cursor-wait disabled:opacity-60 cursor-pointer"
+              shimmerColor="#ffffff"
+              shimmerSize="0.08em"
+              shimmerDuration="2.5s"
+              background="linear-gradient(135deg, #18181b 0%, #27272a 100%)"
+              borderRadius="14px"
+              className="w-full py-3.5 text-[14px] font-black shadow-md"
             >
-              {isProcessing ? "결제창을 여는 중..." : `🔓 ${label} · 2,900원`}
-            </button>
+              <span className="flex items-center justify-center gap-1 tracking-tight">
+                <span>🔓</span>
+                <span>{isProcessing ? "결제창을 여는 중..." : `${label} · 2,900원`}</span>
+              </span>
+            </ShimmerButton>
           </aside>,
           document.body
         )}
