@@ -34,6 +34,19 @@ export function PremiumPurchasePrompt({
   const available = !isPremium && offer.canOffer;
 
   const targetName = analysis.target_speaker_label || "상대방";
+  const keySituations = Array.isArray(analysis.derived_context?.key_situations)
+    ? analysis.derived_context?.key_situations
+    : [];
+  const firstSituationRaw = keySituations[0]?.situation || "";
+  const firstSituation = firstSituationRaw
+    .replace(/SPEAKER_A/g, targetName)
+    .replace(/SPEAKER_B/g, "나")
+    .trim();
+  const firstBehaviorRaw = keySituations[0]?.target_behavior || "";
+  const firstBehavior = firstBehaviorRaw
+    .replace(/SPEAKER_A/g, targetName)
+    .replace(/SPEAKER_B/g, "나")
+    .trim();
 
   useEffect(() => {
     if (!available) return;
@@ -92,10 +105,12 @@ export function PremiumPurchasePrompt({
 
           <div className="rounded-lg bg-white p-3 border border-zinc-200/80">
             <p className="text-[12px] font-bold text-zinc-900">
-              1. 🔒 {targetName}님이 저 카톡을 보낸 진짜 무의식 속마음
+              1. 🔒 {firstSituation ? `'${firstSituation.slice(0, 26)}${firstSituation.length > 26 ? "..." : ""}' 장면의 진짜 속마음` : `${targetName}님이 저 카톡을 보낸 진짜 무의식 속마음`}
             </p>
             <p className="mt-1 text-[12px] text-zinc-600">
-              겉으로 드러난 말투와 실제 속마음의 온도차를 분석한 결과, 현재 관계에서{" "}
+              {firstBehavior
+                ? `${firstBehavior.slice(0, 34)}${firstBehavior.length > 34 ? "..." : ""} 반응 이면에는 현재 관계에서 `
+                : "겉으로 드러난 말투와 실제 속마음의 온도차를 분석한 결과, 현재 관계에서 "}
               <span className="select-none blur-[4px] bg-zinc-200/70 px-1 rounded">
                 감정적 에너지를 아끼며 주도권을 지키려는 방어 기제
               </span>
@@ -105,14 +120,14 @@ export function PremiumPurchasePrompt({
 
           <div className="rounded-lg bg-white p-3 border border-zinc-200/80">
             <p className="text-[12px] font-bold text-red-700">
-              2. 🚫 지금 이 상황에서 절대 보내면 안 되는 카톡 금기어
+              2. 🚫 지금 {targetName}님에게 가장 피해야 할 카톡 표현
             </p>
             <p className="mt-1 text-[12px] text-zinc-600">
-              지금 불안한 마음에{" "}
+              이 대화 흐름에서 조급한 마음에{" "}
               <span className="select-none blur-[4px] bg-red-100 px-1 rounded">
                 서운함을 직접 확인하거나 일정 확답을 재촉하는 카톡
               </span>
-              을 보내면 상대가 즉시 동굴로 들어갈 위험이 높습니다.
+              을 보내면 상대방의 심리적 부담이 커질 수 있습니다.
             </p>
           </div>
 
@@ -121,7 +136,7 @@ export function PremiumPurchasePrompt({
               3. 💬 복사해서 바로 보내는 상황별 맞춤 카톡 답장 3선
             </p>
             <p className="mt-1 text-[12px] text-zinc-600">
-              상대의 방어벽을 무장해제시키고{" "}
+              {targetName}님의 현재 성향에 맞춰{" "}
               <span className="select-none blur-[4px] bg-emerald-100 px-1 rounded">
                 부담 없이 먼저 역질문과 연락이 오게 만드는 실전 답장 문장
               </span>
@@ -139,6 +154,14 @@ export function PremiumPurchasePrompt({
         >
           {isProcessing ? "결제창을 여는 중..." : `🔓 ${label} (2,900원)`}
         </button>
+
+        <div className="mt-2.5 flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-[11px] font-medium text-zinc-500">
+          <span>✓ 결제 즉시 열람</span>
+          <span>·</span>
+          <span>✓ 1년간 다시보기 & PDF 저장</span>
+          <span>·</span>
+          <span>✓ 회원가입 없음</span>
+        </div>
 
         <button
           type="button"

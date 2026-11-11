@@ -198,22 +198,42 @@ export default async function LoveColumnDetailPage({ params }: Props) {
                 </ul>
               )}
 
-              {/* Mid-Article Funnel Bridge (after section 1) */}
+              {/* Mid-Article Funnel Bridge 1 (after section 1) */}
               {idx === 0 && (
                 <div className="my-8 p-6 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-100 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-4">
                   <div>
                     <h4 className="font-bold text-zinc-900 text-sm sm:text-base">
-                      🔍 지금 내 카톡 대화도 회피형일까?
+                      🔍 지금 내 카톡 대화도 회피형 신호일까?
                     </h4>
                     <p className="text-xs sm:text-sm text-zinc-600 mt-1">
-                      카톡 캡처 사진 3장으로 상대방의 회피 점수를 10초 만에 무료로 확인해 보세요.
+                      고민되는 카톡 캡처만 올리면 상대방의 회피·불안 점수를 10초 만에 무료로 판독해 드립니다.
                     </p>
                   </div>
                   <Link
-                    href="/?view=input"
+                    href={`/?view=input&utm_source=column_${col.slug}`}
                     className="shrink-0 px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs sm:text-sm rounded-full shadow-sm transition-colors"
                   >
                     10초 무료 분석 &rarr;
+                  </Link>
+                </div>
+              )}
+
+              {/* Mid-Article Funnel Bridge 2 (after section 2) */}
+              {idx === 1 && (
+                <div className="my-8 p-6 bg-gradient-to-r from-amber-50/80 to-orange-50/60 border border-amber-200/80 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-4">
+                  <div>
+                    <h4 className="font-bold text-zinc-900 text-sm sm:text-base">
+                      💬 지금 뭐라고 답장해야 할지 막막하신가요?
+                    </h4>
+                    <p className="text-xs sm:text-sm text-zinc-600 mt-1">
+                      상대방의 말풍선 속 숨은 의도를 읽고, 부담 없이 답장을 이끌어내는 맞춤 카톡 문장을 확인해 보세요.
+                    </p>
+                  </div>
+                  <Link
+                    href={`/?view=input&utm_source=column_${col.slug}`}
+                    className="shrink-0 px-5 py-2.5 bg-zinc-900 hover:bg-zinc-800 text-white font-bold text-xs sm:text-sm rounded-full shadow-sm transition-colors"
+                  >
+                    내 카톡 진단하기 &rarr;
                   </Link>
                 </div>
               )}

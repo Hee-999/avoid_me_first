@@ -965,10 +965,35 @@ export default function Result() {
                         </h4>
                       </div>
 
-                      {/* 추천 말풍선 */}
-                      <div className="bg-zinc-900 text-white p-4 rounded-2xl rounded-tr-sm text-[13.5px] font-semibold leading-relaxed shadow-sm">
-                        "{cleanText(advice.quote)}"
-                      </div>
+                      {/* 추천 말풍선 (무료 상태에서는 앞부분 티저 + 핵심 문장 블러 처리로 결제 유도) */}
+                      {isPremium ? (
+                        <div className="bg-zinc-900 text-white p-4 rounded-2xl rounded-tr-sm text-[13.5px] font-semibold leading-relaxed shadow-sm">
+                          "{cleanText(advice.quote)}"
+                        </div>
+                      ) : (
+                        <div className="bg-zinc-900 text-white p-4 rounded-2xl rounded-tr-sm text-[13.5px] font-semibold leading-relaxed shadow-sm space-y-3">
+                          <div className="flex items-center justify-between text-[11px] text-amber-300 font-bold">
+                            <span>💬 이 상황에 최적화된 추천 답장 미리보기</span>
+                            <span>🔒 뒷부분 잠금</span>
+                          </div>
+                          <p>
+                            "{cleanText(advice.quote).slice(0, 14)}
+                            <span className="select-none blur-[5px] opacity-75">
+                              {cleanText(advice.quote).slice(14) || " 지금 당장 대답하지 않아도 괜찮으니 편할 때 연락 줘."}
+                            </span>
+                            "
+                          </p>
+                          <button
+                            type="button"
+                            onClick={handleUnlock}
+                            disabled={isPaymentProcessing}
+                            className="w-full py-2.5 px-3 rounded-xl bg-[#C2410C] hover:bg-[#9A3412] text-white text-[12.5px] font-extrabold transition flex items-center justify-center gap-1.5 cursor-pointer"
+                          >
+                            <span>🔓</span>
+                            <span>전체 답장 문장 & 상황별 맞춤 카톡 3선 열기</span>
+                          </button>
+                        </div>
+                      )}
 
                       {/* 효과 및 해석 */}
                       <div className="bg-white p-3.5 rounded-xl border border-zinc-200/70 text-[12.5px] text-zinc-600 leading-relaxed">
