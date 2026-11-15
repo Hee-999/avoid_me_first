@@ -1,5 +1,6 @@
 export const businessConfig = {
   brandName: "Love Pattern",
+  brandNameKo: "러브패턴",
   companyName: "슬로띵",
   representativeName: "김희중",
   privacyOfficer: "김희중",

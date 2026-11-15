@@ -27,6 +27,8 @@ export const Footer = ({ className = '', isEmbedded = false }: FooterProps) => {
         
         <div className="space-y-1.5 text-zinc-500">
           <p className="flex flex-wrap items-center gap-x-2">
+            <span><strong className="font-semibold text-zinc-700">서비스명 :</strong> {businessConfig.brandNameKo}</span>
+            <span className="text-zinc-300">|</span>
             <span><strong className="font-semibold text-zinc-700">상호명 :</strong> {businessConfig.companyName}</span>
             <span className="text-zinc-300">|</span>
             <span><strong className="font-semibold text-zinc-700">대표 :</strong> {businessConfig.representativeName}</span>
