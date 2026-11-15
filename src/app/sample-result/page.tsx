@@ -85,7 +85,7 @@ export default function SampleResultPage() {
 
       (window as any).AUTHNICE.requestPay({
         clientId: process.env.NEXT_PUBLIC_NICEPAY_CLIENT_KEY,
-        method: 'card',
+        method: 'cardAndEasyPay',
         orderId: orderId,
         amount: 2900,
         goodsName: "프리미엄 관계 심층 리포트",

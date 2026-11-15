@@ -3,6 +3,41 @@ import { supabaseAdmin } from "@/lib/supabase/server";
 import { notifyPaidConversion } from "@/lib/telegram/notify";
 import crypto from "crypto";
 
+async function recordPaymentFailure(
+  analysisId: string,
+  orderId: string,
+  errorMessage: string,
+  errorCode?: string | null,
+  tid?: string | null
+) {
+  try {
+    const { data } = await supabaseAdmin
+      .from("analyses")
+      .select("status")
+      .eq("id", analysisId)
+      .single();
+    if (!data) return;
+
+    const storedPayment = data.status?.payment;
+    if (!storedPayment || storedPayment.order_id !== orderId) return;
+
+    const failedStatus = {
+      ...(data.status || {}),
+      payment: {
+        ...storedPayment,
+        ...(tid ? { tid } : {}),
+        payment_status: "failed",
+        error_code: errorCode || undefined,
+        error_message: errorMessage,
+        failed_at: new Date().toISOString(),
+      },
+    };
+    await supabaseAdmin.from("analyses").update({ status: failedStatus }).eq("id", analysisId);
+  } catch (err) {
+    console.error("[PAYMENT] Failed to record payment failure:", err);
+  }
+}
+
 export async function POST(request: Request) {
   try {
     const text = await request.text();
@@ -30,17 +65,20 @@ export async function POST(request: Request) {
     const redirectUrl = `${siteUrl}/result/${analysisId}`;
 
     if (authResultCode !== "0000") {
-      console.warn(`[PAYMENT] Auth failed: ${authResultMsg}`);
+      const msg = authResultMsg || "결제 인증 실패";
+      console.warn(`[PAYMENT] Auth failed (${authResultCode}): ${msg}`);
+      await recordPaymentFailure(analysisId, orderId, msg, authResultCode, tid);
       // Return 302 redirect so the user browser navigates back to the result page with an error
-      return NextResponse.redirect(`${redirectUrl}?error=${encodeURIComponent(authResultMsg || "결제 인증 실패")}`, 302);
+      return NextResponse.redirect(`${redirectUrl}?error=${encodeURIComponent(msg)}`, 302);
     }
 
     if (!tid || !clientId || !amountStr || !authToken || !signature) {
+      await recordPaymentFailure(analysisId, orderId, "잘못된 결제 정보입니다.", "MISSING_PARAMS", tid);
       return NextResponse.redirect(`${redirectUrl}?error=${encodeURIComponent("잘못된 결제 정보입니다.")}`, 302);
     }
 
     const amount = parseInt(amountStr, 10);
-    const secretKey = process.env.NICEPAY_SECRET_KEY || "";
+    const secretKey = (process.env.NICEPAY_SECRET_KEY || "").trim();
 
     // 1. Verify Signature
     const expectedStr = authToken + clientId + amountStr + secretKey;
@@ -48,6 +86,7 @@ export async function POST(request: Request) {
 
     if (signature !== expectedSignature) {
       console.warn(`[PAYMENT] Signature mismatch for order: ${orderId}`);
+      await recordPaymentFailure(analysisId, orderId, "결제 서명 검증에 실패했습니다.", "SIGNATURE_MISMATCH", tid);
       return NextResponse.redirect(`${redirectUrl}?error=${encodeURIComponent("결제 서명 검증에 실패했습니다.")}`, 302);
     }
 

@@ -359,7 +359,7 @@ export default function Result() {
       const baseUrl = (process.env.NEXT_PUBLIC_SITE_URL || (typeof window !== 'undefined' ? window.location.origin : '')).replace(/\/+$/, '');
       (window as any).AUTHNICE.requestPay({
         clientId: process.env.NEXT_PUBLIC_NICEPAY_CLIENT_KEY,
-        method: 'card',
+        method: 'cardAndEasyPay',
         orderId: data.orderId,
         amount: data.amount,
         goodsName: data.goodsName,
