@@ -60,6 +60,16 @@ export const SAMPLE_ANALYSIS: FinalAnalysis = {
     }
   },
   derived_context: {
+    analysis_mode: "reunion",
+    v3_metrics: {
+      tease_scene_summary: "주말 일정과 서운한 감정을 꺼냈을 때, 상대방이 피곤하다는 이유로 대화를 미루고 답장을 멈춘 장면",
+      backfire_risk_percent: 75,
+      success_probability: 44,
+      user_temperature: 78,
+      target_temperature: 34,
+      signal_count: 3,
+      headline_verdict: "마음이 식은 게 아니라, 지금은 감정 소모가 버거워서 잠깐 동굴로 숨은 상태예요.",
+    },
     relationship_context: "평소에는 친밀하게 일상을 나누었으나, 주말 일정 조율 및 서운한 감정을 표현하는 과정에서 대화가 일시적으로 중단되었습니다.",
     key_situations: [
       {
