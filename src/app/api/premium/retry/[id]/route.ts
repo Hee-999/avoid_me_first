@@ -46,7 +46,32 @@ export async function POST(
 
     console.log(`[PREMIUM RETRY] Starting report re-generation for analysis: ${id}`);
     const targetLabel = data.extracted_signals?.target_speaker_label || "상대방";
-    const premiumReport = await generatePremiumReport(mvpResult as any, data.derived_context, targetLabel);
+
+    // 기존 구버전 derived_context에 "분석 대상자"(상대방)와 "상대방"(사용자님)이 반대로 적혀있는 경우 교정
+    const rawCtxStr = JSON.stringify(data.derived_context);
+    const cleanedCtxStr = rawCtxStr
+      .replace(/사용자님이\s*/g, "")
+      .replace(/사용자님은\s*/g, "")
+      .replace(/사용자님의\s*/g, "")
+      .replace(/사용자님에게\s*/g, "")
+      .replace(/사용자님가\s*/g, "")
+      .replace(/사용자님/g, "")
+      .replace(/분석 대상자는/g, "그 사람은")
+      .replace(/분석 대상자가/g, "그 사람이")
+      .replace(/분석 대상자의/g, "그 사람의")
+      .replace(/분석 대상자/g, "그 사람")
+      .replace(/분석 대상은/g, "그 사람은")
+      .replace(/분석 대상이/g, "그 사람이")
+      .replace(/분석 대상의/g, "그 사람의")
+      .replace(/분석 대상/g, "그 사람");
+    const cleanedContext = JSON.parse(cleanedCtxStr);
+
+    await supabaseAdmin
+      .from("analyses")
+      .update({ derived_context: cleanedContext })
+      .eq("id", id);
+
+    const premiumReport = await generatePremiumReport(mvpResult as any, cleanedContext, targetLabel);
     await AnalysisRepository.updatePremiumReport(id, premiumReport, "ready");
 
     return NextResponse.json({ success: true, status: "ready" });

@@ -7,11 +7,13 @@ import { Footer } from "@/components/legal/Footer";
 import { ImageUploader } from "@/components/upload/ImageUploader";
 import { CaptureGuideModal } from "@/components/guide/CaptureGuideModal";
 import { ContextIntakeModal, ContextIntakeData } from "@/components/upload/ContextIntakeModal";
+import { ReportLookupModal } from "@/components/premium/ReportLookupModal";
 
 export interface AnalyzeRequestPayload {
   slices: Array<{ base64: string; mimeType: string }>;
   targetRole: "target" | "user";
   targetLabel: string;
+  analysisMode: "reunion" | "flirting";
   contextIntake?: ContextIntakeData | null;
 }
 
@@ -26,9 +28,12 @@ const InputSection = forwardRef<HTMLElement, InputSectionProps>(
     const [isGuideOpen, setIsGuideOpen] = useState(false);
     const [isModelInfoOpen, setIsModelInfoOpen] = useState(false);
     const [isIntakeOpen, setIsIntakeOpen] = useState(false);
+    const [isLookupOpen, setIsLookupOpen] = useState(false);
     const [slices, setSlices] = useState<Array<{ base64: string; mimeType: string }>>([]);
     const [targetRole, setTargetRole] = useState<"target" | "user">("target");
     const [targetLabel, setTargetLabel] = useState<string>("상대방");
+    const [analysisMode, setAnalysisMode] = useState<"reunion" | "flirting">("reunion");
+    const [isPrivacyAgreed, setIsPrivacyAgreed] = useState(false);
     const [loadingStep, setLoadingStep] = useState("대화 캡처 및 이모티콘 정밀 판독 중...");
 
     useEffect(() => {
@@ -65,6 +70,10 @@ const InputSection = forwardRef<HTMLElement, InputSectionProps>(
         alert("카카오톡 대화 캡처 사진을 최소 1장 이상 등록해주세요!");
         return;
       }
+      if (!isPrivacyAgreed) {
+        alert("개인정보처리방침 및 AI 대화 분석 이용에 동의해주세요.");
+        return;
+      }
       // 맥락 질문 모달 열기
       setIsIntakeOpen(true);
     };
@@ -75,6 +84,7 @@ const InputSection = forwardRef<HTMLElement, InputSectionProps>(
         slices,
         targetRole,
         targetLabel: targetLabel.trim() || (targetRole === "target" ? "상대방" : "나"),
+        analysisMode,
         contextIntake: intakeData
       });
     };
@@ -108,8 +118,8 @@ const InputSection = forwardRef<HTMLElement, InputSectionProps>(
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                 </div>
-                <span className="text-[14px] font-semibold text-zinc-800">
-                  바솔로뮤(Bartholomew) 성인 애착 모델이란?
+                <span className="text-[13.5px] font-semibold text-zinc-800 break-keep">
+                  카톡 캡처로 어떻게 속마음과 온도차를 판독하나요?
                 </span>
               </div>
               <svg
@@ -126,14 +136,56 @@ const InputSection = forwardRef<HTMLElement, InputSectionProps>(
               <motion.div
                 initial={{ height: 0, opacity: 0 }}
                 animate={{ height: "auto", opacity: 1 }}
-                className="mt-4 pt-4 border-t border-zinc-100 text-[14px] text-zinc-600 leading-relaxed overflow-hidden"
+                className="mt-4 pt-4 border-t border-zinc-100 text-[13.5px] text-zinc-600 leading-relaxed overflow-hidden break-keep"
               >
-                심리학자 킴 바솔로뮤(Kim Bartholomew)가 제안한 4분할 애착 이론입니다. 자기 자신과 타인을 긍정하는지 부정하는지를 기준으로 <strong>안정형, 불안형, 거부-회피형, 공포-회피형</strong> 4가지로 분류합니다.
+                AI 비전 모델이 카톡 대화의 답장 호흡, 감정 표현 수위, 거리두기 신호를 정밀 분석하여 <strong>두 사람의 관계 온도차와 재회·썸 성사 가능성</strong>을 판독합니다.
                 <br />
                 <br />
-                이 서비스는 AI 비전 모델이 카톡 대화 캡처의 말풍선 패턴을 정밀 분석하여, 선택하신 대상의 방어기제와 회피 성향을 학술적 기준에 기반해 판독해 드립니다.
+                심리학의 성인 애착 모델(불안·회피 차원)을 함께 적용해 상대방이 왜 그런 반응을 보였는지 근본적인 이유와 실전 카톡 대처법까지 안내해 드려요.
               </motion.div>
             )}
+          </div>
+
+          {/* Analysis Mode Selection (2 Modes) */}
+          <div className="mb-4 bg-white border border-zinc-200 rounded-2xl p-4 shadow-sm">
+            <label className="block text-[14px] font-bold text-zinc-900 mb-2.5">
+              어떤 관계를 판독할까요?
+            </label>
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                type="button"
+                onClick={() => setAnalysisMode("reunion")}
+                className={`py-3 px-3 rounded-xl border-2 transition-all flex flex-col items-center justify-center gap-1 cursor-pointer text-center ${
+                  analysisMode === "reunion"
+                    ? "border-zinc-900 bg-zinc-900 text-white font-bold shadow-xs"
+                    : "border-zinc-200 bg-zinc-50/50 text-zinc-700 hover:border-zinc-300"
+                }`}
+              >
+                <span className="text-[13.5px] flex items-center gap-1">
+                  <span>💔</span> 재회 · 애매한 사이
+                </span>
+                <span className={`text-[11px] font-normal ${analysisMode === "reunion" ? "text-zinc-300" : "text-zinc-400"}`}>
+                  이별·거리두기·미련 판독
+                </span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setAnalysisMode("flirting")}
+                className={`py-3 px-3 rounded-xl border-2 transition-all flex flex-col items-center justify-center gap-1 cursor-pointer text-center ${
+                  analysisMode === "flirting"
+                    ? "border-rose-500 bg-rose-500 text-white font-bold shadow-xs"
+                    : "border-zinc-200 bg-zinc-50/50 text-zinc-700 hover:border-zinc-300"
+                }`}
+              >
+                <span className="text-[13.5px] flex items-center gap-1">
+                  <span>💘</span> 썸 · 호감도
+                </span>
+                <span className={`text-[11px] font-normal ${analysisMode === "flirting" ? "text-rose-100" : "text-zinc-400"}`}>
+                  호감 vs 어장·밀당 판독
+                </span>
+              </button>
+            </div>
           </div>
 
           {/* Screenshot Uploader Component */}
@@ -147,9 +199,12 @@ const InputSection = forwardRef<HTMLElement, InputSectionProps>(
 
           {/* Analysis Target Selection Box */}
           <div className="mb-6 bg-white border border-zinc-200 rounded-2xl p-4 shadow-sm">
-            <label className="block text-[14px] font-bold text-zinc-900 mb-2.5">
-              누구의 회피 성향을 분석할까요?
+            <label className="block text-[14px] font-bold text-zinc-900 mb-1">
+              누구의 속마음을 중심으로 판독할까요?
             </label>
+            <p className="text-[11.5px] text-zinc-500 mb-2.5 break-keep">
+              우측 노란 말풍선(나)과 좌측 말풍선(상대)의 온도차를 함께 봐요.
+            </p>
             <div className="grid grid-cols-2 gap-2 mb-3">
               <button
                 type="button"
@@ -203,10 +258,36 @@ const InputSection = forwardRef<HTMLElement, InputSectionProps>(
             </div>
           </div>
 
+          {/* Privacy & AI Analysis Consent */}
+          <div className="mb-3 flex items-start gap-2.5 px-1">
+            <input
+              id="privacy-consent"
+              type="checkbox"
+              checked={isPrivacyAgreed}
+              onChange={(e) => setIsPrivacyAgreed(e.target.checked)}
+              disabled={isSubmitting}
+              className="mt-0.5 h-4 w-4 shrink-0 rounded border-zinc-300 text-zinc-900 accent-zinc-900 cursor-pointer"
+            />
+            <div className="text-[12.5px] leading-snug text-zinc-600">
+              <label htmlFor="privacy-consent" className="cursor-pointer select-none">
+                <span className="font-semibold text-zinc-800">(필수)</span>{" "}
+                <Link
+                  href="/privacy"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-semibold text-zinc-900 underline underline-offset-2 hover:text-blue-600"
+                >
+                  개인정보처리방침
+                </Link>{" "}
+                및 AI 대화 분석(국외 API 일시 처리 후 즉시 파기)에 동의합니다.
+              </label>
+            </div>
+          </div>
+
           {/* Action Button */}
           <button
             onClick={handleAnalyzeClick}
-            disabled={isSubmitting || slices.length === 0}
+            disabled={isSubmitting || slices.length === 0 || !isPrivacyAgreed}
             className="w-full py-4.5 bg-zinc-950 text-white font-bold text-[16px] rounded-xl transform transition-all hover:bg-zinc-800 hover:shadow-lg hover:-translate-y-0.5 active:scale-[0.98] active:translate-y-0 flex items-center justify-center gap-2 shadow-md mb-3 disabled:opacity-50 disabled:pointer-events-none cursor-pointer"
           >
             {isSubmitting ? (
@@ -216,7 +297,7 @@ const InputSection = forwardRef<HTMLElement, InputSectionProps>(
               </span>
             ) : (
               <>
-                <span>{targetLabel || (targetRole === "target" ? "상대방" : "나")}</span>의 회피 성향 분석 시작
+                <span>{targetLabel || (targetRole === "target" ? "상대방" : "나")}</span> 속마음 &amp; 확률 판독 시작
                 <svg className="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M14 5l7 7m0 0l-7 7m7-7H3" />
                 </svg>
@@ -224,17 +305,25 @@ const InputSection = forwardRef<HTMLElement, InputSectionProps>(
             )}
           </button>
 
-          {/* Sample Result Link */}
-          <div className="flex justify-center mb-6">
+          {/* Sample Result & Lookup Links */}
+          <div className="flex flex-wrap items-center justify-center gap-3 mb-6">
             <Link
               href="/sample-result"
-              className="text-[13px] font-semibold text-zinc-500 hover:text-zinc-800 underline underline-offset-4 transition-colors flex items-center gap-1 py-1 px-3 rounded-lg hover:bg-zinc-100"
+              className="text-[13px] font-semibold text-zinc-500 hover:text-zinc-800 underline underline-offset-4 transition-colors flex items-center gap-1 py-1 px-2 rounded-lg hover:bg-zinc-100"
             >
               <span>예시 결과 보기</span>
               <svg className="w-3.5 h-3.5 text-zinc-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
               </svg>
             </Link>
+            <span className="text-zinc-300">|</span>
+            <button
+              type="button"
+              onClick={() => setIsLookupOpen(true)}
+              className="text-[13px] font-semibold text-blue-600 hover:text-blue-800 underline underline-offset-4 transition-colors flex items-center gap-1 py-1 px-2 rounded-lg hover:bg-blue-50 cursor-pointer"
+            >
+              <span>🔍 결제한 리포트 · 상담 이어하기</span>
+            </button>
           </div>
 
           {/* Privacy & Disclaimers */}
@@ -263,6 +352,12 @@ const InputSection = forwardRef<HTMLElement, InputSectionProps>(
           onClose={() => setIsIntakeOpen(false)}
           onSubmit={handleIntakeSubmit}
           targetLabel={targetLabel}
+        />
+
+        {/* Purchased Report Lookup Modal */}
+        <ReportLookupModal
+          isOpen={isLookupOpen}
+          onClose={() => setIsLookupOpen(false)}
         />
       </section>
     );

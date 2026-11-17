@@ -90,7 +90,21 @@ export interface PremiumReportV2 {
   };
 }
 
+export type AnalysisMode = "reunion" | "flirting";
+
+export interface V3Metrics {
+  tease_scene_summary: string;
+  backfire_risk_percent: number;
+  success_probability: number;
+  user_temperature: number;
+  target_temperature: number;
+  signal_count: number;
+  headline_verdict: string;
+}
+
 export interface DerivedReportContext {
+  analysis_mode?: AnalysisMode;
+  v3_metrics?: V3Metrics;
   context_intake?: { situation?: string; recurrence?: string; desired_focus?: string } | null;
   relationship_context: string;
   key_situations: Array<{

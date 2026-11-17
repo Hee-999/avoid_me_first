@@ -16,18 +16,16 @@ export function PremiumReportLocked({
   const targetName = analysis?.target_speaker_label || "상대방";
 
   const chapterList = [
-    { num: "Ch 1", title: "핵심 분석 요약 & 관계 종합 진단" },
-    { num: "Ch 2", title: "2D 애착 성향 정밀 프로필 차트" },
-    { num: "Ch 3", title: "카톡 대화 속 무의식 행동 패턴 해독" },
-    { num: "Ch 4", title: "주요 말풍선별 심리 근거 딥다이브 (Evidence)" },
-    { num: "Ch 5", title: "거리두기 유발 요인(Trigger Profile) 정밀 진단" },
-    { num: "Ch 6", title: "반복되는 오해와 갈등 상호작용 루프 분석" },
-    { num: "Ch 7", title: "갈등 발생 시 대화 철수 패턴 집중 해석" },
-    { num: "Ch 8", title: "상대의 방어벽을 낮추는 맞춤형 소통 가이드" },
-    { num: "Ch 9", title: "상황별 대화 리라이팅 (추천 카톡 발화 스크립트)" },
-    { num: "Ch 10", title: "대화 복귀 신호(Recovery) 포착 및 타이밍 가이드" },
-    { num: "Ch 11", title: "절대 피해야 할 위험 행동 및 금기 표현(Risk)" },
-    { num: "Ch 12", title: "관계 회복을 위한 3단계 실천 로드맵 (Action Plan)" },
+    { num: "Main 1", title: "상대방 진짜 속마음 해부 & 관계 종합 진단", highlight: true },
+    { num: "Main 2", title: "재회·썸 성사 확률 % & 쌍방 온도차 정밀 분석", highlight: true },
+    { num: "Main 3", title: "지금 보내면 망하는 금지 멘트 & 카톡 답장 3선", highlight: true },
+    { num: "Main 4", title: "1:1 AI 속마음 상담실 (맞춤 첨삭 질문권 3회 포함)", highlight: true },
+    { num: "Ch 5", title: "주요 카톡 장면별 심리 근거 딥다이브 (Evidence)" },
+    { num: "Ch 6", title: "거리두기·밀당 유발 요인(Trigger) 정밀 진단" },
+    { num: "Ch 7", title: "반복되는 오해와 갈등 상호작용 루프 분석" },
+    { num: "Ch 8", title: "대화 복귀 신호(Recovery) & 골든타임 가이드" },
+    { num: "Ch 9", title: "향후 7일 · 30일 관계 주도권 실천 로드맵" },
+    { num: "Ch 10", title: "학술 근거: 바솔로뮤 2D 애착 프로필 차트 & 패턴" },
   ];
 
   return (
@@ -35,15 +33,15 @@ export function PremiumReportLocked({
       <div className="mb-6 text-center">
         <h2 className="text-[22px] font-black text-zinc-900 mb-1.5">프리미엄 관계 분석 리포트</h2>
         <p className="text-[13.5px] text-zinc-500">
-          {targetName}님과의 대화 맥락에 맞춘 12개 챕터 심층 분석 가이드
+          {targetName}님의 속마음 해부 · 실전 카톡 답장 · 1:1 AI 상담까지 한 번에
         </p>
       </div>
 
       <div className="bg-white p-5 sm:p-6 rounded-2xl border border-zinc-200 relative overflow-hidden select-none">
-        {/* 1. 실제 리포트 12개 챕터 수록 목차 (한 줄에 1개 챕터씩 시원하게 표시하여 글자 잘림 완전 차단) */}
+        {/* 1. V3 순서에 맞춘 리포트 수록 목차 */}
         <div className="mb-7 space-y-2">
           <div className="flex items-center justify-between text-[12px] font-bold text-zinc-500 pb-2 border-b border-zinc-100">
-            <span>📑 리포트 수록 목차 (총 12개 챕터)</span>
+            <span>📑 리포트 수록 구성 (핵심 실전 + 1:1 상담 3회)</span>
             <span className="text-amber-700 font-extrabold">결제 즉시 전체 열람</span>
           </div>
           <div className="space-y-1.5 text-left text-[12.5px]">
@@ -51,7 +49,7 @@ export function PremiumReportLocked({
               <div
                 key={idx}
                 className={`flex items-center justify-between px-3 py-2.5 rounded-xl border ${
-                  idx >= 8
+                  chap.highlight
                     ? "bg-amber-50/70 border-amber-200/80 text-amber-950 font-bold"
                     : "bg-zinc-50/90 border-zinc-100 text-zinc-800 font-semibold"
                 }`}
@@ -64,7 +62,7 @@ export function PremiumReportLocked({
                 </div>
                 <span className="text-[11px] text-zinc-400 font-medium shrink-0 flex items-center gap-1">
                   <span>🔒</span>
-                  <span>{idx >= 8 ? "핵심 실전" : "잠금"}</span>
+                  <span>{chap.highlight ? "핵심 실전" : "상세 근거"}</span>
                 </span>
               </div>
             ))}
@@ -229,7 +227,7 @@ export function PremiumReportLocked({
               <span className="text-zinc-500 font-semibold">단순 변심에 의한 환불이 제한될 수 있습니다.</span>
               <br />
               <span className="block mt-1 text-zinc-500 font-medium tracking-tight">
-                ✓ 구매 후 1년간 다시보기 지원 &nbsp;&nbsp; ✓ PDF 저장 기능 지원
+                ✓ 구매 후 1년간 다시보기 지원 &nbsp;&nbsp; ✓ 문자 전용 링크 &amp; PIN 열람 지원
               </span>
             </div>
 

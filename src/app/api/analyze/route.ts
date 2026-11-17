@@ -15,7 +15,8 @@ import { parseKakaoScreenshotsWithVision } from "@/lib/analysis/gemini/kakaoVisi
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { images, text, target_role = "target", target_speaker_id, target_speaker_label, context_intake, referrer, utm_source } = body;
+    const { images, text, target_role = "target", target_speaker_id, target_speaker_label, analysis_mode = "reunion", context_intake, referrer, utm_source } = body;
+    const normalizedMode: "reunion" | "flirting" = analysis_mode === "flirting" ? "flirting" : "reunion";
     const resolvedReferrer = referrer || request.headers.get("referer") || "";
 
     let preprocessed;
@@ -86,10 +87,11 @@ export async function POST(request: Request) {
       conversationJsonString,
       sanitizedTargetId,
       analysisResult,
-      context_intake
+      context_intake,
+      normalizedMode
     );
 
-    const derivedContext = { ...summarizedContext, context_intake: context_intake || null };
+    const derivedContext = { ...summarizedContext, analysis_mode: normalizedMode, context_intake: context_intake || null };
 
     // 3. Construct Persistent Payload (Safe to save, no raw text)
     const persistentPayload = {

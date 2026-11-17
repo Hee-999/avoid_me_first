@@ -1,14 +1,11 @@
 import React from 'react';
-import { FinalAnalysis } from '@/lib/analysis/types';
 import { PremiumReportLocked } from './PremiumReportLocked';
 import { PremiumReportGenerating } from './PremiumReportGenerating';
 import { PremiumReportFailed } from './PremiumReportFailed';
 import { PremiumCoverPage } from './PremiumCoverPage';
 import { AttachmentProfileChart } from './AttachmentProfileChart';
 
-// Placeholders for the 15-chapter sections
 import { ExecutiveSection } from './sections/ExecutiveSection';
-import { BehaviorSection } from './sections/BehaviorSection';
 import { EvidenceSection } from './sections/EvidenceSection';
 import { InteractionSection } from './sections/InteractionSection';
 import { CommunicationSection } from './sections/CommunicationSection';
@@ -24,32 +21,23 @@ interface PremiumReportProps {
 }
 
 export function PremiumReport({ analysis, isPremium, onRetry, isRetrying = false, onUnlock, isProcessing = false }: PremiumReportProps) {
-  // 1. LOCKED State
   if (!isPremium) {
     return <PremiumReportLocked analysis={analysis} onUnlock={onUnlock} isProcessing={isProcessing} />;
   }
 
-  // Premium Access Granted
   const reportStatus = analysis.status?.report || 'completed';
-
   const reportData = analysis.premium_report;
-  
-  // 2. GENERATING State
+
   if (reportStatus === 'generating' || reportStatus === 'not_started' || (!reportData && reportStatus !== 'failed')) {
     return <PremiumReportGenerating />;
   }
 
-  // 3. FAILED State
   if (reportStatus === 'failed') {
     return <PremiumReportFailed onRetry={onRetry} isRetrying={isRetrying} />;
   }
 
-  // 5. READY State
   return (
     <>
-      {/* 
-        PDF 전용 커버 페이지 (웹에서는 hidden)
-      */}
       <PremiumCoverPage 
         targetName={analysis.target_speaker_label || '상대방'}
         primaryType={analysis.primary_type}
@@ -59,56 +47,46 @@ export function PremiumReport({ analysis, isPremium, onRetry, isRetrying = false
         avoidanceStatus={analysis.attachment_dimensions?.avoidance_status}
       />
 
-      <div className="premium-report-v2-container mt-12 pt-8 border-t border-zinc-200">
-        
-        {/* 웹 전용 인트로 헤더 (인쇄 시 표지가 있으므로 가림) */}
-        <div className="mb-12 text-center print:hidden">
-          <h2 className="text-[26px] font-black text-zinc-900 mb-3 bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-purple-600">
-            프리미엄 관계 심층 리포트
-          </h2>
-          <p className="text-[15px] text-zinc-500">대화에서 관찰된 반응과 가능한 해석을 담은 3,000자 핵심 요약 리포트입니다.</p>
-        </div>
+      <div className="premium-report-v2-container mt-8 pt-6 border-t border-zinc-200 break-keep">
+        <div className="space-y-12">
+          {/* 1. 핵심 속마음 해부 (Executive Summary) */}
+          <div className="avoid-page-break space-y-5">
+            <ExecutiveSection summary={reportData.executive_summary} profile={reportData.attachment_profile} showProfile={false} />
 
-        <div className="space-y-16">
-          {/* Ch.1, Ch.2: Executive Summary & Attachment Profile */}
-          <div className="avoid-page-break">
-            <ExecutiveSection summary={reportData.executive_summary} profile={reportData.attachment_profile} />
+            {/* 일시적 피로 vs 진짜 거리두기 구별법 */}
+            <div className="bg-indigo-50/40 border border-indigo-100/80 rounded-2xl p-5 text-[13.5px] leading-relaxed text-zinc-700 space-y-2">
+              <div className="flex items-center gap-1.5 text-indigo-700 font-bold text-[13px]">
+                <span>💡</span>
+                <span>잠깐 지친 걸까요, 아니면 진짜 거리를 두는 걸까요?</span>
+              </div>
+              <p>
+                그 사람이 대화를 미루거나 피곤하다고 물러선 건 원래 방어벽이 높은 성향 때문일 수도 있지만, 그날따라 유독 지쳐서 감정 쓸 여유가 없었을 가능성도 있어요.
+              </p>
+              <p className="text-zinc-600 text-[13px] pt-2 border-t border-indigo-100/60">
+                감정이 가라앉은 뒤에 그 사람이 먼저 슬쩍 말을 걸어오는지, 아니면 계속 없던 일처럼 덮으려 하는지 지켜보면 진짜 속마음을 바로 알 수 있어요.
+              </p>
+            </div>
           </div>
 
-          {/* 2D 프로필 차트 (웹/모바일 화면에서 Ch.1 이후 자연스럽게 노출) */}
-          <AttachmentProfileChart 
-            anxiety={analysis.attachment_dimensions?.anxiety || 0} 
-            avoidance={analysis.attachment_dimensions?.avoidance || 0} 
-            primaryType={analysis.primary_type} 
-            anxietyStatus={analysis.attachment_dimensions?.anxiety_status}
-            avoidanceStatus={analysis.attachment_dimensions?.avoidance_status}
-          />
-
-          {/* Ch.3: Behavior Patterns */}
-          <BehaviorSection patterns={reportData.behavior_patterns} />
-
-          {/* Ch.4: Evidence Deep Dive */}
+          {/* 2. 대화 장면 근거 & 상호작용 흐름 */}
           <EvidenceSection evidences={reportData.evidence_deep_dive} />
-
-          {/* Ch.5, Ch.6: Trigger Profile & Interaction Loop */}
           <InteractionSection triggers={reportData.trigger_profile} loop={reportData.interaction_loop} />
 
-          {/* ACTION GUIDE BLOCK (Ch.7 ~ Ch.12) */}
-          {/* 이 블록부터는 사용자가 실천해야 하는 Action 요소이므로 다크톤으로 구분 */}
-          <div className="bg-slate-900 text-white rounded-3xl p-6 sm:p-10 my-16 print:bg-transparent print:text-zinc-900 print:border-t-2 print:border-zinc-300 print:rounded-none print:px-0">
-            <div className="text-center mb-12">
-              <span className="inline-block px-3 py-1.5 bg-blue-500/20 text-blue-300 text-[12px] font-bold rounded-lg mb-4 print:bg-zinc-100 print:text-zinc-600">
-                ACTION GUIDE
+          {/* 3. 실전 카톡 & 대응 가이드 (다크 박스) */}
+          <div className="bg-slate-900 text-white rounded-3xl p-6 sm:p-8 my-8 print:bg-transparent print:text-zinc-900 print:border-t-2 print:border-zinc-300 print:rounded-none print:px-0">
+            <div className="text-center mb-10">
+              <span className="inline-block px-3 py-1 bg-blue-500/20 text-blue-300 text-[11.5px] font-bold rounded-full mb-3 print:bg-zinc-100 print:text-zinc-600">
+                실전 카톡 &amp; 대응 가이드
               </span>
-              <h2 className="text-[24px] font-black text-white print:text-zinc-900">
-                지금부터 어떻게 행동해야 할까요?
+              <h2 className="text-[20px] sm:text-[22px] font-black text-white print:text-zinc-900">
+                지금부터 이렇게 움직여 보세요
               </h2>
-              <p className="text-[14px] text-slate-400 mt-2 print:text-zinc-500">
-                일상 대화부터 고민되는 장면까지, 선택하신 관심사에 맞춘 소통 가이드입니다.
+              <p className="text-[13px] text-slate-400 mt-1.5 print:text-zinc-500">
+                상대의 방어벽을 낮추고 답장을 끌어내는 현실 대처법이에요.
               </p>
             </div>
             
-            <div className="space-y-16">
+            <div className="space-y-12">
               <CommunicationSection conflict={reportData.conflict_pattern} guide={reportData.communication_guide} />
               <ActionSection 
                 rewrites={reportData.conversation_rewrites}
@@ -119,7 +97,29 @@ export function PremiumReport({ analysis, isPremium, onRetry, isRetrying = false
               />
             </div>
           </div>
-          
+
+          {/* 4. 하단 심리 배경 근거 */}
+          <div className="pt-8 border-t border-zinc-200 space-y-8">
+            <div className="bg-zinc-100/80 border border-zinc-200/80 rounded-3xl p-5 sm:p-6 text-center space-y-2">
+              <span className="inline-block px-3 py-1 bg-white text-zinc-700 text-[11px] font-bold rounded-full border border-zinc-200/80">
+                심리학적 배경 근거
+              </span>
+              <h3 className="text-[17px] sm:text-[19px] font-black text-zinc-900">
+                그 사람이 자꾸 선을 긋는 진짜 이유
+              </h3>
+              <p className="text-[13px] text-zinc-600 max-w-md mx-auto leading-relaxed">
+                카톡 답장 속도와 감정 표현에서 느껴진 온도차는 그 사람 안의 <strong>관계 불안 지수</strong>와 <strong>거리두기 지수</strong>에서 비롯돼요.
+              </p>
+            </div>
+            <ExecutiveSection summary={reportData.executive_summary} profile={reportData.attachment_profile} showSummary={false} />
+            <AttachmentProfileChart 
+              anxiety={analysis.attachment_dimensions?.anxiety || 0} 
+              avoidance={analysis.attachment_dimensions?.avoidance || 0} 
+              primaryType={analysis.primary_type} 
+              anxietyStatus={analysis.attachment_dimensions?.anxiety_status}
+              avoidanceStatus={analysis.attachment_dimensions?.avoidance_status}
+            />
+          </div>
         </div>
       </div>
     </>

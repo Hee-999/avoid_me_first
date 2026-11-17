@@ -40,10 +40,22 @@ export function getPremiumOffer(analysis?: Partial<FinalAnalysis>): PremiumOffer
     };
   }
 
+  if (context?.analysis_mode === "flirting") {
+    return {
+      ...base,
+      title: "애매하게 밀당하는 상대방, 진짜 호감인지 어장인지 확인하세요",
+      description:
+        "겉으로는 다정하거나 평범한 카톡 속에 숨은 진짜 호감 시그널과, 지금 먼저 연락했을 때의 성사 확률을 정리했습니다.",
+      benefits: shared,
+      preview:
+        "무료 요약에서 다루지 못한 상대방의 무의식 속마음과, 지금 보냈을 때 가장 반응이 좋은 맞춤형 카톡 답장 3가지를 바로 공개합니다."
+    };
+  }
+
   if (dims && dims.avoidance_status !== "insufficient" && dims.avoidance > 0) {
     return {
       ...base,
-      title: "동굴로 들어간 상대방, 어떻게 카톡해야 먼저 다가올까요?",
+      title: "거리 두는 상대방, 먼저 연락 오게 만들려면 어떻게 답장할까요?",
       description:
         "감지된 거리두기·방어 반응을 뚫고 부담 없이 답장을 이끌어내는 실전 카톡 문장과 타이밍을 정리했습니다.",
       benefits: [

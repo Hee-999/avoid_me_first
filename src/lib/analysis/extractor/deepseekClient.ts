@@ -15,7 +15,11 @@ export interface DeepSeekChatResponse {
   };
 }
 
-export async function callDeepSeekAPI(prompt: string, maxTokens?: number): Promise<DeepSeekChatResponse> {
+export async function callDeepSeekAPI(
+  prompt: string,
+  maxTokens?: number,
+  jsonMode: boolean = true
+): Promise<DeepSeekChatResponse> {
   const apiKey = process.env.DEEPSEEK_API_KEY;
   const baseUrl = process.env.DEEPSEEK_BASE_URL || "https://api.deepseek.com";
   const model = process.env.DEEPSEEK_MODEL || "deepseek-chat";
@@ -33,7 +37,7 @@ export async function callDeepSeekAPI(prompt: string, maxTokens?: number): Promi
     messages: [{ role: "user", content: prompt }],
     temperature,
     max_tokens: maxTokens || parseInt(process.env.DEEPSEEK_MAX_TOKENS || process.env.DEEPSEEK_MAX_OUTPUT_TOKENS || "8000", 10),
-    response_format: { type: "json_object" }
+    ...(jsonMode ? { response_format: { type: "json_object" } } : {})
   };
 
   // Note: DeepSeek officially supports response_format: { type: "json_object" } for V3/V4.

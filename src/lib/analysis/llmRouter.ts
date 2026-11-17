@@ -13,30 +13,31 @@ export interface UnifiedLLMResponse {
  */
 export async function callResilientLLM(
   prompt: string,
-  maxTokens?: number
+  maxTokens?: number,
+  jsonMode: boolean = true
 ): Promise<UnifiedLLMResponse> {
   const preferredProvider = process.env.PRIMARY_LLM_PROVIDER || (process.env.DEEPSEEK_API_KEY ? "deepseek" : "gemini");
 
   if (preferredProvider === "gemini") {
     try {
-      const res = await callGeminiChat(prompt, true);
+      const res = await callGeminiChat(prompt, jsonMode);
       return { content: res.content, provider: "gemini", usage: res.usage };
     } catch (geminiErr: any) {
       console.warn("[LLM ROUTER] Gemini failed, falling back to DeepSeek:", geminiErr.message);
       if (process.env.DEEPSEEK_API_KEY) {
-        const dsRes = await callDeepSeekAPI(prompt, maxTokens);
+        const dsRes = await callDeepSeekAPI(prompt, maxTokens, jsonMode);
         return { content: dsRes.content, provider: "deepseek", usage: dsRes.usage };
       }
       throw geminiErr;
     }
   } else {
     try {
-      const dsRes = await callDeepSeekAPI(prompt, maxTokens);
+      const dsRes = await callDeepSeekAPI(prompt, maxTokens, jsonMode);
       return { content: dsRes.content, provider: "deepseek", usage: dsRes.usage };
     } catch (dsErr: any) {
       console.warn("[LLM ROUTER] DeepSeek failed, falling back to Gemini:", dsErr.message);
       if (process.env.GEMINI_API_KEY) {
-        const geminiRes = await callGeminiChat(prompt, true);
+        const geminiRes = await callGeminiChat(prompt, jsonMode);
         return { content: geminiRes.content, provider: "gemini", usage: geminiRes.usage };
       }
       throw dsErr;

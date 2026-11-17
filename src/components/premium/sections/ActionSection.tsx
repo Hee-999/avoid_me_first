@@ -9,39 +9,57 @@ interface Props {
   manual: PremiumReportV2['manual_summary'];
 }
 
+function extractQuoteOnly(text: string): string {
+  const m = (text || "").match(/예:\s*['"]([^'"]+)['"]/);
+  if (m?.[1]) return m[1];
+  return (text || "").replace(/^['"]|['"]$/g, "").trim();
+}
+
 export function RewriteSection({ rewrites }: { rewrites: PremiumReportV2['conversation_rewrites'] }) {
   if (!rewrites || rewrites.length === 0) return null;
   return (
-    <section className="relative">
-      <h3 className="text-[18px] font-black text-white print:text-zinc-900 mb-6 flex items-center gap-2">
-        <span className="text-xl">✍️</span> Ch.9 대화 리라이팅 (이렇게 바꿔보세요)
-      </h3>
-      
+    <section className="relative break-keep">
+      <div className="mb-4">
+        <h3 className="text-[17px] sm:text-[18px] font-black text-white print:text-zinc-900 flex items-center gap-2">
+          <span className="text-xl">💬</span> 지금 바로 이렇게 답장해 보세요
+        </h3>
+        <p className="text-[13px] text-slate-400 mt-0.5">
+          상대가 부담을 느끼는 말투 대신, 방어벽을 스르륵 낮추는 현실 카톡 예시예요.
+        </p>
+      </div>
+
       <div className="grid gap-4">
         {rewrites.map((rw, idx) => (
-          <div key={idx} className="bg-white p-6 rounded-2xl border border-blue-100 shadow-sm break-inside-avoid">
-            <div className="mb-4 pb-4 border-b border-zinc-100">
-              <span className="text-[11px] font-bold text-zinc-400 block mb-1">상황</span>
-              <p className="text-[13px] text-zinc-800 font-medium">{rw.situation}</p>
+          <div key={idx} className="bg-white p-5 rounded-2xl border border-blue-100 shadow-sm break-inside-avoid">
+            <div className="mb-3.5 pb-3 border-b border-zinc-100 flex items-center justify-between gap-2">
+              <p className="text-[14px] text-zinc-900 font-bold">{rw.situation}</p>
+              <span className="text-[11px] font-bold text-blue-600 bg-blue-50 px-2.5 py-0.5 rounded-full shrink-0">
+                예시 {idx + 1}
+              </span>
             </div>
-            
-            <div className="space-y-4">
-              <div className="bg-zinc-50 p-4 rounded-xl relative opacity-80">
-                <span className="text-[10px] font-bold text-zinc-400 block mb-2">현재 대화 방식</span>
-                <p className="text-[14px] text-zinc-600">"{rw.original_pattern_summary}"</p>
+
+            <div className="space-y-3">
+              <div className="bg-zinc-50 p-3.5 rounded-xl border border-zinc-200/70">
+                <span className="text-[11px] font-bold text-zinc-500 block mb-1">
+                  😅 이렇게 보내면 더 숨어버려요
+                </span>
+                <p className="text-[13.5px] text-zinc-600 leading-relaxed">
+                  “{extractQuoteOnly(rw.original_pattern_summary)}”
+                </p>
               </div>
-              
-              <div className="flex justify-center text-blue-300">
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" /></svg>
+
+              <div className="bg-blue-50/70 p-4 rounded-xl border border-blue-200">
+                <span className="text-[11px] font-extrabold text-blue-700 block mb-1">
+                  ✨ 이렇게 보내면 부담 없이 답장이 와요
+                </span>
+                <p className="text-[14.5px] font-bold text-blue-950 leading-relaxed">
+                  “{extractQuoteOnly(rw.recommended_message)}”
+                </p>
               </div>
-              
-              <div className="bg-blue-50/50 p-4 rounded-xl border border-blue-100">
-                <span className="text-[10px] font-bold text-blue-600 block mb-2">추천 발화 (I-message 등)</span>
-                <p className="text-[15px] font-bold text-blue-900">"{rw.recommended_message}"</p>
-              </div>
-              
-              <p className="text-[12px] text-zinc-600 bg-white p-3 rounded-lg border border-zinc-100 shadow-sm mt-4">
-                <span className="font-bold text-zinc-800 mr-1">이유:</span>{rw.why}
+
+              <p className="text-[12.5px] text-zinc-600 bg-zinc-50/80 px-3.5 py-2.5 rounded-lg border border-zinc-100">
+                <span className="font-bold text-zinc-800 mr-1">포인트:</span>
+                {rw.why}
               </p>
             </div>
           </div>
@@ -51,159 +69,119 @@ export function RewriteSection({ rewrites }: { rewrites: PremiumReportV2['conver
   );
 }
 
-export function SignalSection({ recovery, risk }: { recovery: PremiumReportV2['recovery_signals'], risk: PremiumReportV2['risk_signals'] }) {
-  if (!recovery?.length && !risk?.length) return null;
-  return (
-    <section className="relative">
-      <h3 className="text-[18px] font-black text-white print:text-zinc-900 mb-6 flex items-center gap-2">
-        <span className="text-xl">📡</span> Ch.10 이후 살펴볼 긍정적 신호와 주의점
-      </h3>
-      
-      <div className="grid gap-6">
-        {recovery && recovery.length > 0 && (
-          <div className="bg-zinc-800/50 p-6 rounded-2xl border border-green-900/50 print:bg-green-50 print:border-green-100 break-inside-avoid">
-            <h4 className="text-[14px] font-bold text-green-400 print:text-green-700 mb-4 flex items-center gap-2">
-              <span className="text-green-500">🌱</span> 긍정적인 후속 신호
-            </h4>
-            <ul className="space-y-3">
-              {recovery.map((sig, idx) => (
-                <li key={idx} className="flex gap-2 items-start text-[14px] text-zinc-200 print:text-zinc-700 leading-relaxed font-medium">
-                  <span className="text-green-500 mt-0.5">•</span> {sig}
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
-        
-        {risk && risk.length > 0 && (
-          <div className="bg-zinc-800/50 p-6 rounded-2xl border border-red-900/50 print:bg-red-50 print:border-red-100 break-inside-avoid">
-            <h4 className="text-[14px] font-bold text-red-400 print:text-red-700 mb-4 flex items-center gap-2">
-              <span className="text-red-500">🚨</span> 주의 깊게 살펴볼 변화
-            </h4>
-            <ul className="space-y-3">
-              {risk.map((sig, idx) => (
-                <li key={idx} className="flex gap-2 items-start text-[14px] text-zinc-200 print:text-zinc-700 leading-relaxed font-medium">
-                  <span className="text-red-500 mt-0.5">•</span> {sig}
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
-      </div>
-    </section>
-  );
-}
+export function NextStepChecklistSection({
+  recovery,
+  risk,
+  plan,
+  manual,
+}: {
+  recovery: PremiumReportV2['recovery_signals'];
+  risk: PremiumReportV2['risk_signals'];
+  plan: PremiumReportV2['action_plan'];
+  manual: PremiumReportV2['manual_summary'];
+}) {
+  const hasSignals = Boolean(recovery?.length || risk?.length);
+  const hasPlan = Boolean(plan?.next_7_days?.length || plan?.next_30_days?.length);
+  const keySentence = manual?.key_sentence;
 
-export function PlanSection({ plan }: { plan: PremiumReportV2['action_plan'] }) {
-  if (!plan) return null;
-  return (
-    <section className="relative">
-      <h3 className="text-[18px] font-black text-white print:text-zinc-900 mb-6 flex items-center gap-2">
-        <span className="text-xl">📅</span> Ch.11 구체적 행동 타임라인 (Action Plan)
-      </h3>
-      
-      <div className="space-y-6">
-        {!!plan.next_conflict?.length && (
-        <div className="bg-white p-6 rounded-2xl border border-red-100 shadow-sm relative overflow-hidden break-inside-avoid">
-          <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-red-400"></div>
-          <h4 className="text-[14px] font-bold text-zinc-900 mb-4">🚨 갈등이 생긴다면 참고할 방법</h4>
-          <ul className="space-y-2">
-            {(plan.next_conflict || []).map((p, i) => (
-              <li key={i} className="text-[13px] text-zinc-700 flex gap-2"><span className="text-red-400">-</span> {p}</li>
-            ))}
-          </ul>
-        </div>
-        )}
-        
-        {!!plan.next_7_days?.length && (
-        <div className="bg-white p-6 rounded-2xl border border-blue-100 shadow-sm relative overflow-hidden break-inside-avoid">
-          <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-blue-400"></div>
-          <h4 className="text-[14px] font-bold text-zinc-900 mb-4">🗓️ 앞으로 7일간의 목표 (Next 7 Days)</h4>
-          <ul className="space-y-2">
-            {(plan.next_7_days || []).map((p, i) => (
-              <li key={i} className="text-[13px] text-zinc-700 flex gap-2"><span className="text-blue-400">-</span> {p}</li>
-            ))}
-          </ul>
-        </div>
-        )}
-        
-        {!!plan.next_30_days?.length && (
-        <div className="bg-white p-6 rounded-2xl border border-purple-100 shadow-sm relative overflow-hidden break-inside-avoid">
-          <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-purple-400"></div>
-          <h4 className="text-[14px] font-bold text-zinc-900 mb-4">🎯 장기적 관계 유지 전략 (Next 30 Days)</h4>
-          <ul className="space-y-2">
-            {(plan.next_30_days || []).map((p, i) => (
-              <li key={i} className="text-[13px] text-zinc-700 flex gap-2"><span className="text-purple-400">-</span> {p}</li>
-            ))}
-          </ul>
-        </div>
-        )}
-      </div>
-    </section>
-  );
-}
+  if (!hasSignals && !hasPlan && !keySentence) return null;
 
-export function ManualSection({ manual }: { manual: PremiumReportV2['manual_summary'] }) {
-  if (!manual) return null;
   return (
-    <section className="relative">
-      <h3 className="text-[18px] font-black text-white print:text-zinc-900 mb-6 flex items-center gap-2">
-        <span className="text-xl">📘</span> Ch.12 상대방 사용 설명서 (최종 요약)
-      </h3>
-      
-      <div className="bg-zinc-900 text-white p-8 rounded-3xl shadow-xl overflow-hidden relative print:bg-white print:text-zinc-900 print:border print:border-zinc-200 print:shadow-sm">
-        {/* Background elements */}
-        <div className="absolute -right-20 -top-20 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl pointer-events-none print:hidden"></div>
-        
-        <h4 className="text-[16px] font-black text-white/90 mb-6 pb-4 border-b border-zinc-700 flex items-center justify-between print:text-zinc-900 print:border-zinc-200">
-          <span>상대방 매뉴얼 요약본</span>
-          <span className="text-xs font-normal text-zinc-500 bg-zinc-800 px-2 py-1 rounded print:bg-zinc-100 print:text-zinc-500">보관용</span>
-        </h4>
-        
-        <div className="grid gap-x-8 gap-y-6">
-          {!!manual.effective_approach?.length && (
-          <div className="break-inside-avoid">
-            <span className="text-[11px] font-bold text-zinc-400 block mb-2 uppercase tracking-widest print:text-zinc-500">효과적인 접근법</span>
-            <ul className="space-y-1">
-              {(manual.effective_approach || []).map((a, i) => <li key={i} className="text-[13px] text-zinc-200 print:text-zinc-800">✓ {a}</li>)}
-            </ul>
-          </div>
-          )}
-          
-          {!!manual.ineffective_approach?.length && (
-          <div className="break-inside-avoid">
-            <span className="text-[11px] font-bold text-zinc-400 block mb-2 uppercase tracking-widest print:text-zinc-500">피하면 좋은 접근</span>
-            <ul className="space-y-1">
-              {(manual.ineffective_approach || []).map((a, i) => <li key={i} className="text-[13px] text-zinc-200 text-red-300 print:text-red-600">✗ {a}</li>)}
-            </ul>
-          </div>
-          )}
-          
-          <div className="sm:col-span-2 pt-4 border-t border-zinc-800 print:border-zinc-200">
-            <div className="grid gap-4">
-              <div className="bg-zinc-800/50 p-4 rounded-xl print:bg-zinc-50 break-inside-avoid">
-                <span className="text-[11px] font-bold text-zinc-400 block mb-1 print:text-zinc-500">진지한 대화를 이어가는 방법</span>
-                <p className="text-[13px] text-zinc-300 print:text-zinc-800">{manual.conflict_reentry}</p>
-              </div>
-              <div className="bg-zinc-800/50 p-4 rounded-xl print:bg-zinc-50 break-inside-avoid">
-                <span className="text-[11px] font-bold text-zinc-400 block mb-1 print:text-zinc-500">대화에 여유가 필요할 때</span>
-                <p className="text-[13px] text-zinc-300 print:text-zinc-800">{manual.distance_response}</p>
-              </div>
-              <div className="bg-zinc-800/50 p-4 rounded-xl print:bg-zinc-50 break-inside-avoid">
-                <span className="text-[11px] font-bold text-zinc-400 block mb-1 print:text-zinc-500">관계 점검 방식</span>
-                <p className="text-[13px] text-zinc-300 print:text-zinc-800">{manual.relationship_check}</p>
-              </div>
+    <section className="relative space-y-5 break-keep">
+      <div>
+        <h3 className="text-[17px] sm:text-[18px] font-black text-white print:text-zinc-900 flex items-center gap-2">
+          <span className="text-xl">📅</span> 연락 타이밍 &amp; 청신호·적신호 체크
+        </h3>
+        <p className="text-[13px] text-slate-400 mt-0.5">
+          앞으로 어떻게 움직일지, 그 사람의 어떤 반응을 봐야 할지 정리했어요.
+        </p>
+      </div>
+
+      {/* 1. 단기/중기 행동 플랜 */}
+      {hasPlan && (
+        <div className="grid sm:grid-cols-2 gap-3.5">
+          {!!plan?.next_7_days?.length && (
+            <div className="bg-white p-5 rounded-2xl border border-blue-100 shadow-sm">
+              <h4 className="text-[13.5px] font-extrabold text-blue-700 mb-2.5 flex items-center gap-1.5">
+                <span>🗓️</span> 당장 이번 주에는요 (7일)
+              </h4>
+              <ul className="space-y-2">
+                {plan.next_7_days.map((p, i) => (
+                  <li key={i} className="text-[13px] text-zinc-700 leading-relaxed flex gap-2">
+                    <span className="text-blue-500 font-bold">•</span>
+                    <span>{p}</span>
+                  </li>
+                ))}
+              </ul>
             </div>
-          </div>
-          
-          <div className="sm:col-span-2 bg-blue-900/30 p-5 rounded-2xl border border-blue-800/50 mt-2 print:bg-blue-50 print:border-blue-100 break-inside-avoid">
-            <span className="text-[11px] font-bold text-blue-400 block mb-2 print:text-blue-600">가장 중요한 핵심 문장 (Key Sentence)</span>
-            <p className="text-[16px] font-black text-blue-100 text-center leading-relaxed print:text-blue-900">
-              "{manual.key_sentence}"
-            </p>
-          </div>
+          )}
+
+          {!!plan?.next_30_days?.length && (
+            <div className="bg-white p-5 rounded-2xl border border-indigo-100 shadow-sm">
+              <h4 className="text-[13.5px] font-extrabold text-indigo-700 mb-2.5 flex items-center gap-1.5">
+                <span>🎯</span> 한 달 동안은 이렇게 해보세요
+              </h4>
+              <ul className="space-y-2">
+                {plan.next_30_days.map((p, i) => (
+                  <li key={i} className="text-[13px] text-zinc-700 leading-relaxed flex gap-2">
+                    <span className="text-indigo-500 font-bold">•</span>
+                    <span>{p}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
         </div>
-      </div>
+      )}
+
+      {/* 2. 긍정 신호 vs 주의 신호 */}
+      {hasSignals && (
+        <div className="grid sm:grid-cols-2 gap-3.5">
+          {recovery && recovery.length > 0 && (
+            <div className="bg-zinc-800/60 p-5 rounded-2xl border border-emerald-500/30">
+              <h4 className="text-[13.5px] font-bold text-emerald-400 mb-2.5 flex items-center gap-1.5">
+                <span>🟢</span> 마음이 풀리고 있다는 청신호
+              </h4>
+              <ul className="space-y-2">
+                {recovery.map((sig, idx) => (
+                  <li key={idx} className="flex gap-2 items-start text-[13px] text-zinc-200 leading-relaxed">
+                    <span className="text-emerald-400 mt-0.5">•</span>
+                    <span>{sig}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {risk && risk.length > 0 && (
+            <div className="bg-zinc-800/60 p-5 rounded-2xl border border-rose-500/30">
+              <h4 className="text-[13.5px] font-bold text-rose-400 mb-2.5 flex items-center gap-1.5">
+                <span>🔴</span> 한 템포 쉬어가야 할 적신호
+              </h4>
+              <ul className="space-y-2">
+                {risk.map((sig, idx) => (
+                  <li key={idx} className="flex gap-2 items-start text-[13px] text-zinc-200 leading-relaxed">
+                    <span className="text-rose-400 mt-0.5">•</span>
+                    <span>{sig}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* 3. 꼭 기억할 한 문장 */}
+      {keySentence && (
+        <div className="bg-gradient-to-r from-blue-900/50 to-indigo-900/50 p-5 rounded-2xl border border-blue-400/30 text-center">
+          <span className="text-[11px] font-bold text-blue-300 block mb-1.5">
+            📌 카톡 보내기 전 딱 한 번만 떠올려 보세요
+          </span>
+          <p className="text-[14.5px] font-black text-white leading-relaxed">
+            “{keySentence}”
+          </p>
+        </div>
+      )}
     </section>
   );
 }
@@ -212,9 +190,7 @@ export function ActionSection({ rewrites, recovery, risk, plan, manual }: Props)
   return (
     <div className="space-y-12">
       <RewriteSection rewrites={rewrites} />
-      <SignalSection recovery={recovery} risk={risk} />
-      <PlanSection plan={plan} />
-      <ManualSection manual={manual} />
+      <NextStepChecklistSection recovery={recovery} risk={risk} plan={plan} manual={manual} />
     </div>
   );
 }

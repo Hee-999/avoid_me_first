@@ -43,6 +43,7 @@ export default function Home() {
           images: payload.slices,
           target_role: payload.targetRole,
           target_speaker_label: payload.targetLabel,
+          analysis_mode: payload.analysisMode,
           context_intake: payload.contextIntake || null,
           referrer: trafficSource.referrer,
           utm_source: trafficSource.utmSource

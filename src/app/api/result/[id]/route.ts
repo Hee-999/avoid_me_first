@@ -6,22 +6,20 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
   try {
     const resolvedParams = await params;
     const { id } = resolvedParams;
-    
-    // 1. Extract cookie
+
+    // 1. Extract cookies (owner token OR PIN-verified session)
     const cookieStore = await cookies();
     const ownerToken = cookieStore.get("avoidance_owner_token")?.value;
+    const pinVerifiedHash = cookieStore.get(`avoidance_pin_verified_${id}`)?.value;
 
-    if (!ownerToken) {
+    if (!ownerToken && !pinVerifiedHash) {
       return NextResponse.json({ error: "Unauthorized. No owner token found." }, { status: 401 });
     }
 
     // 2. Fetch using Repository
-    // The repository handles the owner validation, hash checking, 
-    // and stripping out the premium report if it's locked.
-    const result = await AnalysisRepository.getAnalysisForOwner(id, ownerToken);
+    const result = await AnalysisRepository.getAnalysisForOwner(id, ownerToken, pinVerifiedHash);
 
     return NextResponse.json(result);
-
   } catch (error: any) {
     console.error("Result GET Error:", error);
     if (error.message === "Unauthorized") {
@@ -33,4 +31,3 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }
-

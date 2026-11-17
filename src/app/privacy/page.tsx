@@ -27,9 +27,10 @@ export default function PrivacyPage() {
       <ul>
         <li>애착 패턴 유형, Anxiety/Avoidance 값, 행동 신호 결과, 파생 요약 결과, 공유용 별칭</li>
       </ul>
-      <h3>다. 결제 (도입 시)</h3>
+      <h3>다. 결제 및 리포트 열람 지원</h3>
       <ul>
         <li>주문번호, 상품코드, 결제금액, 결제상태, 결제시각, PG 거래식별값</li>
+        <li>휴대전화 번호 (유료 리포트 전용 링크 및 열람용 4자리 PIN 문자·알림톡 발송, 재방문 본인 확인 목적)</li>
         <li>※ 카드번호, CVC, 비밀번호 등 상세 결제수단 정보는 당사 데이터베이스에 저장되지 않으며, 전자결제대행사(PG사)를 통해 안전하게 처리됩니다.</li>
       </ul>
 
@@ -59,6 +60,7 @@ export default function PrivacyPage() {
         <li><strong>Supabase (데이터베이스):</strong> 가공된 분석 결과 저장. (저장 위치: AWS 서울 리전)</li>
         <li><strong>웹 호스팅 (Netlify / Vercel):</strong> 웹페이지 제공. (처리 위치: 글로벌 에지 서버)</li>
         <li><strong>NICEPAY (결제 처리):</strong> 결제 승인 및 환불 등 대금 결제 처리. (처리 항목: 주문번호, 결제금액, 결제수단 정보 등)</li>
+        <li><strong>주식회사 솔라피 (알림톡·문자 발송 대행):</strong> 유료 리포트 전용 링크 및 열람 PIN 문자·알림톡 발송. (처리 항목: 휴대전화 번호, 발송 메시지)</li>
       </ul>
 
       <h2>6. 개인정보의 파기 절차 및 방법</h2>

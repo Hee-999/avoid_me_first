@@ -8,64 +8,38 @@ interface Props {
 
 export function TriggerSection({ triggers }: { triggers: PremiumReportV2['trigger_profile'] }) {
   if (!triggers || triggers.length === 0) return null;
-  return (
-    <section className="relative">
-      <h3 className="text-[18px] font-black text-zinc-900 mb-6 flex items-center gap-2">
-        <span className="text-xl">⚡</span> Ch.5 반응을 유발한 상황과 접근 방법
-      </h3>
-      
-      <div className="grid gap-4">
-        {triggers.map((trigger, idx) => (
-          <div key={idx} className="bg-white p-6 rounded-2xl border border-red-100 shadow-sm relative overflow-hidden break-inside-avoid">
-            <div className="absolute top-0 left-0 w-1 h-full bg-red-400"></div>
-            
-            <p className="text-[15px] font-bold text-red-600 mb-3">"{trigger.trigger}"</p>
-            
-            <div className="space-y-4">
-              <div>
-                <span className="text-[11px] font-bold text-zinc-400 block mb-1">관찰된 반응</span>
-                <p className="text-[13px] text-zinc-700 bg-red-50/50 p-2 rounded-lg">{trigger.observed_response}</p>
-              </div>
-              <div>
-                <span className="text-[11px] font-bold text-zinc-400 block mb-1">반응에 대한 가능한 해석</span>
-                <p className="text-[13px] text-zinc-700">{trigger.interpretation}</p>
-              </div>
-              <div className="pt-3 border-t border-zinc-100">
-                <span className="text-[11px] font-bold text-green-600 block mb-1">권장 대처법</span>
-                <p className="text-[13px] font-medium text-zinc-800">{trigger.recommended_approach}</p>
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
-    </section>
-  );
+  return null;
 }
 
 export function LoopSection({ loop }: { loop?: PremiumReportV2['interaction_loop'] }) {
   if (!loop || !loop.steps || loop.steps.length === 0) return null;
   return (
-    <section className="relative">
-      <h3 className="text-[18px] font-black text-zinc-900 mb-6 flex items-center gap-2">
-        <span className="text-xl">🔁</span> Ch.6 두 사람의 상호작용 흐름
-      </h3>
+    <section className="relative break-keep">
+      <div className="mb-4">
+        <h3 className="text-[17px] sm:text-[18px] font-black text-zinc-900 flex items-center gap-2">
+          <span className="text-xl">🔁</span> 두 사람이 자꾸 엇갈리는 패턴
+        </h3>
+        <p className="text-[13px] text-zinc-500 mt-0.5">
+          어느 순간부터 대화가 겉돌고 멀어지는지 한눈에 짚어드릴게요.
+        </p>
+      </div>
       
-      <div className="bg-zinc-900 text-white p-8 rounded-3xl shadow-lg print:bg-white print:text-zinc-900 print:border print:border-zinc-200 print:shadow-none">
-        <p className="text-[14px] text-zinc-300 leading-relaxed mb-8 bg-black/20 p-4 rounded-xl print:text-zinc-700 print:bg-zinc-50 print:border print:border-zinc-100">
+      <div className="bg-zinc-900 text-white p-6 sm:p-7 rounded-3xl shadow-lg print:bg-white print:text-zinc-900 print:border print:border-zinc-200 print:shadow-none">
+        <p className="text-[14px] text-zinc-200 leading-relaxed mb-6 bg-white/5 p-4 rounded-2xl border border-white/10">
           {loop.summary}
         </p>
         
         <div className="relative">
-          <div className="absolute left-6 top-6 bottom-6 w-0.5 bg-zinc-700 print:bg-zinc-200"></div>
+          <div className="absolute left-5 top-5 bottom-5 w-0.5 bg-zinc-700 print:bg-zinc-200"></div>
           
-          <div className="space-y-6 relative">
+          <div className="space-y-4 relative">
             {loop.steps.map((step, idx) => (
-              <div key={idx} className="flex gap-4 items-start relative z-10 break-inside-avoid">
-                <div className="w-12 h-12 rounded-full bg-zinc-800 border-4 border-zinc-900 flex items-center justify-center font-black text-zinc-400 shrink-0 mt-1 shadow-sm print:bg-white print:border-zinc-200 print:text-zinc-500">
+              <div key={idx} className="flex gap-3.5 items-center relative z-10 break-inside-avoid">
+                <div className="w-10 h-10 rounded-full bg-zinc-800 border-4 border-zinc-900 flex items-center justify-center font-black text-[13px] text-blue-300 shrink-0 shadow-sm">
                   {idx + 1}
                 </div>
-                <div className="bg-zinc-800/80 p-5 rounded-2xl border border-zinc-700 flex-1 hover:border-zinc-500 transition-colors print:bg-white print:border-zinc-200 print:shadow-sm">
-                  <p className="text-[14px] text-zinc-200 leading-relaxed print:text-zinc-700">{step}</p>
+                <div className="bg-zinc-800/80 px-4 py-3.5 rounded-2xl border border-zinc-700/80 flex-1">
+                  <p className="text-[13.5px] text-zinc-100 leading-relaxed font-medium">{step}</p>
                 </div>
               </div>
             ))}
@@ -73,16 +47,16 @@ export function LoopSection({ loop }: { loop?: PremiumReportV2['interaction_loop
         </div>
         
         {loop.break_points && loop.break_points.length > 0 && (
-          <div className="mt-8 pt-6 border-t border-zinc-800 print:border-zinc-200 break-inside-avoid">
-            <span className="text-[12px] font-bold text-green-400 uppercase tracking-widest block mb-4 flex items-center gap-2 print:text-green-600">
-              <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse print:bg-green-500"></span>
-              소통을 조율할 지점
+          <div className="mt-6 pt-5 border-t border-zinc-800 break-inside-avoid">
+            <span className="text-[12px] font-bold text-emerald-400 block mb-2.5 flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+              이 악순환을 끊는 핵심 포인트
             </span>
             <div className="space-y-2">
               {loop.break_points.map((point, idx) => (
-                <div key={idx} className="flex gap-3 items-start bg-green-900/20 p-4 rounded-xl border border-green-900/30 print:bg-green-50 print:border-green-100">
-                  <span className="text-green-500 mt-0.5 print:text-green-600">💡</span>
-                  <p className="text-[14px] text-green-100/90 leading-relaxed print:text-green-800">{point}</p>
+                <div key={idx} className="flex gap-2.5 items-start bg-emerald-950/40 p-3.5 rounded-xl border border-emerald-800/40">
+                  <span className="text-emerald-400 mt-0.5">💡</span>
+                  <p className="text-[13.5px] text-emerald-100 leading-relaxed">{point}</p>
                 </div>
               ))}
             </div>
@@ -93,11 +67,6 @@ export function LoopSection({ loop }: { loop?: PremiumReportV2['interaction_loop
   );
 }
 
-export function InteractionSection({ triggers, loop }: Props) {
-  return (
-    <div className="space-y-12">
-      <TriggerSection triggers={triggers} />
-      <LoopSection loop={loop} />
-    </div>
-  );
+export function InteractionSection({ loop }: Props) {
+  return <LoopSection loop={loop} />;
 }

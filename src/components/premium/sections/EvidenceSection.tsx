@@ -9,66 +9,71 @@ export function EvidenceSection({ evidences }: Props) {
   if (!evidences || evidences.length === 0) return null;
 
   return (
-    <section className="relative">
-      <h3 className="text-[18px] font-black text-zinc-900 mb-6 flex items-center gap-2">
-        <span className="text-xl">🕵️‍♀️</span> Ch.4 대화 딥다이브 (Evidence)
-      </h3>
-      
-      <div className="space-y-8">
+    <section className="relative break-keep">
+      <div className="mb-4">
+        <h3 className="text-[17px] sm:text-[18px] font-black text-zinc-900 flex items-center gap-2">
+          <span className="text-xl">🕵️‍♀️</span> 카톡 장면으로 본 진짜 속마음
+        </h3>
+        <p className="text-[13px] text-zinc-500 mt-0.5">
+          그 사람이 왜 그렇게 말했는지 실제 대화 장면을 하나씩 뜯어볼게요.
+        </p>
+      </div>
+
+      <div className="space-y-5">
         {evidences.map((evidence, idx) => (
-          <div key={idx} className="bg-white rounded-3xl border border-blue-100 shadow-sm overflow-hidden">
-            <div className="bg-blue-50/50 p-5 border-b border-blue-100">
-              <span className="text-[11px] font-bold text-blue-500 uppercase tracking-widest block mb-1">상황 분석 {idx + 1}</span>
-              <h4 className="text-[16px] font-bold text-blue-900">{evidence.title}</h4>
+          <div key={idx} className="bg-white rounded-3xl border border-zinc-200 shadow-sm overflow-hidden">
+            <div className="bg-zinc-900 text-white px-5 py-3.5 flex items-center justify-between gap-2">
+              <h4 className="text-[14.5px] font-bold truncate">{evidence.title}</h4>
+              <span className="text-[11px] font-bold text-blue-300 bg-white/10 px-2.5 py-0.5 rounded-full shrink-0">
+                장면 {idx + 1}
+              </span>
             </div>
-            
-            <div className="p-6 space-y-6">
-              {/* Situation & Behavior */}
-              <div className="grid gap-4">
-                <div className="bg-zinc-50 p-4 rounded-xl border border-zinc-100">
-                  <span className="text-[11px] font-bold text-zinc-400 block mb-2">배경 상황</span>
-                  <p className="text-[13px] text-zinc-700 leading-relaxed">{evidence.situation}</p>
+
+            <div className="p-5 space-y-4">
+              {/* 1. 대화 장면 & 반응 */}
+              <div className="bg-zinc-50 p-4 rounded-2xl border border-zinc-100 space-y-2">
+                <div className="flex items-center gap-1.5 text-[12px] font-bold text-zinc-500">
+                  <span>💬</span>
+                  <span>이때 이런 흐름이었죠</span>
                 </div>
-                <div className="bg-zinc-50 p-4 rounded-xl border border-zinc-100">
-                  <span className="text-[11px] font-bold text-zinc-400 block mb-2">관찰된 행동/발화</span>
-                  <p className="text-[13px] text-zinc-700 leading-relaxed font-medium">"{evidence.observed_behavior}"</p>
-                </div>
-              </div>
-              
-              {/* Interaction */}
-              <div>
-                <span className="text-[11px] font-bold text-zinc-400 block mb-2">상호작용 과정</span>
-                <p className="text-[14px] text-zinc-700 leading-relaxed border-l-2 border-zinc-200 pl-4 py-1">
-                  {evidence.interaction}
+                <p className="text-[13.5px] text-zinc-700 leading-relaxed">
+                  {evidence.situation}
                 </p>
-              </div>
-              
-              {/* Interpretations */}
-              <div className="bg-blue-50/30 p-5 rounded-2xl border border-blue-50 space-y-4">
-                <div>
-                  <span className="text-[12px] font-bold text-blue-600 flex items-center gap-1 mb-2">
-                    <span className="w-1.5 h-1.5 rounded-full bg-blue-500"></span> 
-                    심층 해석
-                  </span>
-                  <p className="text-[14px] text-zinc-800 leading-relaxed">{evidence.interpretation}</p>
-                </div>
-                
-                {evidence.alternative_explanation && (
-                  <div>
-                    <span className="text-[12px] font-bold text-purple-600 flex items-center gap-1 mb-2">
-                      <span className="w-1.5 h-1.5 rounded-full bg-purple-500"></span> 
-                      대안적 설명 (다른 관점)
-                    </span>
-                    <p className="text-[14px] text-zinc-700 leading-relaxed">{evidence.alternative_explanation}</p>
+                {evidence.observed_behavior && (
+                  <div className="bg-white px-3.5 py-2.5 rounded-xl border border-zinc-200/80 text-[13.5px] font-bold text-zinc-900">
+                    “{evidence.observed_behavior}”
                   </div>
                 )}
-                
-                <div className="pt-4 mt-2 border-t border-blue-100/50">
-                  <span className="text-[12px] font-bold text-zinc-900 block mb-2">결론</span>
-                  <p className="text-[14px] font-medium text-zinc-800 leading-relaxed bg-white p-3 rounded-xl border border-blue-50 shadow-sm">
-                    {evidence.conclusion}
+                {evidence.interaction && (
+                  <p className="text-[13px] text-zinc-600 leading-relaxed pt-0.5">
+                    → {evidence.interaction}
                   </p>
+                )}
+              </div>
+
+              {/* 2. 속마음 해독 */}
+              <div className="bg-blue-50/40 p-4 rounded-2xl border border-blue-100/80 space-y-2.5">
+                <div className="flex items-center gap-1.5 text-[12.5px] font-extrabold text-blue-700">
+                  <span>💡</span>
+                  <span>이 말 뒤에 숨은 진짜 속마음</span>
                 </div>
+                <p className="text-[13.5px] text-zinc-800 leading-relaxed font-medium">
+                  {evidence.interpretation}
+                </p>
+                {evidence.alternative_explanation && (
+                  <p className="text-[12.5px] text-zinc-600 leading-relaxed pt-2 border-t border-blue-100/70">
+                    <strong className="text-indigo-600 font-bold">한 가지 더: </strong>
+                    {evidence.alternative_explanation}
+                  </p>
+                )}
+              </div>
+
+              {/* 3. 결론 */}
+              <div className="flex items-start gap-2 bg-zinc-900/5 px-4 py-3 rounded-xl border border-zinc-200/60">
+                <span className="text-[14px] shrink-0 mt-0.5">📌</span>
+                <p className="text-[13.5px] font-bold text-zinc-900 leading-relaxed">
+                  {evidence.conclusion}
+                </p>
               </div>
             </div>
           </div>

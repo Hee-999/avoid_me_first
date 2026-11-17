@@ -59,15 +59,15 @@ export default function HeroSection({
         </p>
         
         {/* Main Title */}
-        <h1 className="text-[30px] sm:text-[34px] font-black tracking-tight leading-[1.2] text-zinc-950">
+        <h1 className="text-[28px] sm:text-[32px] font-black tracking-tight leading-[1.25] text-zinc-950 break-keep whitespace-nowrap">
           그 사람,<br />
-          정말 회피형일까?
+          진짜 속마음이 뭘까?
         </h1>
         
         {/* Subtitle */}
-        <p className="mt-2.5 sm:mt-3 text-[14px] sm:text-[15px] font-medium leading-snug text-zinc-800">
-          카톡 대화 속에 담긴<br />
-          애착과 행동 패턴을 살펴보세요.
+        <p className="mt-2.5 sm:mt-3 text-[13.5px] sm:text-[15px] font-medium leading-snug text-zinc-800 break-keep whitespace-nowrap">
+          카톡 캡처로 재회·썸 확률과<br />
+          두 사람의 온도차를 판독해 보세요.
         </p>
 
         {/* Primary CTA Button */}

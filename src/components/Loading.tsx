@@ -45,9 +45,9 @@ export default function Loading() {
           </div>
         </div>
 
-        <h2 className="text-[18px] font-black text-zinc-900 mb-1">상대의 관계 패턴 분석 중</h2>
+        <h2 className="text-[18px] font-black text-zinc-900 mb-1">두 사람의 속마음 &amp; 온도차 분석 중</h2>
         <p className="text-[13px] text-zinc-500 mb-8 text-center leading-relaxed">
-          대화 속 숨겨진 방어기제와<br/>회피 성향을 찾아내고 있습니다.
+          카톡 말풍선 속 숨겨진 진짜 의도와<br/>재회·썸 시그널을 찾아내고 있습니다.
         </p>
 
         {/* Checklist */}

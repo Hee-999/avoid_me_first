@@ -8,20 +8,18 @@ const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://lovepattern.site'),
-  title: "카톡으로 보는 상대방 애착 패턴 | 러브패턴",
-  description: "카카오톡 대화를 분석하여 상대가 대화에서 보인 불안·회피 패턴과 애착 유형을 살펴봅니다. 대화 원문은 서비스 DB에 저장되지 않습니다.",
+  title: "그 사람, 진짜 속마음이 뭘까? | 러브패턴",
+  description: "카톡 대화 캡처로 재회·썸 확률과 두 사람의 관계 온도차, 숨은 속마음을 판독해 보세요. 대화 원문은 저장되지 않습니다.",
   keywords: [
     "러브패턴",
+    "카톡 속마음 분석",
+    "재회 확률",
+    "썸 호감도 테스트",
+    "연애 온도차",
     "회피형",
-    "회피형 특징",
     "회피형 연애",
     "애착유형 테스트",
-    "애착 유형 검사",
-    "불안형",
-    "공포회피형",
-    "거부회피형",
-    "카톡 대화 분석",
-    "바솔로뮤 애착유형"
+    "카톡 대화 분석"
   ],
   alternates: {
     canonical: '/',
@@ -44,8 +42,8 @@ export const metadata: Metadata = {
     },
   },
   openGraph: {
-    title: "카톡으로 보는 상대방 애착 패턴 | 러브패턴",
-    description: "카카오톡 대화를 분석하여 상대가 대화에서 보인 불안·회피 패턴과 애착 유형을 살펴봅니다. 대화 원문은 서비스 DB에 저장되지 않습니다.",
+    title: "그 사람, 진짜 속마음이 뭘까? | 러브패턴",
+    description: "카톡 대화 캡처로 재회·썸 확률과 두 사람의 관계 온도차, 숨은 속마음을 판독해 보세요.",
     url: '/',
     siteName: '러브패턴',
     images: [
@@ -53,7 +51,7 @@ export const metadata: Metadata = {
         url: '/og-image.png',
         width: 1200,
         height: 630,
-        alt: '러브패턴 - 카톡 대화 분석',
+        alt: '러브패턴 - 카톡 속마음 & 온도차 판독',
       },
     ],
     locale: 'ko_KR',
@@ -61,8 +59,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: "카톡으로 보는 상대방 애착 패턴 | 러브패턴",
-    description: "카카오톡 대화를 분석하여 상대가 대화에서 보인 불안·회피 패턴과 애착 유형을 살펴봅니다. 대화 원문은 서비스 DB에 저장되지 않습니다.",
+    title: "그 사람, 진짜 속마음이 뭘까? | 러브패턴",
+    description: "카톡 대화 캡처로 재회·썸 확률과 두 사람의 관계 온도차, 숨은 속마음을 판독해 보세요.",
     images: ['/og-image.png'],
   },
 };

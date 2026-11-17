@@ -74,7 +74,7 @@ export class AnalysisRepository {
   }
 
   /**
-   * Updates the Premium Report asynchronously.
+   * Updates the Premium Report asynchronously without overwriting existing status keys (payment, access, chat).
    */
   static async updatePremiumReport(id: string, premiumReport: any, status: "ready" | "failed"): Promise<void> {
     if (!process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL.includes("dummy")) {
@@ -82,11 +82,23 @@ export class AnalysisRepository {
       return;
     }
 
+    const { data: existing } = await supabaseAdmin
+      .from("analyses")
+      .select("status")
+      .eq("id", id)
+      .single();
+
+    const mergedStatus = {
+      ...(existing?.status || {}),
+      scoring: "completed",
+      report: status,
+    };
+
     const { error } = await supabaseAdmin
       .from("analyses")
       .update({
         premium_report: premiumReport,
-        status: { scoring: "completed", report: status }
+        status: mergedStatus
       })
       .eq("id", id);
 
@@ -98,8 +110,13 @@ export class AnalysisRepository {
 
   /**
    * Fetch analysis for the owner. If premium is not unlocked, premium_report is stripped.
+   * Supports either the original ownerToken cookie or a PIN-verified session hash.
    */
-  static async getAnalysisForOwner(id: string, providedOwnerToken: string): Promise<any> {
+  static async getAnalysisForOwner(
+    id: string,
+    providedOwnerToken?: string,
+    providedPinHash?: string
+  ): Promise<any> {
     // 1. Fetch from DB
     if (!process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL.includes("dummy")) {
       // Mock logic for local testing without DB
@@ -112,18 +129,20 @@ export class AnalysisRepository {
       .eq("id", id)
       .single();
 
-    console.log("=== SUPABASE SELECT RESULT ===");
-    console.log("FETCHED ID:", id);
-    console.log("DATA:", data);
-    console.log("ERROR:", error);
-    console.log("==============================");
-
     if (error || !data) {
       throw new Error("Analysis not found");
     }
 
-    const ownerTokenHash = hashToken(providedOwnerToken);
-    if (data.owner_token_hash !== ownerTokenHash) {
+    const matchesOwner = Boolean(
+      providedOwnerToken && data.owner_token_hash === hashToken(providedOwnerToken)
+    );
+    const matchesPin = Boolean(
+      providedPinHash &&
+      data.status?.access?.pin_hash &&
+      data.status.access.pin_hash === providedPinHash
+    );
+
+    if (!matchesOwner && !matchesPin) {
       throw new Error("Unauthorized");
     }
 
@@ -174,6 +193,13 @@ export class AnalysisRepository {
 
   private static _mapDbRowToResult(data: any, isOwner: boolean): any {
     const isPremiumUnlocked = data.premium_unlocked === true;
+    const rawStatus = data.status || { scoring: "completed", report: "completed" };
+    // Strip sensitive pin_hash / buyer_tel from client payload
+    const safeStatus: any = {
+      scoring: rawStatus.scoring || "completed",
+      report: rawStatus.report || "completed",
+      ...(isOwner && isPremiumUnlocked && rawStatus.chat ? { chat: rawStatus.chat } : {}),
+    };
     
     const result: any = {
       id: data.id,
@@ -183,7 +209,7 @@ export class AnalysisRepository {
       share_id: data.share_id,
       share_alias: data.share_alias,
       analysis: {
-        status: data.status || { scoring: "completed", report: "completed" },
+        status: safeStatus,
         attachment_dimensions: {
           anxiety: data.anxiety_score,
           avoidance: data.avoidance_score,
