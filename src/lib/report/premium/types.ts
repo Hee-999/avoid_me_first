@@ -92,8 +92,19 @@ export interface PremiumReportV2 {
 
 export type AnalysisMode = "reunion" | "flirting";
 
+export type TargetStanceTier =
+  | "HARD_REJECT"
+  | "AVOIDANT_DISTANCE"
+  | "NEUTRAL_POLITE"
+  | "WARM_OPEN"
+  | "HIGH_AFFECTION";
+
+export type UserEngagementTier = "PASSIVE" | "BALANCED" | "EAGER" | "DESPERATE";
+
 export interface V3Metrics {
   tease_scene_summary: string;
+  target_stance?: TargetStanceTier;
+  user_engagement?: UserEngagementTier;
   backfire_risk_percent: number;
   success_probability: number;
   user_temperature: number;

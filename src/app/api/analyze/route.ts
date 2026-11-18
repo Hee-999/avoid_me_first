@@ -119,6 +119,12 @@ export async function POST(request: Request) {
         primaryType: persistentPayload.primary_type,
         anxietyScore: persistentPayload.dimensions?.anxiety?.score,
         avoidanceScore: persistentPayload.dimensions?.avoidance?.score,
+        analysisMode: normalizedMode,
+        userTemp: derivedContext.v3_metrics?.user_temperature,
+        targetTemp: derivedContext.v3_metrics?.target_temperature,
+        successProb: derivedContext.v3_metrics?.success_probability,
+        backfireRisk: derivedContext.v3_metrics?.backfire_risk_percent,
+        teaseScene: derivedContext.v3_metrics?.tease_scene_summary,
         referrer: resolvedReferrer,
         utmSource: utm_source,
       });

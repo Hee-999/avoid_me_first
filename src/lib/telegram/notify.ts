@@ -119,6 +119,12 @@ export async function notifyFreeAnalysis(data: {
   primaryType?: string;
   anxietyScore?: number;
   avoidanceScore?: number;
+  analysisMode?: "reunion" | "flirting";
+  userTemp?: number;
+  targetTemp?: number;
+  successProb?: number;
+  backfireRisk?: number;
+  teaseScene?: string;
   referrer?: string;
   utmSource?: string;
 }): Promise<boolean> {
@@ -127,18 +133,31 @@ export async function notifyFreeAnalysis(data: {
   const targetName = escapeTelegramHtml(rawTargetName);
   const referrerLabel = formatReferrer(data.referrer, data.utmSource);
   const now = new Date().toLocaleTimeString("ko-KR", { timeZone: "Asia/Seoul" });
+  const modeLabel = data.analysisMode === "flirting" ? "💘 썸 · 호감도" : "💔 재회 · 애매한 사이";
+  const probLabel = data.analysisMode === "flirting" ? "썸 성사" : "재회";
 
-  const message = [
-    `🔍 <b>[신규 무료 분석 접수]</b>`,
-    `• 대상자: <b>${targetName}</b>`,
-    `• 판독 결과: <b>${escapeTelegramHtml(typeLabel)}</b>`,
-    `• 애착 점수: 불안 ${data.anxietyScore ?? "-"}점 / 회피 ${data.avoidanceScore ?? "-"}점`,
+  const lines = [
+    `🔍 <b>[신규 V3 무료 분석 접수]</b>`,
+    `• 모드: <b>${modeLabel}</b>`,
+    `• 대상: <b>${targetName}</b> (${escapeTelegramHtml(typeLabel)} · 불안 ${data.anxietyScore ?? "-"} / 회피 ${data.avoidanceScore ?? "-"})`,
+  ];
+
+  if (data.userTemp !== undefined && data.targetTemp !== undefined) {
+    lines.push(
+      `• 온도차: <b>나 ${data.userTemp}%</b> vs <b>상대 ${data.targetTemp}%</b> (${probLabel} ${data.successProb ?? "-"}% · 주의 ${data.backfireRisk ?? "-"}%)`
+    );
+  }
+  if (data.teaseScene) {
+    lines.push(`• 장면 요약: ${escapeTelegramHtml(data.teaseScene.slice(0, 90))}${data.teaseScene.length > 90 ? "..." : ""}`);
+  }
+
+  lines.push(
     `• 유입 경로: <b>${escapeTelegramHtml(referrerLabel)}</b>`,
     `• 일시: ${now}`,
-    `• 분석 ID: <code>${escapeTelegramHtml(data.id.slice(0, 8))}...</code>`,
-  ].join("\n");
+    `• 분석 ID: <code>${escapeTelegramHtml(data.id.slice(0, 8))}...</code>`
+  );
 
-  return await sendTelegramMessage(message);
+  return await sendTelegramMessage(lines.join("\n"));
 }
 
 /**

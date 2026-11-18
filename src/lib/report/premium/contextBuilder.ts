@@ -1,6 +1,189 @@
 import { callResilientLLM } from "../../analysis/llmRouter";
 import { MvpAnalysisResult } from "../../analysis/mvp/types";
-import { AnalysisMode, DerivedReportContext } from "./types";
+import {
+  AnalysisMode,
+  DerivedReportContext,
+  TargetStanceTier,
+  UserEngagementTier,
+  V3Metrics,
+} from "./types";
+
+interface ConversationStats {
+  totalMessages: number;
+  userMsgShare: number; // 0..1
+  userQuestionRate: number; // 0..1
+  targetQuestionRate: number; // 0..1
+  targetAvgLen: number;
+}
+
+function extractConversationStats(conversationJson: string, targetSpeaker: string): ConversationStats {
+  try {
+    const parsed = JSON.parse(conversationJson);
+    const list: Array<{ speaker?: string; text?: string; message?: string; content?: string }> =
+      Array.isArray(parsed) ? parsed : Array.isArray(parsed?.messages) ? parsed.messages : [];
+
+    if (list.length === 0) {
+      return { totalMessages: 0, userMsgShare: 0.5, userQuestionRate: 0, targetQuestionRate: 0, targetAvgLen: 0 };
+    }
+
+    let userCount = 0;
+    let targetCount = 0;
+    let userQuestions = 0;
+    let targetQuestions = 0;
+    let targetLenSum = 0;
+
+    for (const m of list) {
+      const spk = (m.speaker || "").trim();
+      const txt = String(m.text ?? m.message ?? m.content ?? "").trim();
+      const isTarget = spk === targetSpeaker || spk === "SPEAKER_A";
+
+      if (isTarget) {
+        targetCount++;
+        targetLenSum += txt.length;
+        if (txt.includes("?")) targetQuestions++;
+      } else {
+        userCount++;
+        if (txt.includes("?")) userQuestions++;
+      }
+    }
+
+    const total = userCount + targetCount;
+    return {
+      totalMessages: total,
+      userMsgShare: total > 0 ? userCount / total : 0.5,
+      userQuestionRate: userCount > 0 ? userQuestions / userCount : 0,
+      targetQuestionRate: targetCount > 0 ? targetQuestions / targetCount : 0,
+      targetAvgLen: targetCount > 0 ? targetLenSum / targetCount : 0,
+    };
+  } catch {
+    return { totalMessages: 0, userMsgShare: 0.5, userQuestionRate: 0, targetQuestionRate: 0, targetAvgLen: 0 };
+  }
+}
+
+function computeDeterministicV3Metrics(
+  rawV3: Partial<V3Metrics> | undefined,
+  mvpResult: MvpAnalysisResult,
+  stats: ConversationStats,
+  analysisMode: AnalysisMode
+): V3Metrics {
+  const clamp = (n: number, min: number, max: number) =>
+    Math.max(min, Math.min(max, Math.round(n)));
+
+  const anx = mvpResult.dimensions?.anxiety?.score ?? 25;
+  const avd = mvpResult.dimensions?.avoidance?.score ?? 40;
+  const secFit = mvpResult.fitness?.secure ?? 45;
+
+  const detectedSignals = Object.values(mvpResult.signals || {}).filter(
+    (s: any) => s && typeof s === "object" && typeof s.count === "number" && s.count > 0
+  ).length;
+
+  // 1. Target stance tier -> base temperature (AI picks only the tier, code computes exact score)
+  const validStances: TargetStanceTier[] = [
+    "HARD_REJECT",
+    "AVOIDANT_DISTANCE",
+    "NEUTRAL_POLITE",
+    "WARM_OPEN",
+    "HIGH_AFFECTION",
+  ];
+  const fallbackStance: TargetStanceTier =
+    avd >= 68 ? "AVOIDANT_DISTANCE" : avd >= 48 ? "NEUTRAL_POLITE" : "WARM_OPEN";
+  const targetStance: TargetStanceTier = validStances.includes(rawV3?.target_stance as TargetStanceTier)
+    ? (rawV3!.target_stance as TargetStanceTier)
+    : fallbackStance;
+
+  const stanceBaseTemp: Record<TargetStanceTier, number> = {
+    HARD_REJECT: 22,
+    AVOIDANT_DISTANCE: 36,
+    NEUTRAL_POLITE: 53,
+    WARM_OPEN: 71,
+    HIGH_AFFECTION: 85,
+  };
+
+  // 2. User engagement tier -> base temperature
+  const validEngagements: UserEngagementTier[] = ["PASSIVE", "BALANCED", "EAGER", "DESPERATE"];
+  const fallbackEngagement: UserEngagementTier =
+    anx >= 60 ? "DESPERATE" : anx >= 35 ? "EAGER" : "BALANCED";
+  const userEngagement: UserEngagementTier = validEngagements.includes(
+    rawV3?.user_engagement as UserEngagementTier
+  )
+    ? (rawV3!.user_engagement as UserEngagementTier)
+    : fallbackEngagement;
+
+  const engagementBaseTemp: Record<UserEngagementTier, number> = {
+    PASSIVE: 44,
+    BALANCED: 60,
+    EAGER: 75,
+    DESPERATE: 87,
+  };
+
+  // Guard against short screenshot noise (< 10 messages reduces objective ratio weight by half)
+  const sampleWeight = stats.totalMessages >= 10 ? 1.0 : stats.totalMessages > 0 ? 0.5 : 0;
+
+  // User temperature: engagement tier + anxiety adjustment + message share/question boost
+  const userShareDelta = (stats.userMsgShare - 0.5) * 16 * sampleWeight;
+  const userQDelta = Math.min(6, stats.userQuestionRate * 12) * sampleWeight;
+  const userAnxDelta = Math.max(-5, Math.min(7, (anx - 30) * 0.14));
+  const user_temperature = clamp(
+    engagementBaseTemp[userEngagement] + userShareDelta + userQDelta + userAnxDelta,
+    30,
+    94
+  );
+
+  // Target temperature: stance tier + (secure - avoidance) calibration
+  // IMPORTANT: Do NOT boost temperature for long messages or questions if stance is HARD_REJECT or AVOIDANT_DISTANCE
+  // (protects against polite long rejections inflating temperature)
+  const isClosedStance = targetStance === "HARD_REJECT" || targetStance === "AVOIDANT_DISTANCE";
+  const mvpBalanceDelta = Math.max(-7, Math.min(7, (secFit - avd) * 0.11));
+  const targetEngagementBoost = isClosedStance
+    ? 0
+    : (Math.min(6, stats.targetQuestionRate * 14) + (stats.targetAvgLen >= 18 ? 3 : 0)) * sampleWeight;
+
+  const target_temperature = clamp(
+    stanceBaseTemp[targetStance] + mvpBalanceDelta + targetEngagementBoost,
+    14,
+    92
+  );
+
+  // Success probability (재회/썸 성사 가능성)
+  const oneSidedPenalty = Math.max(0, user_temperature - target_temperature - 25) * 0.2;
+  const rawSuccess =
+    target_temperature * 0.65 + secFit * 0.25 + (100 - avd) * 0.1 - oneSidedPenalty;
+  const success_probability = clamp(rawSuccess, 12, 88);
+
+  // Backfire risk (성급한 연락 주의 지수)
+  const stanceRiskBase: Record<TargetStanceTier, number> = {
+    HARD_REJECT: 82,
+    AVOIDANT_DISTANCE: 68,
+    NEUTRAL_POLITE: 48,
+    WARM_OPEN: 30,
+    HIGH_AFFECTION: 18,
+  };
+  const avdRiskDelta = (avd - 40) * 0.18;
+  const gapRiskDelta = Math.max(0, user_temperature - target_temperature) * 0.15;
+  const backfire_risk_percent = clamp(
+    stanceRiskBase[targetStance] + avdRiskDelta + gapRiskDelta,
+    15,
+    92
+  );
+
+  return {
+    target_stance: targetStance,
+    user_engagement: userEngagement,
+    user_temperature,
+    target_temperature,
+    success_probability,
+    backfire_risk_percent,
+    signal_count: Math.max(1, detectedSignals),
+    tease_scene_summary:
+      rawV3?.tease_scene_summary ||
+      "대화 흐름과 답장 호흡에서 두 사람의 미묘한 온도차가 포착된 장면",
+    headline_verdict:
+      rawV3?.headline_verdict ||
+      (analysisMode === "flirting"
+        ? "호감과 조심스러움이 섞여 있어서, 부담 없는 템포 조절이 중요한 시점이에요."
+        : "감정 소모를 피하려는 방어선이 보여서, 성급한 확인 연락보다 여유를 주는 게 좋아요."),
+  };
+}
 
 export async function buildDerivedReportContext(
   conversationJson: string,
@@ -13,6 +196,8 @@ export async function buildDerivedReportContext(
     analysisMode === "flirting"
       ? "💘 썸 · 호감도 판독기 (초기 썸, 일상 연락, 밀당 의중 및 호감도 파악)"
       : "💔 재회 · 애매한 사이 판독기 (이별 전후, 시간 갖기, 거리두기, 미련 및 재회 가능성 파악)";
+
+  const stats = extractConversationStats(conversationJson, targetSpeaker);
 
   const prompt = `
 당신은 관계 및 대화 분석 전문가입니다.
@@ -32,20 +217,25 @@ export async function buildDerivedReportContext(
 
 ★ [화자 지칭 절대 규칙 - 매우 중요!]:
 - ${targetSpeaker} (SPEAKER_A) = 속마음을 판독하려는 **"상대"**입니다.
-- 대화 파트너 (SPEAKER_B) = 이 분석을 의뢰한 **본인**입니다. 절대 "사용자님"이나 "상대방"으로 부르지 말고, 문맥상 자연스럽게 주어를 생략하거나 "내가"로 표현하세요! (예: "이별 후 보고 싶다고 먼저 연락하자, 상대는 연락을 끊는 편이 낫겠다고 선을 그은 장면")
+- 대화 파트너 (SPEAKER_B) = 이 분석을 의뢰한 **본인**입니다. 절대 "사용자님"이나 "상대방"으로 부르지 말고, 문맥상 자연스럽게 주어를 생략하거나 "내가"로 표현하세요!
 
-★ [V3 수치(v3_metrics) 산정 기준 - 예시 숫자 복사 절대 금지!]:
-반드시 [MVP 점수 결과](불안·회피·안정형 적합도)와 [실제 대화 텍스트]의 분위기·거절 강도·여지 유무를 종합해서 매번 새롭게 계산하세요:
-- user_temperature (0~100 정수): 대화에서 본인(SPEAKER_B)이 감정을 표현하고, 먼저 연락하거나 관계를 이어가려는 적극성/몰입도 (소극적이면 40~55, 보통이면 56~72, 간절히 매달리거나 장문으로 마음을 전하면 73~92)
-- target_temperature (0~100 정수): 대화에서 상대(SPEAKER_A)가 보여주는 실제 호감·배려·대화 의지 온도 (단호한 거절·연락 차단이면 15~30, 피로·거리두기·회피면 31~49, 미안함·해명·일상 안부가 섞여 있으면 50~66, 다정하고 적극적이면 67~90)
-- success_probability (0~100 정수): 현재 대화 흐름 기준 재회/썸 진전 가능성 (단절 선언이면 15~32, 방어적이지만 여지가 남았으면 35~58, 사과/해명/소통 의지가 보이면 60~85)
-- backfire_risk_percent (0~100 정수): 지금 당장 성급하게 확인·추궁 연락을 보냈을 때 상대가 더 닫힐 위험도 (단호한 거절·회피 60 이상이면 70~89, 조심스러운 거리두기면 48~69, 안정적 소통이면 20~45)
-- signal_count (1~6 정수): 대화에서 포착된 주요 심리/방어 시그널 개수 (MVP 점수 결과의 count > 0인 신호 수 참고)
+★ [V3 태도 등급 판별 기준 - 숫자가 아닌 아래 코드 중 1개씩만 정확히 선택하세요!]:
+1. target_stance (상대방 ${targetSpeaker}의 실제 문맥 태도 - 아래 5개 중 택 1):
+   - "HARD_REJECT": 길게 적었든 짧게 적었든 "연락 그만하자", "이젠 정리하자", "불편하다"처럼 명확히 선을 긋거나 거절하는 문맥
+   - "AVOIDANT_DISTANCE": "피곤하다", "나중에 얘기하자", "혼자 있고 싶다"처럼 대화를 미루고 방어벽을 치는 문맥
+   - "NEUTRAL_POLITE": 거절은 아니지만 미안함·해명·무난한 일상 안부 정도로 조심스럽게 응대하는 문맥
+   - "WARM_OPEN": 상대가 먼저 질문을 던지거나 일상·관심사를 자연스럽게 공유하며 대화를 이어가는 문맥
+   - "HIGH_AFFECTION": 다정한 표현, 애정, 보고 싶다는 말이나 적극적인 만남 추진이 드러나는 문맥
+2. user_engagement (본인 SPEAKER_B의 감정 몰입도 - 아래 4개 중 택 1):
+   - "PASSIVE": 짧고 담백하게 반응하거나 먼저 다가가지 않는 편
+   - "BALANCED": 과하지 않게 비슷한 호흡으로 대화를 주고받는 편
+   - "EAGER": 먼저 안부를 묻거나 서운함·궁금증을 적극적으로 표현하는 편
+   - "DESPERATE": 장문으로 마음을 호소하거나 반복 확인·재회를 간절히 요청하는 편
 
 ★ [구체적 장면 요약 원칙 (key_situations)]:
 - 대화에서 실제로 오간 주요 장면(약속 제안, 일정 조율 및 변경, 취소 및 사과, 일상 화제 교류 등)을 2~4개 추출하세요.
 - 실제 대화에 갈등이나 침묵이 없었다면, 억지로 회피형 신호를 꾸며내지 말고 실제 오간 사실(일정 조율, 협조적 대화 등)을 있는 그대로 객관적으로 서술하세요.
-- "target_behavior"에는 반드시 그 사람(SPEAKER_A, ${targetSpeaker})이 취한 구체적 반응을 기술하세요.
+- "target_behavior"에는 반드시 ${targetSpeaker}가 취한 구체적 반응을 기술하세요.
 - "other_person_behavior"에는 본인(SPEAKER_B)이 취한 구체적 반응을 기술하세요.
 - "interaction_result"에는 해당 장면이 어떻게 일단락되었는지를 기술하세요.
 
@@ -54,10 +244,6 @@ ${contextIntake ? `
 - 대화 당시 상황: ${contextIntake.situation || "미입력"}
 - 이전 반응 빈도: ${contextIntake.recurrence || "미입력"}
 - 가장 알고 싶은 점: ${contextIntake.desired_focus || "미입력"}
-
-★ [설문 분리 절대 원칙]:
-- 사용자가 '가끔 반복' 등을 선택했더라도, 실제 대화에 없는 갈등·침묵·거리두기 행동을 허위로 지어내지 마세요.
-- 설문 내용은 조언을 제공할 때 사용자의 관심사(${contextIntake.desired_focus || "관계 패턴"})에 초점을 맞추는 렌즈로만 활용하세요.
 ` : ""}
 
 [MVP 점수 결과]:
@@ -68,15 +254,12 @@ ${conversationJson}
 
 [반환 JSON 스키마 - 순수 JSON만 반환]:
 {
-  "relationship_context": "대화 전체를 통해 본 두 사람의 관계 및 상호작용 흐름 요약 (한국어 1~2문장)",
+  "relationship_context": "대화 전체를 통해 본 두 사람의 관계 및 상호작용 흐름 요약 (한국어 1~2문장, '사용자님' 금지)",
   "v3_metrics": {
+    "target_stance": "HARD_REJECT | AVOIDANT_DISTANCE | NEUTRAL_POLITE | WARM_OPEN | HIGH_AFFECTION 중 1개",
+    "user_engagement": "PASSIVE | BALANCED | EAGER | DESPERATE 중 1개",
     "tease_scene_summary": "무료 결과 첫 줄에 띄울 카톡 핵심 장면 요약 1줄 ('사용자님' 금지, 원문 인용 금지. 예: 서운한 마음을 꺼내며 대화를 요청했지만, 상대가 피곤하다며 답을 미룬 장면)",
-    "backfire_risk_percent": "<정수 20~90: 위 산정 기준에 따라 실제 대화에 맞게 계산>",
-    "success_probability": "<정수 15~88: 위 산정 기준에 따라 실제 대화에 맞게 계산>",
-    "user_temperature": "<정수 40~92: 위 산정 기준에 따라 실제 대화에 맞게 계산>",
-    "target_temperature": "<정수 15~90: 위 산정 기준에 따라 실제 대화에 맞게 계산>",
-    "signal_count": "<정수 1~6: 실제 포착된 심리 시그널 수>",
-    "headline_verdict": "현재 관계의 핵심 진단을 말 건네듯 직설적인 1줄로 요약 (~해요 체, 예: 지금은 감정이 식었다기보다, 대화 부담이 커져서 잠깐 선을 긋고 있는 상태예요)"
+    "headline_verdict": "현재 관계의 핵심 진단을 말 건네듯 직설적인 1줄로 요약 (~해요 체)"
   },
   "key_situations": [
     {
@@ -109,76 +292,25 @@ ${conversationJson}
     }
     const parsed = JSON.parse(jsonStr) as DerivedReportContext;
     parsed.analysis_mode = analysisMode;
-
-    // Clamp & sanitize v3_metrics numeric fields in case model returns stringified numbers
-    if (parsed.v3_metrics) {
-      const clampInt = (v: any, min: number, max: number, fallback: number) => {
-        const n = Number(v);
-        if (!Number.isFinite(n)) return fallback;
-        return Math.max(min, Math.min(max, Math.round(n)));
-      };
-      const anx = mvpResult.dimensions?.anxiety?.score ?? 25;
-      const avd = mvpResult.dimensions?.avoidance?.score ?? 45;
-      const secFit = mvpResult.fitness?.secure ?? 45;
-      const detectedSignals = Object.values(mvpResult.signals || {}).filter(
-        (s: any) => s && typeof s === "object" && typeof s.count === "number" && s.count > 0
-      ).length;
-
-      parsed.v3_metrics.user_temperature = clampInt(
-        parsed.v3_metrics.user_temperature,
-        30,
-        95,
-        Math.min(90, Math.max(48, Math.round(58 + anx * 0.3)))
-      );
-      parsed.v3_metrics.target_temperature = clampInt(
-        parsed.v3_metrics.target_temperature,
-        10,
-        95,
-        Math.min(88, Math.max(20, Math.round(75 - avd * 0.55)))
-      );
-      parsed.v3_metrics.success_probability = clampInt(
-        parsed.v3_metrics.success_probability,
-        10,
-        95,
-        Math.min(88, Math.max(22, Math.round(secFit * 0.5 + (100 - avd) * 0.4)))
-      );
-      parsed.v3_metrics.backfire_risk_percent = clampInt(
-        parsed.v3_metrics.backfire_risk_percent,
-        15,
-        95,
-        Math.min(90, Math.max(28, Math.round(32 + avd * 0.6)))
-      );
-      parsed.v3_metrics.signal_count = clampInt(
-        parsed.v3_metrics.signal_count,
-        1,
-        8,
-        Math.max(1, detectedSignals)
-      );
-    }
-
+    parsed.v3_metrics = computeDeterministicV3Metrics(
+      parsed.v3_metrics,
+      mvpResult,
+      stats,
+      analysisMode
+    );
     return parsed;
   } catch (e: any) {
     console.error("Context Builder Error:", e);
-    // Return a fallback context so the pipeline doesn't break entirely, 
-    // though the report will be less personalized.
     return {
       analysis_mode: analysisMode,
-      v3_metrics: {
-        tease_scene_summary: "상대방의 답장 호흡과 감정 표현에서 미묘한 온도차가 포착된 장면",
-        backfire_risk_percent: 68,
-        success_probability: 45,
-        user_temperature: 72,
-        target_temperature: 38,
-        signal_count: 2,
-        headline_verdict: "현재 대화 흐름에서는 성급하게 결론을 내리거나 재촉하기보다 상대의 방어선을 먼저 파악해야 합니다."
-      },
-      relationship_context: "분석 중 상황 요약을 추출하는 데 실패했습니다.",
+      v3_metrics: computeDeterministicV3Metrics(undefined, mvpResult, stats, analysisMode),
+      relationship_context: "대화 흐름을 바탕으로 두 사람의 관계 온도를 정리했어요.",
       key_situations: [],
       key_patterns: [],
       trigger_candidates: [],
       interaction_patterns: [],
       counter_evidence: [],
-      healthy_patterns: []
+      healthy_patterns: [],
     };
   }
 }
