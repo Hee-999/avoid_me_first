@@ -92,11 +92,11 @@ function computeDeterministicV3Metrics(
     : fallbackStance;
 
   const stanceBaseTemp: Record<TargetStanceTier, number> = {
-    HARD_REJECT: 22,
-    AVOIDANT_DISTANCE: 36,
-    NEUTRAL_POLITE: 53,
-    WARM_OPEN: 71,
-    HIGH_AFFECTION: 85,
+    HARD_REJECT: 20,
+    AVOIDANT_DISTANCE: 34,
+    NEUTRAL_POLITE: 47,
+    WARM_OPEN: 58,
+    HIGH_AFFECTION: 78,
   };
 
   // 2. User engagement tier -> base temperature
@@ -133,30 +133,46 @@ function computeDeterministicV3Metrics(
   // IMPORTANT: Do NOT boost temperature for long messages or questions if stance is HARD_REJECT or AVOIDANT_DISTANCE
   // (protects against polite long rejections inflating temperature)
   const isClosedStance = targetStance === "HARD_REJECT" || targetStance === "AVOIDANT_DISTANCE";
-  const mvpBalanceDelta = Math.max(-7, Math.min(7, (secFit - avd) * 0.11));
+  const mvpBalanceDelta = Math.max(-6, Math.min(6, (secFit - avd) * 0.09));
   const targetEngagementBoost = isClosedStance
     ? 0
-    : (Math.min(6, stats.targetQuestionRate * 14) + (stats.targetAvgLen >= 18 ? 3 : 0)) * sampleWeight;
+    : (Math.min(5, stats.targetQuestionRate * 10) + (stats.targetAvgLen >= 18 ? 2 : 0)) * sampleWeight;
+
+  // Cap WARM_OPEN (일상적 친밀감/예의상 잘 해주는 사이) at 66% so 75%+ is reserved for genuine HIGH_AFFECTION
+  const stanceMaxTemp: Record<TargetStanceTier, number> = {
+    HARD_REJECT: 28,
+    AVOIDANT_DISTANCE: 43,
+    NEUTRAL_POLITE: 54,
+    WARM_OPEN: 66,
+    HIGH_AFFECTION: 90,
+  };
 
   const target_temperature = clamp(
     stanceBaseTemp[targetStance] + mvpBalanceDelta + targetEngagementBoost,
     14,
-    92
+    stanceMaxTemp[targetStance]
   );
 
   // Success probability (재회/썸 성사 가능성)
-  const oneSidedPenalty = Math.max(0, user_temperature - target_temperature - 25) * 0.2;
+  const oneSidedPenalty = Math.max(0, user_temperature - target_temperature - 22) * 0.22;
   const rawSuccess =
-    target_temperature * 0.65 + secFit * 0.25 + (100 - avd) * 0.1 - oneSidedPenalty;
-  const success_probability = clamp(rawSuccess, 12, 88);
+    target_temperature * 0.68 + secFit * 0.22 + (100 - avd) * 0.1 - oneSidedPenalty;
+  const stanceMaxSuccess: Record<TargetStanceTier, number> = {
+    HARD_REJECT: 28,
+    AVOIDANT_DISTANCE: 46,
+    NEUTRAL_POLITE: 56,
+    WARM_OPEN: 68,
+    HIGH_AFFECTION: 88,
+  };
+  const success_probability = clamp(rawSuccess, 12, stanceMaxSuccess[targetStance]);
 
   // Backfire risk (성급한 연락 주의 지수)
   const stanceRiskBase: Record<TargetStanceTier, number> = {
     HARD_REJECT: 82,
     AVOIDANT_DISTANCE: 68,
-    NEUTRAL_POLITE: 48,
-    WARM_OPEN: 30,
-    HIGH_AFFECTION: 18,
+    NEUTRAL_POLITE: 50,
+    WARM_OPEN: 36,
+    HIGH_AFFECTION: 20,
   };
   const avdRiskDelta = (avd - 40) * 0.18;
   const gapRiskDelta = Math.max(0, user_temperature - target_temperature) * 0.15;
