@@ -1,5 +1,6 @@
 import React from 'react';
 import { PremiumReportV2 } from '@/lib/report/premium/types';
+import FocusFrameBorder from '@/components/ui/shine-border-06';
 
 interface Props {
   summary: PremiumReportV2['executive_summary'];
@@ -13,32 +14,37 @@ export function ExecutiveSection({ summary, profile, showSummary = true, showPro
 
   return (
     <section className="space-y-6 break-keep">
-      {/* 01. Executive Summary */}
+      {/* 01. Executive Summary (FocusFrameBorder) */}
       {showSummary && (
-      <div className="bg-gradient-to-br from-blue-900 to-indigo-900 text-white p-6 sm:p-8 rounded-3xl shadow-lg relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none"></div>
-        
-        <span className="inline-block px-3 py-1 bg-white/20 rounded-full text-[11.5px] font-bold mb-4 backdrop-blur-md">
-          핵심 속마음 진단
-        </span>
-        
-        <h3 className="text-[19px] sm:text-[21px] font-black leading-snug mb-3.5 text-white/95">
-          {summary.headline || "지금 그 사람의 진짜 속마음"}
-        </h3>
-        
-        <p className="text-[14px] text-blue-100/95 leading-relaxed mb-6">
-          {summary.body}
-        </p>
-        
-        <div className="space-y-2.5">
-          {(summary.key_points || []).map((point, idx) => (
-            <div key={idx} className="flex gap-3 items-start bg-black/20 p-3.5 rounded-xl">
-              <span className="text-blue-300 font-black shrink-0">{idx + 1}</span>
-              <p className="text-[13.5px] font-medium text-white/95 leading-relaxed">{point}</p>
-            </div>
-          ))}
+      <FocusFrameBorder duration={2.4} color="#3b82f6" className="shadow-md">
+        <div className="bg-white p-6 sm:p-7">
+          <div className="flex items-center gap-2 mb-4">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-blue-50 text-blue-700 border border-blue-100 rounded-full text-[11.5px] font-extrabold">
+              <span className="w-1.5 h-1.5 rounded-full bg-blue-600 animate-pulse" />
+              핵심 속마음 진단
+            </span>
+          </div>
+
+          <h3 className="text-[19px] sm:text-[21px] font-black leading-snug mb-3 text-zinc-950">
+            {summary.headline || "지금 그 사람의 진짜 속마음"}
+          </h3>
+
+          <p className="text-[14px] text-zinc-600 leading-relaxed mb-5">
+            {summary.body}
+          </p>
+
+          <div className="space-y-2 pt-4 border-t border-zinc-100">
+            {(summary.key_points || []).map((point, idx) => (
+              <div key={idx} className="flex gap-3 items-start bg-zinc-50/80 border border-zinc-100 p-3.5 rounded-xl">
+                <span className="w-5 h-5 rounded-full bg-blue-600 text-white text-[11px] font-black flex items-center justify-center shrink-0 mt-0.5">
+                  {idx + 1}
+                </span>
+                <p className="text-[13.5px] font-semibold text-zinc-800 leading-relaxed">{point}</p>
+              </div>
+            ))}
+          </div>
         </div>
-      </div>
+      </FocusFrameBorder>
       )}
 
       {/* 02. Attachment Profile */}
