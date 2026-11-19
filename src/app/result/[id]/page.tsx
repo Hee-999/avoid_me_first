@@ -454,45 +454,6 @@ export default function Result() {
           </div>
         )}
 
-        {/* PAID BANNER + POST-PURCHASE ALIMTALK OPT-IN */}
-        {isPremium && searchParams.get("paid") === "1" && (
-          <div className="mb-5 rounded-2xl border border-emerald-200 bg-emerald-50/90 p-4 text-[12.5px] text-emerald-950 space-y-2.5">
-            <p className="font-bold">
-              ✅ 결제가 완료되었습니다! 아래에서 심층 리포트와 1:1 AI 상담을 바로 확인하세요.
-            </p>
-            {postPayStatus === "sent" ? (
-              <p className="text-[12px] font-bold text-emerald-700 bg-white rounded-xl px-3 py-2 border border-emerald-200">
-                📩 {postPayMsg}
-              </p>
-            ) : (
-              <form onSubmit={handleSendPostPayAlimtalk} className="space-y-2 pt-1">
-                <p className="text-[11.5px] text-emerald-800 font-medium">
-                  창을 닫아도 1년간 다시 보시려면 카톡으로 전용 링크와 PIN 4자리를 받아두세요.
-                </p>
-                <div className="flex gap-2">
-                  <input
-                    type="tel"
-                    inputMode="numeric"
-                    value={postPayTel}
-                    onChange={(e) => setPostPayTel(e.target.value)}
-                    placeholder="010-1234-5678"
-                    className="flex-1 bg-white border border-emerald-300 rounded-xl px-3 py-2 text-[13px] text-zinc-900 outline-none focus:border-emerald-600"
-                  />
-                  <button
-                    type="submit"
-                    disabled={postPayStatus === "sending"}
-                    className="px-3.5 py-2 bg-zinc-900 text-white text-[12px] font-bold rounded-xl hover:bg-zinc-800 transition shrink-0 cursor-pointer disabled:opacity-50"
-                  >
-                    {postPayStatus === "sending" ? "발송 중..." : "카톡 받기"}
-                  </button>
-                </div>
-                {postPayStatus === "error" && postPayMsg && (
-                  <p className="text-[11.5px] font-bold text-red-600">{postPayMsg}</p>
-                )}
-              </form>
-            )}
-          </div>
-        )}
         {isPremium && searchParams.get("topup") === "success" && (
           <div className="mb-5 rounded-xl border border-blue-200 bg-blue-50 p-3.5 text-[12.5px] font-semibold text-blue-900">
             ✅ 1:1 AI 질문권 3회가 추가 충전되었습니다! 하단 상담실에서 이어서 질문해 보세요.
@@ -600,6 +561,49 @@ export default function Result() {
           })()}
 
         </motion.div>
+
+        {/* PAID BANNER + POST-PURCHASE ALIMTALK OPT-IN (점수 카드와 핵심 속마음 진단 사이) */}
+        {isPremium && searchParams.get("paid") === "1" && (
+          <div className="mb-6 rounded-2xl border border-emerald-200 bg-emerald-50/90 p-4 text-[12.5px] text-emerald-950 space-y-2.5">
+            <p className="font-bold">
+              ✅ 결제가 완료되었습니다! 아래에서 심층 리포트와 1:1 AI 상담을 바로 확인하세요.
+            </p>
+            {postPayStatus === "sent" ? (
+              <p className="text-[12px] font-bold text-emerald-700 bg-white rounded-xl px-3 py-2 border border-emerald-200">
+                📩 {postPayMsg}
+              </p>
+            ) : (
+              <form onSubmit={handleSendPostPayAlimtalk} className="space-y-2 pt-1">
+                <p className="text-[12px] text-emerald-900 font-semibold">
+                  창을 닫아도 다시 보시려면 카톡으로 전용 링크와 비밀 키(PIN 4자리)를 받아두세요.
+                </p>
+                <div className="flex gap-2">
+                  <input
+                    type="tel"
+                    inputMode="numeric"
+                    value={postPayTel}
+                    onChange={(e) => setPostPayTel(e.target.value)}
+                    placeholder="010-1234-5678"
+                    className="flex-1 bg-white border border-emerald-300 rounded-xl px-3 py-2.5 text-[13px] text-zinc-900 outline-none focus:border-emerald-600"
+                  />
+                  <button
+                    type="submit"
+                    disabled={postPayStatus === "sending"}
+                    className="px-4 py-2.5 bg-zinc-900 text-white text-[12.5px] font-bold rounded-xl hover:bg-zinc-800 transition shrink-0 cursor-pointer disabled:opacity-50"
+                  >
+                    {postPayStatus === "sending" ? "발송 중..." : "카톡 받기"}
+                  </button>
+                </div>
+                <p className="text-[11px] text-emerald-800/90 leading-snug">
+                  🔒 입력하신 번호는 다른 목적으로 쓰이지 않고, 리포트 링크 발송과 본인만 링크를 확인할 수 있도록 본인 확인용 비밀 키 발송에만 쓰입니다.
+                </p>
+                {postPayStatus === "error" && postPayMsg && (
+                  <p className="text-[11.5px] font-bold text-red-600">{postPayMsg}</p>
+                )}
+              </form>
+            )}
+          </div>
+        )}
 
         <PremiumPurchasePrompt analysis={analysis} onUnlock={handleUnlock} isProcessing={isPaymentProcessing} isPremium={isPremium} />
 
