@@ -3,19 +3,27 @@ import { PremiumReportV2 } from '@/lib/report/premium/types';
 
 interface Props {
   evidences: PremiumReportV2['evidence_deep_dive'];
+  isFlirting?: boolean;
+  chapterLabel?: string;
 }
 
-export function EvidenceSection({ evidences }: Props) {
+export function EvidenceSection({ evidences, isFlirting = false, chapterLabel = '제2장' }: Props) {
   if (!evidences || evidences.length === 0) return null;
 
   return (
-    <section className="relative break-keep">
-      <div className="mb-4">
-        <h3 className="text-[17px] sm:text-[18px] font-black text-zinc-900 flex items-center gap-2">
-          <span className="text-xl">🕵️‍♀️</span> 카톡 장면으로 본 진짜 속마음
+    <section className="relative pt-8 border-t border-zinc-200 break-keep">
+      <div className="mb-5 text-left">
+        <span className="inline-block px-2.5 py-0.5 rounded-md bg-zinc-900 text-white text-[11px] font-black tracking-wide mb-2">
+          {chapterLabel}
+        </span>
+        <h3 className="text-[18px] sm:text-[19px] font-black text-zinc-900 flex items-center gap-2">
+          <span>🕵️‍♀️</span>
+          <span>{isFlirting ? '카톡 장면으로 본 호감 · 심리 시그널' : '카톡 장면으로 본 진짜 속마음'}</span>
         </h3>
-        <p className="text-[13px] text-zinc-500 mt-0.5">
-          그 사람이 왜 그렇게 말했는지 실제 대화 장면을 하나씩 뜯어볼게요.
+        <p className="text-[13px] text-zinc-500 mt-1">
+          {isFlirting
+            ? '그 사람이 왜 이런 말투와 리액션을 보였는지 실제 대화 장면을 하나씩 뜯어볼게요.'
+            : '그 사람이 왜 그렇게 말했는지 실제 대화 장면을 하나씩 뜯어볼게요.'}
         </p>
       </div>
 
@@ -41,7 +49,7 @@ export function EvidenceSection({ evidences }: Props) {
                 </p>
                 {evidence.observed_behavior && (
                   <div className="bg-white px-3.5 py-2.5 rounded-xl border border-zinc-200/80 text-[13.5px] font-bold text-zinc-900">
-                    “{evidence.observed_behavior}”
+                    “{evidence.observed_behavior.replace(/^[\s"'“”‘’]+|[\s"'“”‘’]+$/g, "")}”
                   </div>
                 )}
                 {evidence.interaction && (

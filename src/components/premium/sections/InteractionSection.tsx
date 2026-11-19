@@ -11,16 +11,30 @@ export function TriggerSection({ triggers }: { triggers: PremiumReportV2['trigge
   return null;
 }
 
-export function LoopSection({ loop }: { loop?: PremiumReportV2['interaction_loop'] }) {
+export function LoopSection({
+  loop,
+  isFlirting = false,
+  chapterLabel = '제3장',
+}: {
+  loop?: PremiumReportV2['interaction_loop'];
+  isFlirting?: boolean;
+  chapterLabel?: string;
+}) {
   if (!loop || !loop.steps || loop.steps.length === 0) return null;
   return (
-    <section className="relative break-keep">
-      <div className="mb-4">
-        <h3 className="text-[17px] sm:text-[18px] font-black text-zinc-900 flex items-center gap-2">
-          <span className="text-xl">🔁</span> 두 사람이 자꾸 엇갈리는 패턴
+    <section className="relative pt-8 border-t border-zinc-200 break-keep">
+      <div className="mb-5 text-left">
+        <span className="inline-block px-2.5 py-0.5 rounded-md bg-zinc-900 text-white text-[11px] font-black tracking-wide mb-2">
+          {chapterLabel}
+        </span>
+        <h3 className="text-[18px] sm:text-[19px] font-black text-zinc-900 flex items-center gap-2">
+          <span>🔁</span>
+          <span>{isFlirting ? '두 사람 대화에서 드러난 썸 흐름' : '두 사람이 자꾸 엇갈리는 패턴'}</span>
         </h3>
-        <p className="text-[13px] text-zinc-500 mt-0.5">
-          어느 순간부터 대화가 겉돌고 멀어지는지 한눈에 짚어드릴게요.
+        <p className="text-[13px] text-zinc-500 mt-1">
+          {isFlirting
+            ? '어느 지점에서 대화가 자연스럽게 이어지거나 템포가 달라지는지 한눈에 짚어드릴게요.'
+            : '어느 순간부터 대화가 겉돌고 멀어지는지 한눈에 짚어드릴게요.'}
         </p>
       </div>
       
@@ -50,7 +64,7 @@ export function LoopSection({ loop }: { loop?: PremiumReportV2['interaction_loop
           <div className="mt-6 pt-5 border-t border-zinc-800 break-inside-avoid">
             <span className="text-[12px] font-bold text-emerald-400 block mb-2.5 flex items-center gap-1.5">
               <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-              이 악순환을 끊는 핵심 포인트
+              {isFlirting ? '썸 흐름을 살리는 핵심 포인트' : '이 악순환을 끊는 핵심 포인트'}
             </span>
             <div className="space-y-2">
               {loop.break_points.map((point, idx) => (
@@ -67,6 +81,10 @@ export function LoopSection({ loop }: { loop?: PremiumReportV2['interaction_loop
   );
 }
 
-export function InteractionSection({ loop }: Props) {
-  return <LoopSection loop={loop} />;
+export function InteractionSection({
+  loop,
+  isFlirting = false,
+  chapterLabel = '제3장',
+}: Props & { isFlirting?: boolean; chapterLabel?: string }) {
+  return <LoopSection loop={loop} isFlirting={isFlirting} chapterLabel={chapterLabel} />;
 }

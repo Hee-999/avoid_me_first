@@ -105,28 +105,28 @@ OUTPUT SCHEMA FOR PART 1 (STRICT JSON, ALL VALUES IN CONVERSATIONAL KOREAN ~해�
     }
   ],
   "evidence_deep_dive": [
-    // 1 or 2 scenes MAX. Do NOT repeat the exact same wording from executive_summary!
+    // Provide 2 or 3 distinct scenes matching the core signals detected in the conversation. Do NOT repeat the exact same wording from executive_summary!
     {
-      "title": "장면 제목 (짧고 직관적으로, 예: 피곤하다며 대화를 미룬 순간)",
+      "title": "${derivedContext.analysis_mode === "flirting" ? "장면 제목 (짧고 직관적으로, 예: 약속 이야기 끝에 답장이 뜸해진 순간)" : "장면 제목 (짧고 직관적으로, 예: 피곤하다며 대화를 미룬 순간)"}",
       "situation": "어떤 분위기에서 나온 장면인지 쉽게 설명 (1문장, ~했을 때예요/~상황이었어요 체, '사용자님' 단어 금지)",
-      "observed_behavior": "그 사람이 보인 핵심 카톡 반응 요약 (1문장, ~했어요 체)",
+      "observed_behavior": "그 사람이 보인 핵심 카톡 반응 요약 (1문장, 따옴표 중복 없이 작성)",
       "interaction": "그 뒤 대화가 어떻게 흘러갔는지 (1문장, ~했죠/~했어요 체)",
       "interpretation": "그 사람이 속으로 왜 이런 반응을 보였는지 진짜 속마음 해독 (1~2문장, ~거든요/~해요 체)",
-      "alternative_explanation": "혹시 이런 현실적인 이유(피로, 타이밍 등)일 가능성도 짚어주기 (1문장, ~수도 있어요 체)",
+      "alternative_explanation": "혹시 이런 현실적인 이유(피로, 타이밍, 신중함 등)일 가능성도 짚어주기 (1문장, ~수도 있어요 체)",
       "conclusion": "그래서 이 장면을 어떻게 받아들이면 되는지 한 줄 정리 (1문장, ~해요 체)"
     }
   ],
   "trigger_profile": [],
   "interaction_loop": {
-    "summary": "두 사람이 왜 자꾸 엇갈렸는지 한두 문장으로 쉽게 짚어주기 (~해요/~거든요 체, '사용자님' 금지)",
+    "summary": "${derivedContext.analysis_mode === "flirting" ? "두 사람의 썸 흐름이 왜 이런 템포로 이어지거나 달라지는지 한두 문장으로 쉽게 짚어주기 (~해요/~거든요 체, '사용자님' 금지)" : "두 사람이 왜 자꾸 엇갈렸는지 한두 문장으로 쉽게 짚어주기 (~해요/~거든요 체, '사용자님' 금지)"}",
     "steps": [
-      "1단계 (짧고 자연스러운 구절, 예: 거리감이 느껴져 진지한 대화를 꺼냄)",
-      "2단계 (예: 부담을 느끼고 피곤하다며 한 발 물러섬)",
-      "3단계 (예: 답답한 마음에 언제 얘기할지 한 번 더 재촉함)",
-      "4단계 (예: 압박감을 이기지 못하고 대화를 닫아버림)"
+      "${derivedContext.analysis_mode === "flirting" ? "1단계 (예: 먼저 가벼운 일상이나 호감 질문을 건넴)" : "1단계 (짧고 자연스러운 구절, 예: 거리감이 느껴져 진지한 대화를 꺼냄)"}",
+      "${derivedContext.analysis_mode === "flirting" ? "2단계 (예: 상대가 호응하거나 신중하게 답장 템포를 조절함)" : "2단계 (예: 부담을 느끼고 피곤하다며 한 발 물러섬)"}",
+      "${derivedContext.analysis_mode === "flirting" ? "3단계 (예: 상대 의도를 확인하고 싶어 질문이나 선톡 빈도가 늘어남)" : "3단계 (예: 답답한 마음에 언제 얘기할지 한 번 더 재촉함)"}",
+      "${derivedContext.analysis_mode === "flirting" ? "4단계 (예: 대화 텐션이 올라가거나 한 템포 쉬어가는 흐름이 형성됨)" : "4단계 (예: 압박감을 이기지 못하고 대화를 닫아버림)"}"
     ],
     "break_points": [
-      "이 엇갈림을 끊어낼 수 있는 현실적인 스위치 한 줄 (~해보세요/~좋아요 체)"
+      "${derivedContext.analysis_mode === "flirting" ? "이 썸 흐름을 더 설레고 자연스럽게 이어주는 현실 스위치 한 줄 (~해보세요/~좋아요 체)" : "이 엇갈림을 끊어낼 수 있는 현실적인 스위치 한 줄 (~해보세요/~좋아요 체)"}"
     ]
   }
 }
@@ -138,8 +138,14 @@ export function buildPremiumReportPromptPart2(
   derivedContext: DerivedReportContext,
   targetLabel: string = "상대방"
 ): string {
+  const isFlirting = derivedContext.analysis_mode === "flirting";
+  const modeHint = isFlirting
+    ? "[분석 모드: 💘 썸 · 호감도 판독] 상대와의 썸 텐션, 호감 시그널, 답장 템포에 맞춰 코칭하세요. '재회', '이별', '방어벽' 같은 무거운 단어 대신 썸/호감/약속 잡기 상황에 맞는 실전 가이드를 작성하세요."
+    : "[분석 모드: 💔 재회 · 애매한 사이 판독] 상대의 거리두기·회피 방어벽을 낮추고 부담 없이 다시 대화를 여는 현실 코칭을 작성하세요.";
+
   return `
 You are a top Korean relationship strategist coaching the user 1:1 on how to message and handle their partner.
+${modeHint}
 
 ${COMMON_RULES}
 
@@ -163,32 +169,32 @@ OUTPUT SCHEMA FOR PART 2 (STRICT JSON, ALL VALUES IN CONVERSATIONAL KOREAN ~해�
     "likely_to_worsen": ["피해야 할 태도 1"]
   },
   "communication_guide": [
-    // Provide 2 or 3 distinct situations. NEVER start sentences with "사용자님은"! Start directly with the action!
+    // Provide 3 distinct situations. NEVER start sentences with "사용자님은"! Start directly with the action!
     {
-      "situation": "구체적인 상황 제목 (예: 피곤하다며 대화를 자꾸 미룰 때)",
-      "do": "직접 코칭하듯 행동 추천 (예: '오늘 많이 지쳤나 보네, 푹 쉬고 내일 편할 때 얘기하자'라고 가볍게 물러서 주세요.)",
-      "dont": "직접 코칭하듯 금지 행동 안내 (예: '맨날 피하기만 하잖아, 언제 얘기할 건데?'라며 바로 답을 재촉하지 마세요.)",
+      "situation": "${isFlirting ? "구체적인 썸 상황 제목 (예: 답장 간격이 평소보다 조금 길어졌을 때)" : "구체적인 상황 제목 (예: 피곤하다며 대화를 자꾸 미룰 때)"}",
+      "do": "${isFlirting ? "직접 코칭하듯 행동 추천 (예: '오늘 바쁜 날인가 보다! 이따 여유 있을 때 천천히 답장해~'처럼 가볍게 여지를 주세요.)" : "직접 코칭하듯 행동 추천 (예: '오늘 많이 지쳤나 보네, 푹 쉬고 내일 편할 때 얘기하자'라고 가볍게 물러서 주세요.)"}",
+      "dont": "${isFlirting ? "직접 코칭하듯 금지 행동 안내 (예: '왜 답장 안 해? 바빠?'라며 조급하게 이유를 캐묻지 마세요.)" : "직접 코칭하듯 금지 행동 안내 (예: '맨날 피하기만 하잖아, 언제 얘기할 건데?'라며 바로 답을 재촉하지 마세요.)"}",
       "why": "왜 이렇게 해야 그 사람 마음이 열리는지 쉽게 설명 (1문장, ~거든요/~해요 체)"
     }
   ],
   "conversation_rewrites": [
-    // Provide EXACTLY 2 realistic KakaoTalk comparisons.
+    // Provide 2 or 3 realistic KakaoTalk comparisons matching the situations above.
     {
-      "situation": "카톡 보내는 상황 (예: 대화를 피하고 답장이 느려졌을 때)",
-      "original_pattern_summary": "실제 카톡 대사만 작성! 자칫 보내기 쉬운 부담/추궁 카톡 대사 (예: 왜 맨날 피하기만 해? 우리 얘기 좀 하자니까)",
-      "recommended_message": "실제 카톡 대사만 작성! 상대 부담을 확 낮추는 자연스러운 2030 현실 카톡 대사 (예: 오늘 정신없었지 ㅋㅋ 일단 푹 쉬어~ 내일 저녁에 잠깐 톡 하자)",
+      "situation": "${isFlirting ? "카톡 보내는 상황 (예: 자연스럽게 다음 약속을 잡거나 선톡할 때)" : "카톡 보내는 상황 (예: 대화를 피하고 답장이 느려졌을 때)"}",
+      "original_pattern_summary": "${isFlirting ? "실제 카톡 대사만 작성! 부담 주거나 너무 조급해 보이는 대사 (예: 이번 주말에 시간 돼? 나랑 밥 먹자 언제 볼래?)" : "실제 카톡 대사만 작성! 자칫 보내기 쉬운 부담/추궁 카톡 대사 (예: 왜 맨날 피하기만 해? 우리 얘기 좀 하자니까)"}",
+      "recommended_message": "${isFlirting ? "실제 카톡 대사만 작성! 자연스럽게 호감을 키우는 2030 현실 썸 카톡 (예: 여기 파스타 진짜 맛있다는데 ㅋㅋ 이번 주에 시간 맞으면 같이 가볼래?)" : "실제 카톡 대사만 작성! 상대 부담을 확 낮추는 자연스러운 2030 현실 카톡 대사 (예: 오늘 정신없었지 ㅋㅋ 일단 푹 쉬어~ 내일 저녁에 잠깐 톡 하자)"}",
       "why": "이 말투가 왜 먹히는지 한 줄 설명 (~거든요/~해요 체)"
     }
   ],
   "recovery_signals": [
-    "그 사람 마음이 풀리고 있다는 청신호 1 (~할 때)",
-    "청신호 2 (~할 때)",
-    "청신호 3 (~할 때)"
+    "${isFlirting ? "호감이 올라가고 있다는 그린라이트 1 (~할 때)" : "그 사람 마음이 풀리고 있다는 청신호 1 (~할 때)"}",
+    "${isFlirting ? "그린라이트 2 (~할 때)" : "청신호 2 (~할 때)"}",
+    "${isFlirting ? "그린라이트 3 (~할 때)" : "청신호 3 (~할 때)"}"
   ],
   "risk_signals": [
-    "아직 방어벽이 높으니 한 템포 쉬어가야 할 적신호 1 (~할 때)",
-    "적신호 2 (~할 때)",
-    "적신호 3 (~할 때)"
+    "${isFlirting ? "템포를 조금 조절해야 할 주의 신호 1 (~할 때)" : "아직 방어벽이 높으니 한 템포 쉬어가야 할 적신호 1 (~할 때)"}",
+    "${isFlirting ? "주의 신호 2 (~할 때)" : "적신호 2 (~할 때)"}",
+    "${isFlirting ? "주의 신호 3 (~할 때)" : "적신호 3 (~할 때)"}"
   ],
   "action_plan": {
     "next_conflict": ["온도차가 다시 벌어질 때 대처법 1문장 (~해보세요 체)"],

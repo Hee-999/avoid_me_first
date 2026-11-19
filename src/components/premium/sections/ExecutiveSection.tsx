@@ -7,16 +7,52 @@ interface Props {
   profile: PremiumReportV2['attachment_profile'];
   showSummary?: boolean;
   showProfile?: boolean;
+  isFlirting?: boolean;
+  chapterLabel?: string;
 }
 
-export function ExecutiveSection({ summary, profile, showSummary = true, showProfile = true }: Props) {
+export function ExecutiveSection({
+  summary,
+  profile,
+  showSummary = true,
+  showProfile = true,
+  isFlirting = false,
+  chapterLabel = '제1장',
+}: Props) {
   if (!summary || !profile) return null;
 
   return (
-    <section className="space-y-6 break-keep">
-      {/* 01. Executive Summary (FocusFrameBorder) */}
+    <section className="space-y-5 break-keep">
+      {/* 제1장. 핵심 속마음 진단 + 비학술 설계도 요약 */}
       {showSummary && (
-      <FocusFrameBorder duration={2.4} color="#3b82f6" className="shadow-md">
+      <>
+        <div className="text-left">
+          <span className="inline-block px-2.5 py-0.5 rounded-md bg-zinc-900 text-white text-[11px] font-black tracking-wide mb-2">
+            {chapterLabel}
+          </span>
+          <h3 className="text-[18px] sm:text-[19px] font-black text-zinc-900">
+            {isFlirting ? '상대의 진짜 속마음 & 호감 설계도' : '상대의 진짜 속마음 & 관계 설계도'}
+          </h3>
+          <p className="text-[13px] text-zinc-500 mt-1">
+            {isFlirting
+              ? '상대가 내게 얼마나 마음을 열고 있는지, 왜 이런 템포로 답장하는지 핵심부터 짚어드릴게요.'
+              : '상대가 나를 밀어내는 것처럼 보여도 그 안에 어떤 마음이 작동하고 있는지 핵심부터 짚어드릴게요.'}
+          </p>
+        </div>
+
+        {/* 바솔로뮤 비학술 설계도 요약 (2줄) */}
+        <div className="bg-zinc-50 border border-zinc-200/80 rounded-2xl p-4 text-[12.5px] text-zinc-700 leading-relaxed space-y-1">
+          <p className="font-extrabold text-zinc-900 text-[12px]">
+            🧭 이 리포트를 읽는 핵심 기준 (마음의 거리 × 자기 보호)
+          </p>
+          <p>
+            {isFlirting
+              ? '사람마다 상대에게 기대고 싶은 마음과, 섣불리 상처받지 않으려는 신중함의 균형이 달라요. 아래 장면들은 그 사람이 두 마음 사이에서 어떻게 템포를 조절하는지 보여주는 기록이에요.'
+              : '사람마다 상대와 가까워지고 싶은 마음과, 감정이 버거울 때 스스로를 지키려는 방어 본능이 달라요. 아래 장면들은 그 사람이 두 마음 사이에서 어떻게 거리를 조절하는지 보여주는 기록이에요.'}
+          </p>
+        </div>
+
+        <FocusFrameBorder duration={2.4} color="#3b82f6" className="shadow-md">
         <div className="bg-white p-6 sm:p-7">
           <div className="flex items-center gap-2 mb-4">
             <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-blue-50 text-blue-700 border border-blue-100 rounded-full text-[11.5px] font-extrabold">
@@ -45,6 +81,7 @@ export function ExecutiveSection({ summary, profile, showSummary = true, showPro
           </div>
         </div>
       </FocusFrameBorder>
+      </>
       )}
 
       {/* 02. Attachment Profile */}
