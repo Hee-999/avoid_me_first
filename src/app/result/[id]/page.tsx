@@ -110,6 +110,9 @@ export default function Result() {
   const [analysis, setAnalysis] = useState<FinalAnalysis | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isExporting, setIsExporting] = useState(false);
+  const [postPayTel, setPostPayTel] = useState("");
+  const [postPayStatus, setPostPayStatus] = useState<"idle" | "sending" | "sent" | "error">("idle");
+  const [postPayMsg, setPostPayMsg] = useState<string | null>(null);
   const [isPaymentProcessing, setIsPaymentProcessing] = useState(false);
   const [shareId, setShareId] = useState<string | null>(null);
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
@@ -390,16 +393,33 @@ export default function Result() {
       return;
     }
 
-    if (!buyerTel) {
-      const telEl = document.getElementById("buyer-tel-input") as HTMLInputElement | null;
-      if (telEl) {
-        telEl.scrollIntoView({ behavior: "smooth", block: "center" });
-        setTimeout(() => telEl.focus(), 350);
-        return;
-      }
-    }
-
     await startNicepayCheckout("report", buyerTel);
+  };
+
+  const handleSendPostPayAlimtalk = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const digits = postPayTel.replace(/[^0-9]/g, "");
+    if (!/^01[016789]\d{7,8}$/.test(digits)) {
+      setPostPayStatus("error");
+      setPostPayMsg("올바른 휴대폰 번호(010...)를 입력해주세요.");
+      return;
+    }
+    setPostPayStatus("sending");
+    setPostPayMsg(null);
+    try {
+      const res = await fetch(`/api/report/send-access/${id}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ buyerTel: digits }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "발송에 실패했습니다.");
+      setPostPayStatus("sent");
+      setPostPayMsg("카카오톡으로 전용 링크와 열람 PIN 4자리를 발송했습니다!");
+    } catch (err: any) {
+      setPostPayStatus("error");
+      setPostPayMsg(err.message || "발송 중 오류가 발생했습니다.");
+    }
   };
 
   const handleTopupPay = async () => {
@@ -434,10 +454,43 @@ export default function Result() {
           </div>
         )}
 
-        {/* PAID BANNER */}
+        {/* PAID BANNER + POST-PURCHASE ALIMTALK OPT-IN */}
         {isPremium && searchParams.get("paid") === "1" && (
-          <div className="mb-5 rounded-xl border border-emerald-200 bg-emerald-50 p-3.5 text-[12.5px] font-semibold text-emerald-900">
-            ✅ 결제가 완료되었습니다! 입력하신 휴대폰 번호로 <strong>전용 링크와 열람 PIN 4자리</strong>를 발송했습니다.
+          <div className="mb-5 rounded-2xl border border-emerald-200 bg-emerald-50/90 p-4 text-[12.5px] text-emerald-950 space-y-2.5">
+            <p className="font-bold">
+              ✅ 결제가 완료되었습니다! 아래에서 심층 리포트와 1:1 AI 상담을 바로 확인하세요.
+            </p>
+            {postPayStatus === "sent" ? (
+              <p className="text-[12px] font-bold text-emerald-700 bg-white rounded-xl px-3 py-2 border border-emerald-200">
+                📩 {postPayMsg}
+              </p>
+            ) : (
+              <form onSubmit={handleSendPostPayAlimtalk} className="space-y-2 pt-1">
+                <p className="text-[11.5px] text-emerald-800 font-medium">
+                  창을 닫아도 1년간 다시 보시려면 카톡으로 전용 링크와 PIN 4자리를 받아두세요.
+                </p>
+                <div className="flex gap-2">
+                  <input
+                    type="tel"
+                    inputMode="numeric"
+                    value={postPayTel}
+                    onChange={(e) => setPostPayTel(e.target.value)}
+                    placeholder="010-1234-5678"
+                    className="flex-1 bg-white border border-emerald-300 rounded-xl px-3 py-2 text-[13px] text-zinc-900 outline-none focus:border-emerald-600"
+                  />
+                  <button
+                    type="submit"
+                    disabled={postPayStatus === "sending"}
+                    className="px-3.5 py-2 bg-zinc-900 text-white text-[12px] font-bold rounded-xl hover:bg-zinc-800 transition shrink-0 cursor-pointer disabled:opacity-50"
+                  >
+                    {postPayStatus === "sending" ? "발송 중..." : "카톡 받기"}
+                  </button>
+                </div>
+                {postPayStatus === "error" && postPayMsg && (
+                  <p className="text-[11.5px] font-bold text-red-600">{postPayMsg}</p>
+                )}
+              </form>
+            )}
           </div>
         )}
         {isPremium && searchParams.get("topup") === "success" && (

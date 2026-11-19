@@ -24,16 +24,8 @@ export default function SampleResultPage() {
     "주말 일정과 서운한 감정을 꺼냈을 때, 상대방이 피곤하다는 이유로 대화를 미루고 답장을 멈춘 장면";
 
   // NICEPAY 결제 모듈 진입 핸들러 (샘플 확인용)
-  const handleUnlock = async (buyerTel?: string) => {
+  const handleUnlock = async () => {
     if (isPaymentProcessing) return;
-    if (!buyerTel) {
-      const telEl = document.getElementById("buyer-tel-input") as HTMLInputElement | null;
-      if (telEl) {
-        telEl.scrollIntoView({ behavior: "smooth", block: "center" });
-        setTimeout(() => telEl.focus(), 350);
-        return;
-      }
-    }
     try {
       setIsPaymentProcessing(true);
 
@@ -53,7 +45,6 @@ export default function SampleResultPage() {
         orderId: orderId,
         amount: PRICING.REPORT.salePrice,
         goodsName: PRICING.REPORT.shortName,
-        ...(buyerTel ? { buyerTel } : {}),
         returnUrl: `${baseUrl}/api/premium/callback`,
         fnError: function (result: any) {
           setIsPaymentProcessing(false);

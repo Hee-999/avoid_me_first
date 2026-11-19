@@ -32,11 +32,7 @@ export function PremiumPurchasePrompt({
   isPremium = false,
 }: PremiumPurchasePromptProps) {
   const cardRef = useRef<HTMLElement>(null);
-  const telInputRef = useRef<HTMLInputElement>(null);
   const [showSticky, setShowSticky] = useState(false);
-  const [buyerTel, setBuyerTel] = useState("");
-  const [telError, setTelError] = useState<string | null>(null);
-  const [selectedChipHint, setSelectedChipHint] = useState<string | null>(null);
 
   const offer = getPremiumOffer(analysis);
   const label = getPurchaseLabel(analysis);
@@ -57,19 +53,6 @@ export function PremiumPurchasePrompt({
     .replace(/SPEAKER_A/g, targetName)
     .replace(/SPEAKER_B/g, "나")
     .trim();
-
-  const previewChips =
-    mode === "flirting"
-      ? [
-          `${targetName}한테 내가 보낼 카톡 첨삭해줘`,
-          `지금 먼저 선톡하면 부담스러워할까?`,
-          `이거 진짜 호감일까, 어장/예의일까?`,
-        ]
-      : [
-          `${targetName}한테 내가 보낼 카톡 첨삭해줘`,
-          `지금 먼저 연락하면 역효과 날까?`,
-          `다시 예전처럼 돌아갈 수 있을까?`,
-        ];
 
   useEffect(() => {
     if (!available) return;
@@ -96,18 +79,8 @@ export function PremiumPurchasePrompt({
     };
   }, [available]);
 
-  const handlePayAttempt = (fromSticky = false) => {
-    const digits = buyerTel.replace(/[^0-9]/g, "");
-    if (!/^01[016789]\d{7,8}$/.test(digits)) {
-      setTelError("리포트 전용 링크와 열람 PIN 4자리를 받을 휴대폰 번호를 입력해주세요.");
-      if (fromSticky) {
-        cardRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
-      }
-      setTimeout(() => telInputRef.current?.focus(), fromSticky ? 350 : 0);
-      return;
-    }
-    setTelError(null);
-    onUnlock(digits);
+  const handlePayAttempt = () => {
+    onUnlock();
   };
 
   if (!available) return null;
@@ -169,8 +142,9 @@ export function PremiumPurchasePrompt({
           </div>
 
           <div className="rounded-lg bg-white p-3 border border-zinc-200/80">
-            <p className="text-[12px] font-bold text-emerald-800">
-              3. 💬 복사해서 바로 쓰는 상황별 카톡 답장 3선 + 성사 확률 %
+            <p className="text-[12px] font-bold text-emerald-800 break-keep">
+              3. 💬 복사해 바로 쓰는 카톡 답장 3선 +{" "}
+              <span className="whitespace-nowrap">성사 확률 %</span>
             </p>
             <p className="mt-1 text-[12px] text-zinc-600">
               {targetName}님의 성향에 맞춰{" "}
@@ -180,35 +154,6 @@ export function PremiumPurchasePrompt({
               을 즉시 복사해 쓰실 수 있습니다.
             </p>
           </div>
-        </div>
-
-        {/* AI 1:1 상담 프리뷰 (Hook) */}
-        <div className="mt-4 rounded-xl border border-blue-200/80 bg-blue-50/50 p-3.5">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-[12px] font-extrabold text-blue-900">
-              💬 1:1 AI 속마음 상담 예시 질문 (결제 시 질문권 3회 포함)
-            </span>
-          </div>
-          <div className="flex flex-wrap gap-1.5">
-            {previewChips.map((chip, idx) => (
-              <button
-                key={idx}
-                type="button"
-                onClick={() => {
-                  setSelectedChipHint(`"${chip}" 질문은 잠금 해제 즉시 1:1 AI 상담에서 바로 답변해 드립니다!`);
-                  telInputRef.current?.focus();
-                }}
-                className="text-left text-[11.5px] font-semibold text-blue-900 bg-white hover:bg-blue-100/70 border border-blue-200 rounded-full px-2.5 py-1 transition cursor-pointer"
-              >
-                🔒 {chip}
-              </button>
-            ))}
-          </div>
-          {selectedChipHint && (
-            <p className="mt-2 text-[11.5px] font-bold text-blue-700 leading-snug">
-              ✨ {selectedChipHint}
-            </p>
-          )}
         </div>
 
         {/* 가격 & 오픈 특가 안내 (4,900원 취소선 + 2,900원 + 41% OFF) */}
@@ -234,34 +179,8 @@ export function PremiumPurchasePrompt({
           </div>
         </div>
 
-        {/* 문자 받을 휴대폰 번호 입력 (1칸) */}
-        <div className="mb-3 rounded-xl border border-zinc-200 bg-zinc-50 p-3">
-          <label htmlFor="buyer-tel-input" className="block text-[12px] font-bold text-zinc-800 mb-1.5">
-            📱 리포트 전용 링크 &amp; 열람 PIN 4자리 받을 번호
-          </label>
-          <input
-            ref={telInputRef}
-            id="buyer-tel-input"
-            type="tel"
-            inputMode="numeric"
-            value={buyerTel}
-            onChange={(e) => {
-              setBuyerTel(e.target.value);
-              if (telError) setTelError(null);
-            }}
-            placeholder="010-1234-5678 (회원가입 없이 문자로 발송)"
-            className="w-full bg-white border border-zinc-300 rounded-lg px-3 py-2.5 text-[14px] text-zinc-900 outline-none focus:border-zinc-900 transition"
-          />
-          <p className="mt-1.5 text-[11px] text-zinc-500 leading-snug">
-            다른 브라우저(사파리·크롬 등)로 이동해도 문자에 적힌 링크와 랜덤 PIN 4자리로 언제든 다시 보고 상담을 이어갈 수 있어요.
-          </p>
-          {telError && (
-            <p className="mt-1.5 text-[11.5px] font-bold text-red-600">{telError}</p>
-          )}
-        </div>
-
         <ShimmerButton
-          onClick={() => handlePayAttempt(false)}
+          onClick={handlePayAttempt}
           disabled={isProcessing}
           data-purchase-placement="summary"
           shimmerColor="#ffffff"
@@ -282,24 +201,12 @@ export function PremiumPurchasePrompt({
         </ShimmerButton>
 
         <div className="mt-2.5 flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-[11px] font-medium text-zinc-500">
+          <span>✓ 회원가입 없음</span>
+          <span>·</span>
           <span>✓ 결제 즉시 열람</span>
           <span>·</span>
-          <span>✓ 1년간 전용 링크 다시보기</span>
-          <span>·</span>
-          <span>✓ 회원가입 없음</span>
+          <span>✓ 카톡 링크·PIN 보관 지원</span>
         </div>
-
-        <button
-          type="button"
-          onClick={() =>
-            document
-              .getElementById("premium-purchase-details")
-              ?.scrollIntoView({ behavior: "smooth", block: "start" })
-          }
-          className="mx-auto mt-3 block text-[12px] font-semibold text-zinc-500 underline underline-offset-4 cursor-pointer"
-        >
-          리포트에 담긴 전체 구성 자세히 보기
-        </button>
       </section>
 
       {showSticky &&
@@ -319,7 +226,7 @@ export function PremiumPurchasePrompt({
               </span>
             </div>
             <ShimmerButton
-              onClick={() => handlePayAttempt(true)}
+              onClick={handlePayAttempt}
               disabled={isProcessing}
               data-purchase-placement="sticky"
               shimmerColor="#ffffff"

@@ -49,9 +49,9 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
       if (row.premium_unlocked) {
         return NextResponse.json({ error: "이미 잠금 해제된 리포트입니다." }, { status: 400 });
       }
-      if (!isValidKoreanPhone(normalizedTel)) {
+      if (normalizedTel && !isValidKoreanPhone(normalizedTel)) {
         return NextResponse.json(
-          { error: "리포트 전용 링크와 열람 PIN을 받을 올바른 휴대폰 번호를 입력해주세요." },
+          { error: "올바른 휴대폰 번호를 입력해주세요." },
           { status: 400 }
         );
       }
@@ -74,7 +74,9 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
         order_id: orderId,
         order_type: orderType,
         amount,
-        ...(orderType === "report" ? { buyer_tel: normalizedTel } : {}),
+        ...(orderType === "report" && normalizedTel && isValidKoreanPhone(normalizedTel)
+          ? { buyer_tel: normalizedTel }
+          : {}),
         payment_status: "pending",
         created_at: new Date().toISOString(),
       },

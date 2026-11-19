@@ -1,7 +1,53 @@
+"use client";
+
 import Link from "next/link";
 import { FinalAnalysis } from "@/lib/analysis/types";
 import { getPremiumOffer } from "@/lib/report/premium/offer";
 import { ShimmerButton } from "@/components/ui/shimmer-button";
+import { PRICING } from "@/config/pricing";
+
+const PREVIEW_CHAPTERS = [
+  {
+    num: "Ch 1",
+    shortTitle: "속마음 · 온도차",
+    img: "/images/report-preview/ch1.png",
+  },
+  {
+    num: "Ch 2",
+    shortTitle: "카톡 장면 해독",
+    img: "/images/report-preview/ch2.png",
+  },
+  {
+    num: "Ch 3",
+    shortTitle: "엇갈리는 패턴",
+    img: "/images/report-preview/ch3.png",
+  },
+  {
+    num: "Ch 4",
+    shortTitle: "실전 대처 기준",
+    img: "/images/report-preview/ch4.png",
+  },
+  {
+    num: "Ch 5",
+    shortTitle: "답장 톤 비교",
+    img: "/images/report-preview/ch5.png",
+  },
+  {
+    num: "Ch 6",
+    shortTitle: "타이밍 · 신호",
+    img: "/images/report-preview/ch6.png",
+  },
+  {
+    num: "Ch 7",
+    shortTitle: "심리 4분면 차트",
+    img: "/images/report-preview/ch7.png",
+  },
+  {
+    num: "Ch 8",
+    shortTitle: "1:1 AI 상담실",
+    img: "/images/report-preview/ch8.png",
+  },
+];
 
 export function PremiumReportLocked({
   analysis,
@@ -15,270 +61,145 @@ export function PremiumReportLocked({
   const offer = getPremiumOffer(analysis);
   const targetName = analysis?.target_speaker_label || "상대방";
 
-  const chapterList = [
-    { num: "Main 1", title: "상대방 진짜 속마음 해부 & 관계 종합 진단", highlight: true },
-    { num: "Main 2", title: "재회·썸 성사 확률 % & 쌍방 온도차 정밀 분석", highlight: true },
-    { num: "Main 3", title: "지금 보내면 망하는 금지 멘트 & 카톡 답장 3선", highlight: true },
-    { num: "Main 4", title: "1:1 AI 속마음 상담실 (맞춤 첨삭 질문권 3회 포함)", highlight: true },
-    { num: "Ch 5", title: "주요 카톡 장면별 심리 근거 딥다이브 (Evidence)" },
-    { num: "Ch 6", title: "거리두기·밀당 유발 요인(Trigger) 정밀 진단" },
-    { num: "Ch 7", title: "반복되는 오해와 갈등 상호작용 루프 분석" },
-    { num: "Ch 8", title: "대화 복귀 신호(Recovery) & 골든타임 가이드" },
-    { num: "Ch 9", title: "향후 7일 · 30일 관계 주도권 실천 로드맵" },
-    { num: "Ch 10", title: "학술 근거: 바솔로뮤 2D 애착 프로필 차트 & 패턴" },
-  ];
-
   return (
-    <section className="relative mt-8 pt-8 border-t border-zinc-200">
-      <div className="mb-6 text-center">
-        <h2 className="text-[22px] font-black text-zinc-900 mb-1.5">프리미엄 관계 분석 리포트</h2>
-        <p className="text-[13.5px] text-zinc-500">
-          {targetName}님의 속마음 해부 · 실전 카톡 답장 · 1:1 AI 상담까지 한 번에
-        </p>
+    <section className="relative mt-6 pt-6 border-t border-zinc-200 break-keep">
+      <div className="mb-3.5 flex items-end justify-between px-0.5">
+        <div>
+          <span className="inline-block text-[11px] font-extrabold text-blue-600 mb-0.5">
+            총 {PREVIEW_CHAPTERS.length}개 챕터 구성 한눈에 보기
+          </span>
+          <h3 className="text-[17px] font-black text-zinc-900">
+            결제하면 바로 열리는 리포트 전체 구성
+          </h3>
+        </div>
+        <span className="text-[11px] font-extrabold text-zinc-600 bg-zinc-100 px-2.5 py-1 rounded-full shrink-0">
+          8개 챕터
+        </span>
       </div>
 
-      <div className="bg-white p-5 sm:p-6 rounded-2xl border border-zinc-200 relative overflow-hidden select-none">
-        {/* 1. V3 순서에 맞춘 리포트 수록 목차 */}
-        <div className="mb-7 space-y-2">
-          <div className="flex items-center justify-between text-[12px] font-bold text-zinc-500 pb-2 border-b border-zinc-100">
-            <span>📑 리포트 수록 구성 (핵심 실전 + 1:1 상담 3회)</span>
-            <span className="text-amber-700 font-extrabold">결제 즉시 전체 열람</span>
-          </div>
-          <div className="space-y-1.5 text-left text-[12.5px]">
-            {chapterList.map((chap, idx) => (
-              <div
-                key={idx}
-                className={`flex items-center justify-between px-3 py-2.5 rounded-xl border ${
-                  chap.highlight
-                    ? "bg-amber-50/70 border-amber-200/80 text-amber-950 font-bold"
-                    : "bg-zinc-50/90 border-zinc-100 text-zinc-800 font-semibold"
-                }`}
-              >
-                <div className="flex items-center gap-2 truncate pr-2">
-                  <span className="text-[11px] font-mono px-1.5 py-0.5 rounded bg-zinc-200/60 text-zinc-600 shrink-0 font-bold">
-                    {chap.num}
-                  </span>
-                  <span className="truncate">{chap.title}</span>
-                </div>
-                <span className="text-[11px] text-zinc-400 font-medium shrink-0 flex items-center gap-1">
-                  <span>🔒</span>
-                  <span>{chap.highlight ? "핵심 실전" : "상세 근거"}</span>
+      {/* 4x2 8개 챕터 한눈에 보기 그리드 (내용 노출 없이 구성과 분량만 직관적으로 전달) */}
+      <div className="grid grid-cols-4 gap-2 mb-5">
+        {PREVIEW_CHAPTERS.map((chap) => (
+          <div
+            key={chap.num}
+            className="bg-white rounded-xl border border-zinc-200/90 shadow-xs overflow-hidden flex flex-col"
+          >
+            <div className="relative aspect-[3/4] bg-zinc-100 overflow-hidden">
+              <img
+                src={chap.img}
+                alt={`${chap.num} ${chap.shortTitle}`}
+                className="w-full h-full object-cover object-top scale-[1.02] blur-[0.6px] select-none pointer-events-none"
+                loading="lazy"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-zinc-950/65 via-transparent to-zinc-950/15 flex flex-col justify-between p-1.5">
+                <span className="self-start inline-block text-[9px] font-black text-white bg-zinc-900/80 backdrop-blur-xs px-1.5 py-0.5 rounded">
+                  {chap.num}
+                </span>
+                <span className="self-center inline-flex items-center gap-0.5 text-[9px] font-bold text-white/95 bg-zinc-900/75 px-1.5 py-0.5 rounded-full">
+                  🔒
                 </span>
               </div>
-            ))}
+            </div>
+            <div className="px-1.5 py-1.5 bg-zinc-50/90 border-t border-zinc-100 text-center">
+              <p className="text-[10px] font-bold text-zinc-800 leading-tight truncate">
+                {chap.shortTitle}
+              </p>
+            </div>
           </div>
+        ))}
+      </div>
+
+      {/* 4줄 요약 + 덤 혜택 + 최종 결제 카드 */}
+      <div className="bg-slate-900 text-white rounded-3xl p-5 sm:p-6 shadow-xl shadow-slate-950/15 space-y-5">
+        <div className="space-y-2">
+          <p className="text-[11.5px] font-semibold text-slate-400">
+            {targetName}님 대화 분석 심층 리포트
+          </p>
+          <h4 className="text-[20px] font-black tracking-tight text-white">
+            러브패턴 8개 챕터 전체 분석
+          </h4>
+          <p className="text-[13.5px] text-slate-300 leading-relaxed pt-1">
+            “지금 연락해도 될지 혼자 고민만 하다 타이밍을 놓치기 전에, 대화 속 숨은 속마음과 답장 기준을 한 번에 정리했어요.”
+          </p>
         </div>
 
-        {/* 2. 실제 결제 후 리포트 축소 캡처본 예시 (사주 스타일 빼곡한 페이지 뷰) */}
-        <div className="my-7 rounded-2xl border border-zinc-200 bg-gradient-to-b from-zinc-50/90 via-white to-white p-4 sm:p-5 text-center">
-          <div className="flex items-center justify-between text-[11px] text-zinc-400 font-semibold mb-3 px-1">
-            <span>📄 실제 제공되는 리포트 페이지 구성</span>
-            <span className="text-[10px] bg-zinc-200/60 px-1.5 py-0.5 rounded text-zinc-600">샘플 리포트</span>
-          </div>
+        <ul className="border-y border-white/10 py-4 space-y-2 text-[13px] text-slate-200 leading-relaxed">
+          <li className="flex items-start gap-2">
+            <span className="text-blue-400 font-bold">·</span>
+            <span>상대의 실제 속마음 온도(%) &amp; 재회·진전 가능성 판독</span>
+          </li>
+          <li className="flex items-start gap-2">
+            <span className="text-blue-400 font-bold">·</span>
+            <span>카톡 장면별 숨은 의도 해독 + 두 사람이 엇갈리는 패턴</span>
+          </li>
+          <li className="flex items-start gap-2">
+            <span className="text-blue-400 font-bold">·</span>
+            <span>상황별 실전 대처 기준 &amp; 복사해서 바로 쓰는 답장 3선</span>
+          </li>
+          <li className="flex items-start gap-2">
+            <span className="text-blue-400 font-bold">·</span>
+            <span>결제 후 카톡 링크·PIN 4자리로 언제든 다시 보기</span>
+          </li>
+        </ul>
 
-          {/* 실제 리포트 페이지를 그대로 축소한 4장(A4 4페이지) 썸네일 그리드 */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-            {/* Page 1: 표지 & 핵심 요약 진단 */}
-            <div className="rounded-xl border border-zinc-200 bg-white p-2.5 shadow-sm text-left h-48 flex flex-col justify-between overflow-hidden relative">
-              <div className="space-y-1.5">
-                <div className="flex items-center justify-between border-b border-zinc-100 pb-1">
-                  <span className="text-[9px] font-black text-blue-600 uppercase tracking-tighter">LOVE PATTERN</span>
-                  <span className="text-[9px] text-zinc-400 font-mono">p.1</span>
-                </div>
-                <div className="bg-gradient-to-br from-blue-900 to-indigo-900 rounded-lg p-2 text-white">
-                  <span className="text-[8px] bg-white/20 px-1 rounded font-bold">핵심 요약</span>
-                  <p className="text-[9px] font-bold mt-1 line-clamp-1">{targetName}님의 애착 패턴 진단</p>
-                  <div className="space-y-0.5 mt-1.5 opacity-60">
-                    <div className="h-1 bg-white/50 rounded w-full"></div>
-                    <div className="h-1 bg-white/50 rounded w-4/5"></div>
-                  </div>
-                </div>
-                <div className="p-1.5 rounded-lg border border-blue-100 bg-blue-50/40 space-y-1">
-                  <div className="text-[8.5px] font-bold text-zinc-800">Ch.2 애착 프로필</div>
-                  <div className="h-1 bg-zinc-200 rounded w-3/4"></div>
-                  <div className="h-1 bg-zinc-200 rounded w-full"></div>
-                </div>
-              </div>
-              <div className="text-[9px] text-zinc-400 font-medium text-center bg-zinc-50 py-0.5 rounded border border-zinc-100">
-                Ch 1~2 종합 진단서
-              </div>
-            </div>
-
-            {/* Page 2: 2D 프로필 차트 & 카톡 말풍선 해독 */}
-            <div className="rounded-xl border border-zinc-200 bg-white p-2.5 shadow-sm text-left h-48 flex flex-col justify-between overflow-hidden relative">
-              <div className="space-y-1.5">
-                <div className="flex items-center justify-between border-b border-zinc-100 pb-1">
-                  <span className="text-[9px] font-bold text-zinc-500">2D Profile & Evidence</span>
-                  <span className="text-[9px] text-zinc-400 font-mono">p.2</span>
-                </div>
-                {/* 모의 2D 사분면 차트 박스 */}
-                <div className="h-14 rounded-lg bg-zinc-50 border border-zinc-200 p-1 flex items-center justify-center relative">
-                  <div className="w-full h-px bg-zinc-300 absolute"></div>
-                  <div className="h-full w-px bg-zinc-300 absolute"></div>
-                  <div className="w-2.5 h-2.5 rounded-full bg-blue-600 shadow z-10 translate-x-2 -translate-y-2"></div>
-                  <span className="text-[7.5px] text-zinc-400 absolute bottom-0.5 right-1">회피 회귀축</span>
-                </div>
-                {/* Evidence 말풍선 블록 */}
-                <div className="space-y-1">
-                  <div className="bg-zinc-50 p-1 rounded border border-zinc-100 text-[8px] text-zinc-600 truncate">
-                    💬 "{targetName}: 그냥 피곤해서 그래"
-                  </div>
-                  <div className="h-1 bg-blue-100 rounded w-full"></div>
-                  <div className="h-1 bg-zinc-200 rounded w-5/6"></div>
-                </div>
-              </div>
-              <div className="text-[9px] text-zinc-400 font-medium text-center bg-zinc-50 py-0.5 rounded border border-zinc-100">
-                Ch 3~5 행동 & 트리거
-              </div>
-            </div>
-
-            {/* Page 3: 갈등 루프 분석 & 소통 가이드 */}
-            <div className="rounded-xl border border-zinc-200 bg-white p-2.5 shadow-sm text-left h-48 flex flex-col justify-between overflow-hidden relative">
-              <div className="space-y-1.5">
-                <div className="flex items-center justify-between border-b border-zinc-100 pb-1">
-                  <span className="text-[9px] font-bold text-zinc-500">Loop & Guide</span>
-                  <span className="text-[9px] text-zinc-400 font-mono">p.3</span>
-                </div>
-                <div className="p-1.5 rounded-lg border border-purple-100 bg-purple-50/40 space-y-1">
-                  <span className="text-[8px] font-bold text-purple-900">갈등 상호작용 순환도</span>
-                  <div className="space-y-0.5">
-                    <div className="h-1 bg-purple-200 rounded w-full"></div>
-                    <div className="h-1 bg-purple-200 rounded w-4/5"></div>
-                    <div className="h-1 bg-purple-200 rounded w-3/4"></div>
-                  </div>
-                </div>
-                <div className="p-1.5 rounded-lg border border-zinc-100 bg-zinc-50 space-y-1">
-                  <span className="text-[8px] font-bold text-zinc-800">소통 화법 3대 원칙</span>
-                  <div className="h-1 bg-zinc-200 rounded w-full"></div>
-                  <div className="h-1 bg-zinc-200 rounded w-5/6"></div>
-                  <div className="h-1 bg-zinc-200 rounded w-2/3"></div>
-                </div>
-              </div>
-              <div className="text-[9px] text-zinc-400 font-medium text-center bg-zinc-50 py-0.5 rounded border border-zinc-100">
-                Ch 6~8 갈등 & 화법
-              </div>
-            </div>
-
-            {/* Page 4: Action Guide (리라이팅 & 맞춤 카톡 3선) */}
-            <div className="rounded-xl border border-amber-300 bg-slate-900 p-2.5 shadow-sm text-left h-48 flex flex-col justify-between overflow-hidden relative text-white">
-              <div className="space-y-1.5">
-                <div className="flex items-center justify-between border-b border-white/10 pb-1">
-                  <span className="text-[9px] font-black text-amber-300 uppercase tracking-tighter">ACTION GUIDE</span>
-                  <span className="text-[9px] text-zinc-400 font-mono">p.4</span>
-                </div>
-                {/* 맞춤 카톡 답장 카드 예시 */}
-                <div className="bg-white/10 rounded-lg p-1.5 border border-white/10 space-y-1">
-                  <span className="text-[7.5px] font-bold text-amber-300">💬 추천 카톡 답장 스크립트</span>
-                  <div className="h-1.5 bg-amber-400/80 rounded w-full"></div>
-                  <div className="h-1 bg-white/40 rounded w-5/6"></div>
-                </div>
-                <div className="bg-white/5 rounded-lg p-1.5 space-y-1 border border-white/5">
-                  <span className="text-[7.5px] font-bold text-emerald-300">✓ 회복 골든타임 행동 지침</span>
-                  <div className="h-1 bg-emerald-400/50 rounded w-full"></div>
-                  <div className="h-1 bg-white/30 rounded w-3/4"></div>
-                </div>
-              </div>
-              <div className="text-[9px] text-amber-300 font-bold text-center bg-white/10 py-0.5 rounded border border-white/10">
-                Ch 9~12 실전 액션 가이드
-              </div>
-            </div>
-          </div>
-
-          {/* 분량 하이라이트 문구 */}
-          <div className="mt-5 pt-3.5 border-t border-zinc-200/80 text-center">
-            <p className="text-[15px] font-black text-zinc-900 tracking-tight">
-              총 12개 챕터의 정밀 심층 분석
-            </p>
-            <p className="text-[13px] font-bold text-blue-600 mt-0.5">
-              A4 4페이지 분량의 상황별 맞춤 풀이 제공
-            </p>
-          </div>
-        </div>
-
-        {/* 3. 결제 안내 카드 & ShimmerButton 결제 버튼 */}
-        <div className="relative pt-2 z-10 flex flex-col items-center justify-end pb-2">
-          <div className="relative bg-white p-6 rounded-3xl shadow-xl shadow-zinc-200/60 border border-zinc-100 flex flex-col items-center text-center w-full max-w-sm mx-auto">
-            <div className="w-12 h-12 bg-zinc-900 rounded-full flex items-center justify-center text-white mb-4 shadow-md transform -translate-y-10 absolute">
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2.5}
-                  d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
-                />
-              </svg>
-            </div>
-
-            <h4 className="text-[18px] font-black text-zinc-900 mb-2 mt-3">{offer.title}</h4>
-            <p className="text-[12.5px] text-zinc-500 mb-4 leading-relaxed">{offer.description}</p>
-
-            <ul className="text-[13px] text-zinc-700 space-y-2 mb-5 text-left w-full px-2 font-medium bg-zinc-50/70 p-3.5 rounded-xl border border-zinc-100">
-              {offer.benefits.map((benefit) => (
-                <li key={benefit} className="flex gap-2.5 items-start">
-                  <span className="text-blue-600 font-bold mt-0.5">✓</span>
-                  <span>{benefit}</span>
-                </li>
-              ))}
-            </ul>
-
-            <div className="text-[11px] text-zinc-400 bg-zinc-50/80 w-full p-2.5 rounded-lg mb-4 text-left border border-zinc-100 leading-relaxed">
-              개인화된 리포트는 분석 후 미리 준비되며, 결제 완료 즉시 열람할 수 있습니다.<br />
-              디지털 콘텐츠 제공 개시 후에는 환불정책에 따라{" "}
-              <span className="text-zinc-500 font-semibold">단순 변심에 의한 환불이 제한될 수 있습니다.</span>
-              <br />
-              <span className="block mt-1 text-zinc-500 font-medium tracking-tight">
-                ✓ 구매 후 1년간 다시보기 지원 &nbsp;&nbsp; ✓ 문자 전용 링크 &amp; PIN 열람 지원
+        <div className="space-y-3">
+          <div className="flex items-end justify-between gap-3">
+            <div>
+              <span className="inline-block rounded-md bg-amber-400 px-2 py-0.5 text-[11px] font-black text-slate-950 mb-1.5">
+                오픈 특가 · 약 41% 혜택
               </span>
-            </div>
-
-            {/* 오픈 특가 가격 안내 (4,900원 취소선 + 2,900원 + 41% 할인율 표기) */}
-            <div className="mb-4 w-full rounded-2xl bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200/80 p-3.5 text-center">
-              <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 bg-amber-600 text-white rounded-md text-[10.5px] font-black">
-                <span>🔥</span> 오픈 기념 한정 특가 41% OFF
-              </div>
-              <div className="mt-2 flex items-center justify-center gap-2">
-                <span className="text-[14px] text-zinc-400 line-through font-medium">정상가 4,900원</span>
-                <span className="text-[20px] font-black text-zinc-950">2,900원</span>
-              </div>
-              <p className="text-[11px] text-zinc-500 font-medium mt-1">
-                일회성 결제 · 자동 추가결제 없음
-              </p>
-            </div>
-
-            {offer.insufficient && (
-              <Link
-                href="/"
-                className="block w-full mb-3 rounded-xl border border-blue-200 bg-blue-50 p-3 text-[13px] font-bold text-blue-700"
-              >
-                고민했던 장면을 추가로 분석하기
-              </Link>
-            )}
-            {!offer.canOffer && (
-              <p className="mb-3 text-[12px] text-zinc-600">
-                {analysis?.status?.report === "failed"
-                  ? "리포트를 준비하지 못했어요. 잠시 후 다시 확인해주세요."
-                  : "구체적인 상담을 위해 대화 장면을 조금 더 확인해주세요."}
-              </p>
-            )}
-            {onUnlock && offer.canOffer && (
-              <ShimmerButton
-                onClick={onUnlock}
-                disabled={isProcessing}
-                data-purchase-placement="details"
-                shimmerColor="#ffffff"
-                shimmerSize="0.1em"
-                shimmerDuration="2.5s"
-                background="linear-gradient(135deg, #18181b 0%, #27272a 50%, #09090b 100%)"
-                borderRadius="18px"
-                className="w-full py-4 text-[15px] font-black shadow-xl shadow-zinc-950/20"
-              >
-                <span className="flex items-center justify-center gap-2 tracking-tight">
-                  <span>🔓</span>
-                  <span>{isProcessing ? "결제창을 여는 중..." : "맞춤 대화 리포트 열기 · 2,900원"}</span>
+              <p className="text-[12px] text-slate-400">
+                오픈 특가 종료 후{" "}
+                <span className="line-through">
+                  {PRICING.REPORT.originalPrice.toLocaleString()}원
                 </span>
-              </ShimmerButton>
-            )}
+              </p>
+              <p className="text-[28px] font-black tracking-tight text-white leading-tight mt-0.5">
+                {PRICING.REPORT.salePrice.toLocaleString()}원
+              </p>
+            </div>
           </div>
+
+          <div className="rounded-2xl bg-white/8 border border-white/10 px-3.5 py-2.5 text-[12.5px] font-bold text-slate-100 leading-snug">
+            💬 리포트 보고 헷갈리면 이 카톡 보내도 될지, 먼저 연락할지{" "}
+            <span className="text-amber-300">AI에게 1:1로 3번 더 물어보실 수 있어요.</span>
+          </div>
+
+          {offer.insufficient && (
+            <Link
+              href="/"
+              className="block w-full rounded-xl border border-blue-400/30 bg-blue-500/15 p-3 text-center text-[13px] font-bold text-blue-200"
+            >
+              고민했던 장면을 추가로 분석하기
+            </Link>
+          )}
+
+          {onUnlock && offer.canOffer && (
+            <ShimmerButton
+              onClick={onUnlock}
+              disabled={isProcessing}
+              data-purchase-placement="details"
+              shimmerColor="#ffffff"
+              shimmerSize="0.1em"
+              shimmerDuration="2.5s"
+              background="linear-gradient(135deg, #2563eb 0%, #3b82f6 50%, #1d4ed8 100%)"
+              borderRadius="14px"
+              className="w-full py-4 text-[15px] font-black shadow-lg shadow-blue-600/25"
+            >
+              <span className="flex items-center justify-center gap-2 tracking-tight">
+                <span>🔓</span>
+                <span>
+                  {isProcessing
+                    ? "결제창을 여는 중..."
+                    : `전체 리포트 + 1:1 상담 열기 · ${PRICING.REPORT.salePrice.toLocaleString()}원`}
+                </span>
+              </span>
+            </ShimmerButton>
+          )}
+
+          <p className="text-[11px] text-slate-400 text-center">
+            일회성 결제 · 자동결제 없음 · 결제 즉시 전체 열람
+          </p>
         </div>
       </div>
     </section>
