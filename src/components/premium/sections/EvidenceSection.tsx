@@ -69,10 +69,10 @@ export function EvidenceSection({ evidences, isFlirting = false, chapterLabel = 
                   {evidence.interpretation}
                 </p>
                 {evidence.alternative_explanation && (
-                  <p className="text-[12.5px] text-zinc-600 leading-relaxed pt-2 border-t border-blue-100/70">
-                    <strong className="text-indigo-600 font-bold">한 가지 더: </strong>
-                    {evidence.alternative_explanation}
-                  </p>
+                  <div className="pt-2 border-t border-blue-100/70 space-y-1 text-[12.5px] text-zinc-600 leading-relaxed">
+                    <span className="block text-indigo-600 font-bold">한 가지 더:</span>
+                    <p>{evidence.alternative_explanation}</p>
+                  </div>
                 )}
               </div>
 

@@ -62,9 +62,9 @@ export function CommunicationSection({ guide, isFlirting = false, chapterLabel =
               </div>
 
               {/* Why */}
-              <div className="pt-2.5 border-t border-zinc-100 flex items-start gap-1.5 text-[13px] text-zinc-600 leading-relaxed">
-                <span className="text-indigo-600 font-bold shrink-0">💡 왜냐하면:</span>
-                <span>{item.why}</span>
+              <div className="pt-2.5 border-t border-zinc-100 space-y-1 text-[13px] text-zinc-600 leading-relaxed">
+                <span className="block text-indigo-600 font-bold">💡 왜냐하면:</span>
+                <p>{item.why}</p>
               </div>
             </div>
           </div>

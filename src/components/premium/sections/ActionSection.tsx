@@ -71,10 +71,10 @@ export function RewriteSection({
                 </p>
               </div>
 
-              <p className="text-[12.5px] text-zinc-600 bg-zinc-50/80 px-3.5 py-2.5 rounded-lg border border-zinc-100">
-                <span className="font-bold text-zinc-800 mr-1">포인트:</span>
-                {rw.why}
-              </p>
+              <div className="bg-zinc-50/80 px-3.5 py-2.5 rounded-lg border border-zinc-100 space-y-1 text-[12.5px] text-zinc-600 leading-relaxed">
+                <span className="block font-bold text-zinc-800">💡 포인트:</span>
+                <p>{rw.why}</p>
+              </div>
             </div>
           </div>
         ))}
