@@ -47,6 +47,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 const CATEGORY_STYLES: Record<LoveColumnArticle['category'], { badge: string }> = {
+  '썸·호감도': { badge: 'bg-pink-50 border-pink-200 text-pink-600' },
   '카톡 패턴 분석': { badge: 'bg-blue-50 border-blue-200 text-blue-600' },
   '애착 유형': { badge: 'bg-purple-50 border-purple-200 text-purple-600' },
   '관계 대처법': { badge: 'bg-emerald-50 border-emerald-200 text-emerald-600' },
@@ -66,25 +67,54 @@ export default async function LoveColumnDetailPage({ params }: Props) {
 
   return (
     <div className="w-full bg-zinc-50 min-h-screen pb-24">
-      {/* Article Schema.org */}
+      {/* Article + BreadcrumbList Schema.org (JSON-LD) */}
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
           __html: JSON.stringify({
             '@context': 'https://schema.org',
-            '@type': 'Article',
-            headline: col.title,
-            description: col.summary,
-            datePublished: col.date.replace(/\./g, '-'),
-            author: {
-              '@type': 'Organization',
-              name: '러브패턴 관계 심리 연구소',
-            },
-            publisher: {
-              '@type': 'Organization',
-              name: '러브패턴',
-              url: 'https://lovepattern.site',
-            },
+            '@graph': [
+              {
+                '@type': 'Article',
+                headline: col.title,
+                description: col.summary,
+                datePublished: col.date.replace(/\./g, '-'),
+                image: 'https://lovepattern.site/og-image.png',
+                mainEntityOfPage: `https://lovepattern.site/columns/${col.slug}`,
+                author: {
+                  '@type': 'Organization',
+                  name: '러브패턴 관계 심리 연구소',
+                },
+                publisher: {
+                  '@type': 'Organization',
+                  name: '러브패턴',
+                  url: 'https://lovepattern.site',
+                },
+              },
+              {
+                '@type': 'BreadcrumbList',
+                itemListElement: [
+                  {
+                    '@type': 'ListItem',
+                    position: 1,
+                    name: '홈',
+                    item: 'https://lovepattern.site',
+                  },
+                  {
+                    '@type': 'ListItem',
+                    position: 2,
+                    name: '연애·썸·재회 칼럼',
+                    item: 'https://lovepattern.site/columns',
+                  },
+                  {
+                    '@type': 'ListItem',
+                    position: 3,
+                    name: col.title,
+                    item: `https://lovepattern.site/columns/${col.slug}`,
+                  },
+                ],
+              },
+            ],
           }),
         }}
       />

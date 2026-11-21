@@ -3,14 +3,22 @@ import Link from 'next/link';
 import { LOVE_COLUMNS, LoveColumnArticle } from '@/data/columns';
 
 export const metadata: Metadata = {
-  title: '애착 심리 & 카톡 패턴 분석 칼럼 10선 | 러브패턴',
-  description: '회피형 카톡 특징부터 불안형-회피형 갈등 해결법, 카톡 읽씹 대처 템플릿까지 바솔로뮤 애착 모델 기반 실전 가이드를 만나보세요.',
+  title: '연애 · 썸 · 재회 카톡 심리 칼럼 | 러브패턴',
+  description:
+    '썸 카톡 답장 속도, 어장관리 구별법부터 이별 후 재회 연락 타이밍, 관계 온도차 분석까지 실제 카톡 대화 기반 연애 심리 가이드를 확인해 보세요.',
   alternates: {
     canonical: '/columns',
+  },
+  openGraph: {
+    title: '연애 · 썸 · 재회 카톡 심리 칼럼 | 러브패턴',
+    description:
+      '썸 카톡 답장 속도, 어장관리 구별법부터 이별 후 재회 연락 타이밍, 관계 온도차 분석까지 실제 카톡 대화 기반 연애 심리 가이드를 확인해 보세요.',
+    url: '/columns',
   },
 };
 
 const CATEGORY_STYLES: Record<LoveColumnArticle['category'], { badge: string }> = {
+  '썸·호감도': { badge: 'bg-pink-50 border-pink-200 text-pink-600' },
   '카톡 패턴 분석': { badge: 'bg-blue-50 border-blue-200 text-blue-600' },
   '애착 유형': { badge: 'bg-purple-50 border-purple-200 text-purple-600' },
   '관계 대처법': { badge: 'bg-emerald-50 border-emerald-200 text-emerald-600' },
@@ -44,13 +52,13 @@ export default function LoveColumnsPage() {
       <section className="bg-white border-b border-zinc-200 py-12 px-4 text-center">
         <div className="max-w-2xl mx-auto">
           <span className="inline-block px-3 py-1 bg-zinc-100 border border-zinc-200 rounded-full text-xs font-semibold text-zinc-600 mb-3">
-            📚 바솔로뮤 성인 애착 모델 기반 심리 분석
+            💬 썸 · 연애 · 재회 카톡 심리 가이드
           </span>
           <h1 className="text-2xl sm:text-3xl font-extrabold text-zinc-900 tracking-tight leading-tight mb-3">
-            회피형·불안형 <span className="text-blue-600">애착 심리 칼럼</span>
+            연애 · 썸 · 재회 <span className="text-blue-600">카톡 심리 칼럼</span>
           </h1>
           <p className="text-zinc-500 text-sm sm:text-base leading-relaxed">
-            상대방의 카톡 단답과 읽씹 속에 숨겨진 무의식 방어기제를 분석하고, 상처받지 않고 건강하게 소통하는 실전 솔루션을 제공합니다.
+            썸 타는 상대의 답장 템포, 이별 후 재회 타이밍, 두 사람의 관계 온도차까지 카톡 대화 속 진짜 속마음을 읽는 실전 가이드를 정리했습니다.
           </p>
         </div>
       </section>

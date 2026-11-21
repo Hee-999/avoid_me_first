@@ -76,23 +76,30 @@ const jsonLd = {
       "applicationCategory": "LifestyleApplication",
       "operatingSystem": "All",
       "browserRequirements": "Requires JavaScript. Requires HTML5.",
-      "description": "카카오톡 대화를 기반으로 바솔로뮤 성인 애착 모델을 적용하여 상대방의 회피형·불안형 애착 패턴을 분석하는 심리 분석 서비스입니다.",
+      "description": "카카오톡 대화 캡처를 분석해 썸 호감도, 재회 가능성, 두 사람의 관계 온도차와 상대방의 진짜 속마음을 판독하는 연애 심리 분석 서비스입니다.",
       "offers": [
         {
           "@type": "Offer",
           "price": "0",
           "priceCurrency": "KRW",
-          "name": "무료 애착 유형 분석",
-          "description": "카톡 대화 기반 불안·회피 4대 애착 유형 및 점수 무료 판독"
+          "name": "무료 카톡 속마음 & 온도차 분석",
+          "description": "카톡 대화 기반 내 감정 온도, 핵심 심리 시그널 및 성급한 연락 주의 지수 무료 판독"
         },
         {
           "@type": "Offer",
           "price": "2900",
           "priceCurrency": "KRW",
-          "name": "프리미엄 심층 분석 리포트",
-          "description": "상대방 무의식 방어기제, 핵심 트리거, 1:1 맞춤 카톡 대응 화법 가이드"
+          "name": "심층 속마음 리포트 + 1:1 AI 상담",
+          "description": "상대 실제 온도(%), 재회·썸 성사 가능성, 7개 장 심층 리포트 및 1:1 AI 카톡 상담 3회 제공"
         }
       ]
+    },
+    {
+      "@type": "WebSite",
+      "@id": "https://lovepattern.site/#website",
+      "url": "https://lovepattern.site",
+      "name": "러브패턴",
+      "inLanguage": "ko-KR"
     },
     {
       "@type": "Organization",
