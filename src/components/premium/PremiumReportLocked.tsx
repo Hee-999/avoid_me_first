@@ -9,22 +9,22 @@ import { PRICING } from "@/config/pricing";
 const PREVIEW_CHAPTERS = [
   {
     num: "Ch 1",
-    shortTitle: "속마음 · 온도차",
+    shortTitle: "속마음·온도",
     img: "/images/report-preview/ch1.png",
   },
   {
     num: "Ch 2",
-    shortTitle: "카톡 장면 해독",
+    shortTitle: "장면별 해독",
     img: "/images/report-preview/ch2.png",
   },
   {
     num: "Ch 3",
-    shortTitle: "엇갈리는 패턴",
+    shortTitle: "엇갈림 패턴",
     img: "/images/report-preview/ch3.png",
   },
   {
     num: "Ch 4",
-    shortTitle: "실전 대처 기준",
+    shortTitle: "상황별 대처",
     img: "/images/report-preview/ch4.png",
   },
   {
@@ -34,17 +34,17 @@ const PREVIEW_CHAPTERS = [
   },
   {
     num: "Ch 6",
-    shortTitle: "타이밍 · 신호",
+    shortTitle: "타이밍·신호",
     img: "/images/report-preview/ch6.png",
   },
   {
     num: "Ch 7",
-    shortTitle: "심리 4분면 차트",
+    shortTitle: "심리 4분면",
     img: "/images/report-preview/ch7.png",
   },
   {
     num: "Ch 8",
-    shortTitle: "1:1 AI 상담실",
+    shortTitle: "1:1 AI 상담",
     img: "/images/report-preview/ch8.png",
   },
 ];
@@ -60,19 +60,20 @@ export function PremiumReportLocked({
 }) {
   const offer = getPremiumOffer(analysis);
   const targetName = analysis?.target_speaker_label || "상대방";
+  const targetCall = targetName === "상대방" ? "상대방" : `${targetName}님`;
 
   return (
     <section className="relative mt-6 pt-6 border-t border-zinc-200 break-keep">
-      <div className="mb-3.5 flex items-end justify-between px-0.5">
-        <div>
+      <div className="mb-3.5 flex items-end justify-between gap-2 px-0.5">
+        <div className="min-w-0">
           <span className="inline-block text-[11px] font-extrabold text-blue-600 mb-0.5">
             총 {PREVIEW_CHAPTERS.length}개 챕터 구성 한눈에 보기
           </span>
-          <h3 className="text-[17px] font-black text-zinc-900">
-            결제하면 바로 열리는 리포트 전체 구성
+          <h3 className="text-[16px] sm:text-[17px] font-black text-zinc-900 whitespace-nowrap">
+            결제하면 바로 열리는 리포트 구성
           </h3>
         </div>
-        <span className="text-[11px] font-extrabold text-zinc-600 bg-zinc-100 px-2.5 py-1 rounded-full shrink-0">
+        <span className="text-[11px] font-extrabold text-zinc-600 bg-zinc-100 px-2.5 py-1 rounded-full shrink-0 whitespace-nowrap">
           8개 챕터
         </span>
       </div>
@@ -113,7 +114,7 @@ export function PremiumReportLocked({
       <div className="bg-slate-900 text-white rounded-3xl p-5 sm:p-6 shadow-xl shadow-slate-950/15 space-y-5">
         <div className="space-y-2">
           <p className="text-[11.5px] font-semibold text-slate-400">
-            {targetName}님 대화 분석 심층 리포트
+            {targetCall} 대화 분석 심층 리포트
           </p>
           <h4 className="text-[20px] font-black tracking-tight text-white">
             러브패턴 8개 챕터 전체 분석

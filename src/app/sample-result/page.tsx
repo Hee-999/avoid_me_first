@@ -389,7 +389,7 @@ export default function SampleResultPage() {
             </span>
           </div>
 
-          <h1 className="text-2xl font-black text-zinc-900 tracking-tight leading-snug">
+          <h1 className="text-[18px] sm:text-2xl font-black text-zinc-900 tracking-tight leading-snug whitespace-nowrap">
             {targetName}의 진짜 속마음 &amp;{" "}
             <span className="text-blue-600">{isFlirtingMode ? "썸 온도차" : "재회 온도차"}</span> 판독
           </h1>
@@ -397,15 +397,15 @@ export default function SampleResultPage() {
           <div className="mt-4 space-y-3">
             {/* 1. 쌍방 온도차 게이지 (티저) */}
             <div className="rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm">
-              <div className="flex items-center justify-between text-[12px] font-bold text-zinc-700 mb-2">
-                <span>🌡️ 두 사람의 관계 온도차 (을의 연애 지수)</span>
+              <div className="flex items-center justify-between gap-2 text-[11.5px] font-bold text-zinc-700 mb-2">
+                <span className="whitespace-nowrap">🌡️ 두 사람의 관계 온도차</span>
                 {isPaidPreview ? (
-                  <span className="text-blue-600 font-black">
+                  <span className="text-blue-600 font-black whitespace-nowrap shrink-0">
                     {isFlirtingMode ? "썸 성사" : "재회"} 가능성 {v3?.success_probability ?? 48}%
                   </span>
                 ) : (
-                  <span className="text-[11px] text-amber-700 bg-amber-50 px-2 py-0.5 rounded-full font-extrabold">
-                    상대 온도 잠금 🔒
+                  <span className="text-[10.5px] text-amber-700 bg-amber-50 px-2 py-0.5 rounded-full font-extrabold whitespace-nowrap shrink-0">
+                    🔒 상대 온도 잠금
                   </span>
                 )}
               </div>
