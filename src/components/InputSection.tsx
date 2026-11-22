@@ -3,6 +3,7 @@
 import { useState, useEffect, forwardRef } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
+import { LiveAnalysisBadge } from "@/components/common/LiveAnalysisBadge";
 import { Footer } from "@/components/legal/Footer";
 import { ImageUploader } from "@/components/upload/ImageUploader";
 import { CaptureGuideModal } from "@/components/guide/CaptureGuideModal";
@@ -105,6 +106,9 @@ const InputSection = forwardRef<HTMLElement, InputSectionProps>(
               처음으로
             </button>
           )}
+
+          {/* Live Social Proof Floating Bar */}
+          <LiveAnalysisBadge className="mb-4" />
 
           {/* Model Info Box */}
           <div className="mb-6 bg-white border border-zinc-200 rounded-2xl p-4 transition-all shadow-sm hover:shadow-md">

@@ -109,7 +109,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     try {
       await notifyPaidConversion({
         id,
-        amount: 2900,
+        amount: PRICING.REPORT.salePrice,
         orderId: `DIRECT_UNLOCK_${id.slice(0, 8)}`,
       });
     } catch (telegramErr) {

@@ -11,7 +11,7 @@ export default function RefundPage() {
       <h2>1. 유료 상품 개요</h2>
       <ul>
         <li><strong>상품명:</strong> 내 상대 사용설명서 (개인화 디지털 상세 리포트)</li>
-        <li><strong>결제금액:</strong> 2,900원</li>
+        <li><strong>결제금액:</strong> 3,900원</li>
         <li><strong>결제방식:</strong> 1회 결제 (정기구독 아님)</li>
         <li><strong>제공형태:</strong> 온라인 열람 링크 및 PDF 저장 기능 지원</li>
       </ul>

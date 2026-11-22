@@ -88,7 +88,7 @@ const jsonLd = {
         },
         {
           "@type": "Offer",
-          "price": "2900",
+          "price": "3900",
           "priceCurrency": "KRW",
           "name": "심층 속마음 리포트 + 1:1 AI 상담",
           "description": "상대 실제 온도(%), 재회·썸 성사 가능성, 7개 장 심층 리포트 및 1:1 AI 카톡 상담 3회 제공"

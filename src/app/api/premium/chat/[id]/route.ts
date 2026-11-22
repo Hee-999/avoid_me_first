@@ -98,8 +98,11 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
       );
     }
 
-    const mode = row.derived_context?.analysis_mode === "flirting" ? "썸 · 호감도 판독" : "재회 · 애매한 사이 판독";
+    const isFlirting = row.derived_context?.analysis_mode === "flirting";
+    const mode = isFlirting ? "썸 · 호감도 판독" : "재회 · 애매한 사이 판독";
     const targetLabel = row.extracted_signals?.target_speaker_label || "상대방";
+    const v3 = row.derived_context?.v3_metrics || {};
+    const report = row.premium_report || {};
     const history: ChatMessageItem[] = Array.isArray(currentChat.messages)
       ? currentChat.messages.slice(-8)
       : [];
@@ -111,27 +114,53 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
             .join("\n")
         : "(이전 대화 없음)";
 
-    const reportSummary = row.premium_report?.executive_summary
-      ? `${row.premium_report.executive_summary.headline}\n${row.premium_report.executive_summary.body}`
-      : row.derived_context?.relationship_context || "";
+    const fullReportContext = {
+      v3_metrics: {
+        user_temperature: v3.user_temperature ?? null,
+        target_temperature: v3.target_temperature ?? null,
+        success_probability: v3.success_probability ?? null,
+        backfire_risk_percent: v3.backfire_risk_percent ?? null,
+        tease_scene_summary: v3.tease_scene_summary ?? null,
+      },
+      context_intake: row.derived_context?.context_intake || null,
+      relationship_context: row.derived_context?.relationship_context || null,
+      key_situations: row.derived_context?.key_situations || [],
+      paid_report: {
+        executive_summary: report.executive_summary || null,
+        evidence_deep_dive: report.evidence_deep_dive || [],
+        interaction_loop: report.interaction_loop || null,
+        communication_guide: report.communication_guide || [],
+        conversation_rewrites: report.conversation_rewrites || [],
+        recovery_signals: report.recovery_signals || [],
+        risk_signals: report.risk_signals || [],
+        action_plan: report.action_plan || null,
+        manual_summary: report.manual_summary || null,
+        attachment_profile: report.attachment_profile || null,
+      },
+    };
+
+    const modeRule = isFlirting
+      ? `[썸 모드 전용 지침] 두 사람은 현재 '썸 · 호감 탐색' 단계입니다. '이별/재회/방어벽' 같은 무거운 단어 대신, 상대 온도(${v3.target_temperature ?? "?"}%)와 썸 성사 가능성(${v3.success_probability ?? "?"}%)을 기준으로 티키타카, 약속 잡기, 부담 없는 호감 표현 위주로 코칭하세요.`
+      : `[재회·애매한 사이 전용 지침] 두 사람은 현재 '재회 · 거리두기/애매한 사이' 단계입니다. 상대 온도(${v3.target_temperature ?? "?"}%), 재회 가능성(${v3.success_probability ?? "?"}%), 성급한 연락 주의 지수(${v3.backfire_risk_percent ?? "?"}%)를 기준으로 상대의 감정 소모와 방어벽을 자극하지 않으면서 다시 대화를 여는 전략을 코칭하세요.`;
 
     const prompt = `
-당신은 한국 최고의 실전 연애·관계 심리 전략가입니다.
-내담자가 업로드한 카카오톡 대화 분석 결과를 바탕으로 1:1 맞춤 상담을 진행합니다.
+당신은 한국 최고의 실전 연애·카톡 심리 전략가입니다.
+내담자는 이미 아래 [유료 심층 리포트 전문]을 읽고 결제까지 마친 상태입니다.
+단순 일반론이나 뻔한 위로가 아니라, **반드시 아래 리포트에 담긴 실제 수치·장면·추천 가이드**를 직접 인용하며 내담자의 추가 질문에 1:1로 깊이 있게 답변하세요.
+
+${modeRule}
 
 [상담 규칙]
-1. JSON 형식({ ... })이나 마크다운 코드블록 없이, 오직 사람이 읽는 일반 텍스트(줄바꿈 문단)로만 답변하세요.
-2. 뜬구름 잡는 위로가 아니라, 상대(${targetLabel})의 실제 반응과 두 사람의 온도차에 근거해 직설적이고 현실적으로 답하세요 ("회피형 애착 유형을 고려할 때" 같은 딱딱한 심리학 용어나 '오늘 점심 난 샌드위치!' 같은 뜬금없는 예시 금지).
-3. 내담자가 보낼 카톡 문장이 필요할 때는 실제 한국 2030이 카톡에서 쓰는 자연스럽고 담백한 구어체로 1~2개 제시하세요.
-4. 답변은 모바일에서 읽기 좋게 2~3문단(350자 내외)으로 핵심만 명쾌하게 정리하세요.
+1. JSON 형식({ ... })이나 마크다운 코드블록(\`\`\`) 없이, 사람이 모바일에서 바로 읽기 편한 일반 텍스트(줄바꿈 문단)로만 답변하세요.
+2. 답변 첫 문단에서 리포트의 실제 데이터(예: 상대 온도 ${v3.target_temperature ?? "?"}%, 포착된 장면 제목, 주의 지수 등)를 최소 1가지 이상 자연스럽게 짚어주며 "내 대화를 정확히 보고 답해준다"는 확신을 주세요.
+3. 내담자가 카톡 답장, 선톡, 문장 첨삭, 연락 타이밍을 물어보면 반드시 아래 형태로 **실제 한국 2030 카톡 구어체 초안 2가지**를 제공하세요:
+   - ① 부담 없는 가벼운 톤: "..."
+   - ② 조금 더 솔직하게 마음을 여는 톤: "..."
+   그리고 각 문장이 왜 이 상대(${targetLabel})에게 먹히는지 리포트 근거로 1줄씩 설명하세요.
+4. 딱딱한 심리학 용어('회피형 애착', '방어기제' 남발 등)나 '오늘 점심 샌드위치' 같은 뜬금없는 비유는 쓰지 말고, 다정하지만 직설적인 ~해요/~거예요 체로 500~700자 내외(모바일 3~4문단)로 충실하게 답변하세요.
 
-[분석 컨텍스트]
-- 모드: ${mode}
-- 대상: ${targetLabel}
-- 주 애착 유형: ${row.primary_type} (불안 ${row.anxiety_score} / 회피 ${row.avoidance_score})
-- 관계 흐름 요약: ${row.derived_context?.relationship_context || "정보 없음"}
-- 핵심 장면들: ${JSON.stringify(row.derived_context?.key_situations || [])}
-- 리포트 핵심 결론: ${reportSummary}
+[분석 및 유료 심층 리포트 전문]
+${JSON.stringify(fullReportContext, null, 2)}
 
 [이전 1:1 상담 내역]
 ${historyText}
@@ -140,7 +169,7 @@ ${historyText}
 ${userMessage}
 `.trim();
 
-    const llmRes = await callResilientLLM(prompt, 1200, false);
+    const llmRes = await callResilientLLM(prompt, 1800, false);
     const remainingAfter = remainingBefore - 1;
     let assistantReply = cleanAssistantReply(llmRes.content);
 

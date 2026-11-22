@@ -13,6 +13,7 @@ import { ShareResultCard } from "@/components/share/ShareResultCard";
 import { ShimmerButton } from "@/components/ui/shimmer-button";
 import { trackMetaEvent } from "@/lib/analytics/metaPixel";
 import { PRICING } from "@/config/pricing";
+import { LiveAnalysisBadge } from "@/components/common/LiveAnalysisBadge";
 
 const ATTACHMENT_TYPE_MAPPING: Record<string, { ko: string, desc: string, en: string }> = {
   "secure": { ko: "안정형", desc: "상대방과 갈등이 발생해도 감정을 안정적으로 조절하며 솔직하고 원만하게 소통하는 패턴이 나타났어요.", en: "Secure Attachment" },
@@ -514,7 +515,7 @@ export default function Result() {
         </div>
       </header>
 
-      <main className="max-w-md mx-auto w-full px-6 pt-8 pb-10 break-keep" ref={reportRef}>
+      <main className="max-w-md mx-auto w-full px-6 pt-4 pb-10 break-keep" ref={reportRef}>
         
         {/* Confidence Warning */}
         {analysis.primary_type_confidence === "low" && (
@@ -534,6 +535,7 @@ export default function Result() {
         )}
 
         {/* FREE/PAID: 01. V3 핵심 판독 & 쌍방 온도차 */}
+        {!isPremium && <LiveAnalysisBadge className="mb-3" />}
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mb-6">
           <div className="flex flex-wrap items-center gap-2 mb-3">
             <span className="inline-block px-3 py-1 bg-zinc-900 text-white text-[11px] font-bold rounded-full">

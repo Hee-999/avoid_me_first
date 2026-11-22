@@ -3,7 +3,7 @@ export const PRICING = {
     name: "상대 진짜 속마음 & 재회/썸 가능성 심층 리포트 (+ 1:1 AI 상담 3회)",
     shortName: "심층 리포트 + AI 상담 3회",
     originalPrice: 4900,
-    salePrice: 2900,
+    salePrice: 3900,
     initialChatTurns: 3,
   },
   CHAT_TOPUP: {

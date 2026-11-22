@@ -161,7 +161,7 @@ export function PremiumPurchasePrompt({
           <div className="min-w-0">
             <div className="flex items-center gap-1.5">
               <span className="rounded-md bg-amber-600 px-1.5 py-0.5 text-[10px] font-black text-white whitespace-nowrap shrink-0">
-                오픈 특가 41% OFF
+                오픈 특가 20% OFF
               </span>
               <span className="text-[11.5px] font-medium text-zinc-400 line-through whitespace-nowrap">
                 {PRICING.REPORT.originalPrice.toLocaleString()}원
@@ -217,7 +217,7 @@ export function PremiumPurchasePrompt({
             style={{ paddingBottom: "max(0.5rem, env(safe-area-inset-bottom))" }}
           >
             <div className="mb-1.5 flex items-center justify-between text-[11px] px-1">
-              <span className="font-extrabold text-amber-700">🔥 오픈 특가 41% OFF · AI상담 3회 포함</span>
+              <span className="font-extrabold text-amber-700">🔥 오픈 특가 20% OFF · AI상담 3회 포함</span>
               <span className="text-zinc-400 line-through">
                 {PRICING.REPORT.originalPrice.toLocaleString()}원 &rarr;{" "}
                 <strong className="text-zinc-900 font-black not-italic">

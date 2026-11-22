@@ -8,6 +8,7 @@ import { PremiumReport } from "@/components/premium/PremiumReport";
 import { PremiumPurchasePrompt } from "@/components/premium/PremiumPurchasePrompt";
 import { PremiumReportV2 } from "@/lib/report/premium/types";
 import { PRICING } from "@/config/pricing";
+import { LiveAnalysisBadge } from "@/components/common/LiveAnalysisBadge";
 
 const SAMPLE_PAID_REPORT: PremiumReportV2 = {
   executive_summary: {
@@ -357,9 +358,10 @@ export default function SampleResultPage() {
         </div>
       </header>
 
-      <main className="max-w-md mx-auto w-full px-6 pt-8 pb-10 break-keep">
+      <main className="max-w-md mx-auto w-full px-6 pt-4 pb-10 break-keep">
         {/* 샘플 예시 안내 뱃지 */}
-        <div className="mb-6 p-4 bg-blue-50/70 border border-blue-100 rounded-2xl flex items-center gap-3">
+        {!isPaidPreview && <LiveAnalysisBadge className="mb-3" />}
+        <div className="mb-5 p-4 bg-blue-50/70 border border-blue-100 rounded-2xl flex items-center gap-3">
           <div className="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center shrink-0">
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path

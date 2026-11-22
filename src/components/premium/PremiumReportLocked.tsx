@@ -147,7 +147,7 @@ export function PremiumReportLocked({
           <div className="flex items-end justify-between gap-3">
             <div>
               <span className="inline-block rounded-md bg-amber-400 px-2 py-0.5 text-[11px] font-black text-slate-950 mb-1.5">
-                오픈 특가 · 약 41% 혜택
+                오픈 특가 · 20% 혜택
               </span>
               <p className="text-[12px] text-slate-400">
                 오픈 특가 종료 후{" "}
