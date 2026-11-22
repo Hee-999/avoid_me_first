@@ -213,7 +213,10 @@ export async function POST(request: Request) {
         console.error("[TELEGRAM] Failed to dispatch topup alert:", telegramErr);
       }
 
-      return NextResponse.redirect(`${redirectUrl}?topup=success#ai-counseling`, 302);
+      return NextResponse.redirect(
+        `${redirectUrl}?topup=success&orderId=${encodeURIComponent(orderId)}&amount=${amount}#ai-counseling`,
+        302
+      );
     }
 
     // 4. Main Report Purchase: generate 43-char access token + random 4-digit PIN
@@ -294,7 +297,10 @@ export async function POST(request: Request) {
       console.error("[TELEGRAM] Failed to dispatch paid conversion alert:", telegramErr);
     }
 
-    const response = NextResponse.redirect(`${redirectUrl}?paid=1`, 302);
+    const response = NextResponse.redirect(
+      `${redirectUrl}?paid=1&orderId=${encodeURIComponent(orderId)}&amount=${amount}`,
+      302
+    );
     response.cookies.set(`avoidance_pin_verified_${analysisId}`, pinHash, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",

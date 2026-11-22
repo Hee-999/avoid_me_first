@@ -11,6 +11,8 @@ import { PremiumPurchasePrompt } from "@/components/premium/PremiumPurchasePromp
 import { PremiumChatSection } from "@/components/premium/PremiumChatSection";
 import { ShareResultCard } from "@/components/share/ShareResultCard";
 import { ShimmerButton } from "@/components/ui/shimmer-button";
+import { trackMetaEvent } from "@/lib/analytics/metaPixel";
+import { PRICING } from "@/config/pricing";
 
 const ATTACHMENT_TYPE_MAPPING: Record<string, { ko: string, desc: string, en: string }> = {
   "secure": { ko: "안정형", desc: "상대방과 갈등이 발생해도 감정을 안정적으로 조절하며 솔직하고 원만하게 소통하는 패턴이 나타났어요.", en: "Secure Attachment" },
@@ -186,6 +188,71 @@ export default function Result() {
     return () => clearInterval(interval);
   }, [id]);
 
+  // Meta Pixel 전환 이벤트 (Lead: 무료 분석 완료 / Purchase: 결제 완료, orderId 기준 중복 방지)
+  useEffect(() => {
+    if (!id || !analysis || typeof window === "undefined") return;
+    try {
+      const paidParam = searchParams.get("paid") === "1";
+      const topupParam = searchParams.get("topup") === "success";
+      const orderIdParam = searchParams.get("orderId");
+      const amountParam = Number(searchParams.get("amount") || "0");
+
+      if (!isPremium && !paidParam) {
+        const leadKey = `lp_meta_lead_${id}`;
+        if (!window.sessionStorage.getItem(leadKey) && !window.localStorage.getItem(leadKey)) {
+          trackMetaEvent(
+            "Lead",
+            {
+              content_name: analysis.derived_context?.analysis_mode || "reunion",
+              content_category: "free_analysis",
+            },
+            `lead_${id}`
+          );
+          window.sessionStorage.setItem(leadKey, "1");
+          window.localStorage.setItem(leadKey, "1");
+        }
+      }
+
+      if (isPremium && paidParam) {
+        const dedupId = orderIdParam || `report_${id}`;
+        const purchaseKey = `lp_meta_purchase_${dedupId}`;
+        if (!window.sessionStorage.getItem(purchaseKey) && !window.localStorage.getItem(purchaseKey)) {
+          trackMetaEvent(
+            "Purchase",
+            {
+              value: amountParam > 0 ? amountParam : PRICING.REPORT.salePrice,
+              currency: "KRW",
+              content_name: "심층 속마음 리포트",
+            },
+            dedupId
+          );
+          window.sessionStorage.setItem(purchaseKey, "1");
+          window.localStorage.setItem(purchaseKey, "1");
+        }
+      }
+
+      if (isPremium && topupParam) {
+        const dedupId = orderIdParam || `topup_${id}`;
+        const topupKey = `lp_meta_purchase_${dedupId}`;
+        if (!window.sessionStorage.getItem(topupKey) && !window.localStorage.getItem(topupKey)) {
+          trackMetaEvent(
+            "Purchase",
+            {
+              value: amountParam > 0 ? amountParam : PRICING.CHAT_TOPUP.salePrice,
+              currency: "KRW",
+              content_name: "1:1 AI 질문권 3회",
+            },
+            dedupId
+          );
+          window.sessionStorage.setItem(topupKey, "1");
+          window.localStorage.setItem(topupKey, "1");
+        }
+      }
+    } catch {
+      // Ignore storage access errors in private browsing
+    }
+  }, [id, analysis, isPremium, searchParams]);
+
   if (error) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-zinc-50 px-6">
@@ -341,6 +408,12 @@ export default function Result() {
       const baseUrl = (
         process.env.NEXT_PUBLIC_SITE_URL || (typeof window !== "undefined" ? window.location.origin : "")
       ).replace(/\/+$/, "");
+
+      trackMetaEvent("InitiateCheckout", {
+        value: data.amount,
+        currency: "KRW",
+        content_name: orderType === "chat_topup" ? "1:1 AI 질문권 3회" : "심층 속마음 리포트",
+      });
 
       (window as any).AUTHNICE.requestPay({
         clientId: process.env.NEXT_PUBLIC_NICEPAY_CLIENT_KEY,

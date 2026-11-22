@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { Footer } from "@/components/legal/Footer";
+import { MetaPixel } from "@/components/analytics/MetaPixel";
 import Script from "next/script";
 import "./globals.css";
 
@@ -125,6 +126,7 @@ export default function RootLayout({
         />
       </head>
       <body className={`${inter.className} bg-zinc-100 text-zinc-900 antialiased`}>
+        <MetaPixel />
         <Script src="https://pay.nicepay.co.kr/v1/js/" strategy="lazyOnload" />
         <main className="max-w-md mx-auto min-h-screen bg-white shadow-2xl relative flex flex-col overflow-x-hidden border-x border-zinc-200">
           <div className="flex-1 flex flex-col">
