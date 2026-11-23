@@ -7,7 +7,7 @@ export function LiveAnalysisBadge({ className = "" }: { className?: string }) {
 
   useEffect(() => {
     let active = true;
-    fetch("/api/stats/analyses")
+    fetch("/api/stats/analyses", { cache: "no-store" })
       .then((res) => res.json())
       .then((data) => {
         if (active && typeof data?.totalCount === "number") {
